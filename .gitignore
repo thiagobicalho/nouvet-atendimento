@@ -19,3 +19,5 @@ CLAUDE.local.md
 # Arquivos do sistema
 .DS_Store
 Thumbs.db
+
+.claude/.headroom_wrap_owners.json
