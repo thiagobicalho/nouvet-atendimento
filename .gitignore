@@ -1,0 +1,21 @@
+# Credenciais e configurações de ambiente
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Dependências e caches
+node_modules/
+.venv/
+__pycache__/
+
+# Estado local dos assistentes
+.headroom/
+.claude/.headroom_wrap_marker.json
+.claude/settings.local.json
+CLAUDE.local.md
+.serena/cache/
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
