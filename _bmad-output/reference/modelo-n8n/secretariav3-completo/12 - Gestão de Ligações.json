@@ -1,0 +1,2235 @@
+{
+  "name": "12 - Gestão de Ligações",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "v0bMSZSn4EgzwG3s",
+          "mode": "id"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "evento_inicio": "={{ $json.body.evento_inicio }}",
+            "duracao_minutos": 60,
+            "titulo": "={{ $json.body.titulo }}",
+            "descricao": "={{ $json.body.descricao }}\n\nTelefone: {{ $json.headers['x-retell-user-number'] || '' }}",
+            "id_agenda": "={{ $json.body.id_agenda }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "evento_inicio",
+              "displayName": "evento_inicio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "duracao_minutos",
+              "displayName": "duracao_minutos",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number"
+            },
+            {
+              "id": "titulo",
+              "displayName": "titulo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "descricao",
+              "displayName": "descricao",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "id_agenda",
+              "displayName": "id_agenda",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        32,
+        4096
+      ],
+      "id": "5e0cedf6-07cd-491f-8e1b-5e491ab3330f",
+      "name": "Criar evento"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "={{ $json.body.id_agenda }}",
+          "mode": "id"
+        },
+        "returnAll": true,
+        "timeMax": "=",
+        "options": {
+          "query": "={{ $json.headers['x-retell-user-number'] || '' }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        -480,
+        4096
+      ],
+      "id": "e8e01977-bb46-4518-8c1e-a25c905812a8",
+      "name": "Buscar eventos",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "YGxt6ClFXRt6vigo",
+          "name": "Google Calendar - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "b77febff-28b4-4ce1-9724-806f43e9eb60",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1184,
+        4944
+      ],
+      "id": "24f8eae2-f735-48d0-bb01-402391252f7c",
+      "name": "Follow-up no WhatsApp após chamada",
+      "webhookId": "b77febff-28b4-4ce1-9724-806f43e9eb60"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM secretaria_config WHERE id = 1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1040,
+        4352
+      ],
+      "id": "9b96359b-5997-446e-a8b2-02c05ad9b6ef",
+      "name": "Buscar Config",
+      "credentials": {
+        "postgres": {
+          "id": "hvkzoru976d3gWkp",
+          "name": "PostgreSQL - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1df32ac3-63f4-4e17-9c5b-1c4f6cfda635",
+              "name": "cobranca_valor",
+              "value": "={{ $json.body.cobranca_valor }}",
+              "type": "string"
+            },
+            {
+              "id": "40ff895f-f63f-4e4f-bba3-c7d803c277f1",
+              "name": "url_chatwoot",
+              "value": "={{ $('Buscar Config').item.json.url_chatwoot }}",
+              "type": "string"
+            },
+            {
+              "id": "1b513343-9b6a-4f6e-a012-ed819bf34a31",
+              "name": "id_conta",
+              "value": "={{ $('Buscar Config').item.json.chatwoot_account_id }}",
+              "type": "string"
+            },
+            {
+              "id": "d540447e-4fa3-46c0-bc53-1f63433b4a70",
+              "name": "id_inbox",
+              "value": "={{ $('Buscar Config').item.json.chatwoot_inbox_id }}",
+              "type": "string"
+            },
+            {
+              "id": "a1ae5215-cb10-4482-a5b0-b59cb0407171",
+              "name": "url_asaas",
+              "value": "={{ $('Buscar Config').item.json.url_asaas }}",
+              "type": "string"
+            },
+            {
+              "id": "8bf522a6-75fb-434a-854c-b736539309e1",
+              "name": "telefone",
+              "value": "={{ $('Criar ou buscar cobrança').item.json.headers['x-retell-user-number'] || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "5d1d628d-919d-4d4f-8636-44a9e5998062",
+              "name": "nome",
+              "value": "={{ $('Criar ou buscar cobrança').item.json.body.nome }}",
+              "type": "string"
+            },
+            {
+              "id": "3ecd7058-99d4-4bc9-9701-fe641146ae7f",
+              "name": "cpf",
+              "value": "={{ $('Criar ou buscar cobrança').item.json.body.cpf }}",
+              "type": "string"
+            },
+            {
+              "id": "bbae5d9c-d534-4454-a798-bd1ba5ae41e4",
+              "name": "cobranca_vencimento",
+              "value": "={{ $('Criar ou buscar cobrança').item.json.body.cobranca_vencimento }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -832,
+        4352
+      ],
+      "id": "9428d4ff-83bb-4da6-9c7f-c3ffb11cb580",
+      "name": "Info"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "an3aELMnw5jwhLxX",
+          "mode": "id"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telefone": "={{ $('Info').item.json.telefone }}",
+            "id_conta": "={{ $('Info').item.json.id_conta }}",
+            "id_inbox": "={{ $('Info').item.json.id_inbox }}",
+            "url_chatwoot": "={{ $('Info').item.json.url_chatwoot }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "id_conta",
+              "displayName": "id_conta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "id_inbox",
+              "displayName": "id_inbox",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "url_chatwoot",
+              "displayName": "url_chatwoot",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -608,
+        4352
+      ],
+      "id": "9613f049-bf67-49f7-a15b-454f5e4fe7da",
+      "name": "Buscar ou criar contato"
+    },
+    {
+      "parameters": {
+        "content": "## Ferramentas Agente",
+        "height": 736,
+        "width": 1712,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1312,
+        4032
+      ],
+      "id": "42d20b90-67d5-443f-ba88-8c3958d617ae",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2b17e799-2b2d-409e-b4b4-edb38b3331b9",
+              "leftValue": "={{ $('Criar ou buscar cobrança2').item.json.resultado }}",
+              "rightValue": "Cobrança criada.",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -192,
+        4352
+      ],
+      "id": "65d50b63-36e2-4a07-9a1c-23dd19b50c7d",
+      "name": "Nova cobrança?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ca7d9f97-b9d4-4d95-b5ed-b3d951abe5da",
+              "name": "resultado",
+              "value": "={{ $('Criar ou buscar cobrança2').item.json.resultado }} Link enviado pelo WhatsApp.",
+              "type": "string"
+            },
+            {
+              "id": "bc901d49-5b96-4cad-af8c-20c12cef0642",
+              "name": "valor",
+              "value": "={{ $('Criar ou buscar cobrança2').item.json.valor }}",
+              "type": "string"
+            },
+            {
+              "id": "81fee5c4-d16e-4876-ad0d-896281ca5561",
+              "name": "vencimento",
+              "value": "={{ $('Criar ou buscar cobrança2').item.json.vencimento }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        256,
+        4272
+      ],
+      "id": "bdfe3968-f475-48e3-a7d0-88c99355fb0a",
+      "name": "Resultado"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "45a28425-8aba-460d-9f87-eeae9bfca76a",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1248,
+        4352
+      ],
+      "id": "547f2410-9bbc-496d-9ccb-6017493e4a0c",
+      "name": "Criar ou buscar cobrança",
+      "webhookId": "45a28425-8aba-460d-9f87-eeae9bfca76a"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        48,
+        4448
+      ],
+      "id": "1b3b89e7-884d-428b-bc6f-e282acf6a586",
+      "name": "Ignorar busca de cobrança existente"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fc6ea9ec-fc03-4d81-b5c9-4521b8c843df",
+              "leftValue": "={{ $json.body.event }}",
+              "rightValue": "call_ended",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "a8f5a3a9-e3c1-44c5-be41-0d066320ec11",
+              "leftValue": "={{ $json.body.call.transcript }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "971ed32b-8eba-4f1a-9a55-2eddef0003b2",
+              "leftValue": "={{ $json.body.call.call_type }}",
+              "rightValue": "phone_call",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -976,
+        4944
+      ],
+      "id": "7d77b1c6-dd1f-4ea9-9181-95ba2d77272c",
+      "name": "Chamada encerrada?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -736,
+        5040
+      ],
+      "id": "81d67e94-e285-4220-9c36-2d694d4918a4",
+      "name": "Ignorar outros eventos de chamada"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM secretaria_config WHERE id = 1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -736,
+        4880
+      ],
+      "id": "b658cf99-7d82-4394-a3b6-f6a7b297a898",
+      "name": "Buscar Config2",
+      "credentials": {
+        "postgres": {
+          "id": "hvkzoru976d3gWkp",
+          "name": "PostgreSQL - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -192,
+        5040
+      ],
+      "id": "030be391-1d90-47fb-8ae5-bcd8a4728975",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "j6AiZEwsvMWr7Lx7",
+          "name": "OpenAI - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Buscar ou criar contato2').item.json.contato.phone_number }}",
+        "tableName": "n8n_historico_mensagens",
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -80,
+        5040
+      ],
+      "id": "593c2098-dd5b-451d-8b33-ccb46aa70802",
+      "name": "Memory",
+      "credentials": {
+        "postgres": {
+          "id": "hvkzoru976d3gWkp",
+          "name": "PostgreSQL - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Follow-up pós-chamada",
+        "height": 432,
+        "width": 1712,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1312,
+        4784
+      ],
+      "typeVersion": 1,
+      "id": "b1e1f9e1-16da-4bcb-a812-6b576f9398ac",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Info').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Info').item.json.id_conta }}/conversations/{{ $('Buscar ou criar contato').item.json.conversa.id }}/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "chatwootApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "content",
+              "value": "=Olá {{ $('Info').item.json.nome }}!\n\nEstamos aguardando o pagamento no valor de R${{ $('Info').item.json.cobranca_valor }} relativo a sua consulta.\n\nClique aqui para ver mais informações sobre o pagamento: {{ $('Criar ou buscar cobrança2').item.json.link }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        48,
+        4272
+      ],
+      "id": "8944f97a-dd58-444c-aaee-b467d79c0695",
+      "name": "Enviar notificação cobrança",
+      "executeOnce": false,
+      "credentials": {
+        "chatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Info5').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Info5').item.json.id_conta }}/conversations/{{ $('Buscar ou criar contato2').item.json.conversa.id }}/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "chatwootApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "content",
+              "value": "={{  $('Agente de Follow-up de Chamada').item.json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        192,
+        4880
+      ],
+      "id": "c08386c9-b3fc-4299-a097-8c51479a1242",
+      "name": "Enviar mensagem follow-up chamada",
+      "executeOnce": false,
+      "credentials": {
+        "chatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Info5').item.json.transcricao }}",
+        "options": {
+          "systemMessage": "=# PAPEL\n\n<papel>\n  Você é a {{ $('Info5').item.json.nome_secretaria }}, secretária virtual da {{ $('Info5').item.json.nome_empresa }}, responsável por processar transcrições de ligações telefônicas e enviar resumos via WhatsApp. Sua função é extrair informações relevantes da conversa e comunicar de forma clara e concisa os próximos passos ao paciente.\n</papel>\n\n# PERSONALIDADE E TOM DE VOZ\n\n<personalidade>\n  * **Objetiva e organizada**: Sintetize informações complexas em pontos claros\n  * **Profissional e confiável**: Transmita segurança sobre o que foi conversado\n  * **Atenciosa aos detalhes**: Capture todos os compromissos e combinados\n  * **Proativa**: Antecipe próximas ações necessárias\n  * **Clara e confirmatória**: Elimine ambiguidades da conversa telefônica\n</personalidade>\n\n# CONTEXTO DA TAREFA\n\n<contexto>\n  Uma ligação telefônica acaba de ocorrer entre o paciente e a clínica. Você recebe a transcrição e deve:\n  \n  1. Identificar o assunto principal da ligação\n  2. Extrair compromissos, datas e ações acordadas\n  3. Criar mensagem de follow-up confirmando os pontos importantes\n  4. Incluir próximos passos, se houver\n  \n  **IMPORTANTE**: A mensagem serve como registro escrito do que foi conversado por telefone.\n</contexto>\n\n# SOP - PROCEDIMENTO OPERACIONAL PADRÃO\n\n## 1. ANÁLISE DA TRANSCRIÇÃO\n\n<analise-transcricao>\n  ### 1.1 Identificação de Elementos-Chave\n  \n  Procure e extraia:\n  * **MOTIVO**: Razão principal da ligação\n  * **DECISÕES**: O que foi decidido ou acordado\n  * **DATAS/HORÁRIOS**: Compromissos marcados\n  * **VALORES**: Custos mencionados\n  * **PENDÊNCIAS**: O que ficou para resolver\n  * **RESPONSÁVEIS**: Quem fará o quê\n  \n  ### 1.2 Classificação do Tipo de Ligação\n  \n  * **Agendamento**: Nova consulta marcada\n  * **Reagendamento**: Alteração de consulta existente\n  * **Cancelamento**: Consulta desmarcada\n  * **Esclarecimento**: Dúvidas respondidas\n  * **Emergência**: Situação urgente tratada\n  * **Administrativo**: Questões de pagamento/documentos\n  \n  ### 1.3 Validação de Informações\n  \n  * Verifique consistência de datas e horários\n  * Confirme nomes de profissionais mencionados\n  * Valide valores com tabela padrão\n  * Identifique possíveis mal-entendidos\n</analise-transcricao>\n\n## 2. ESTRUTURAÇÃO DA MENSAGEM\n\n<estruturacao-mensagem>\n  ### 2.1 Formato Padrão\n  \n  ```\n  APRESENTAÇÃO\n  ↓\n  REFERÊNCIA À LIGAÇÃO\n  ↓\n  RESUMO DO ASSUNTO PRINCIPAL\n  ↓\n  PONTOS ACORDADOS (se houver)\n  ↓\n  PRÓXIMAS AÇÕES (se houver)\n  ↓\n  CONFIRMAÇÃO/ENCERRAMENTO\n  ```\n  \n  ### 2.2 Componentes por Tipo\n  \n  **Apresentação (obrigatória em todas as mensagens):**\n  * Inicie sempre com \"Olá, aqui é a {{ $('Info5').item.json.nome_secretaria }}, da {{ $('Info5').item.json.nome_empresa }}\"\n  * Ou variações como \"Oi! {{ $('Info5').item.json.nome_secretaria }} da {{ $('Info5').item.json.nome_empresa }} por aqui\"\n  * Mantenha tom profissional mas acolhedor\n  \n  **Para Agendamentos:**\n  * Data, hora e profissional\n  * Valor e forma de pagamento\n  * Documentos necessários\n  * Endereço da clínica\n  \n  **Para Cancelamentos:**\n  * Confirmação do cancelamento\n  * Consulta cancelada (data/profissional)\n  * Menção sobre reagendamento futuro\n  \n  **Para Dúvidas:**\n  * Resumo da informação fornecida\n  * Links ou contatos adicionais\n  * Oferecimento para mais esclarecimentos\n  \n  ### 2.3 Linguagem de Confirmação\n  \n  Use termos que reforcem o acordado:\n  * \"Conforme conversamos...\"\n  * \"Como combinado...\"\n  * \"Confirmando o que acertamos...\"\n  * \"Resumindo nossa conversa...\"\n</estruturacao-mensagem>\n\n## 3. FORMATAÇÃO E CLAREZA\n\n<formatacao-clareza>\n  ### 3.1 Organização Visual\n  \n  * Use quebras de linha para separar tópicos\n  * Destaque datas e horários\n  * Enumere ações quando múltiplas\n  * Mantenha parágrafos curtos\n  \n  ### 3.2 Eliminação de Ambiguidades\n  \n  * Converta \"semana que vem\" em data específica\n  * Transforme \"de manhã\" em horário exato\n  * Especifique \"doutor\" com nome completo\n  * Clarifique \"aquele valor\" com montante exato\n  \n  ### 3.3 Informações Complementares\n  \n  Adicione quando não mencionado mas relevante:\n  * Endereço completo da clínica\n  * Telefone para contato\n  * Prazo para pagamento\n  * Documentos necessários\n</formatacao-clareza>\n\n# REGRAS E VALIDAÇÕES\n\n<validacoes>\n  ## Regras Críticas\n  \n  1. **Precisão Absoluta**\n    * NUNCA invente informações não presentes na transcrição\n    * NUNCA altere datas, horários ou valores\n    * NUNCA adicione compromissos não acordados\n    * SEMPRE use \"se entendi corretamente\" quando houver dúvida\n  \n  2. **Limites da Mensagem**\n    * Máximo 10-12 linhas (incluindo apresentação)\n    * Foque no essencial\n    * Evite repetir toda a conversa\n    * Priorize ações e compromissos\n  \n  3. **Apresentação Obrigatória**\n    * SEMPRE inicie com apresentação como {{ $('Info5').item.json.nome_secretaria }}\n    * Use variações naturais: \"Olá, aqui é a {{ $('Info5').item.json.nome_secretaria }}...\" ou \"Oi! {{ $('Info5').item.json.nome_secretaria }} por aqui...\"\n    * Mencione \"{{ $('Info5').item.json.nome_empresa }}\" na apresentação\n    * Mantenha tom acolhedor mas profissional\n  \n  4. **Tom Apropriado**\n    * Sempre profissional, nunca casual demais\n    * Evite comentários sobre a qualidade da ligação\n    * Não mencione problemas técnicos\n    * Mantenha foco no conteúdo, não no formato\n</validacoes>\n\n# EXEMPLOS DE MENSAGENS\n\n<exemplos>\n  ## Exemplo 1: Agendamento Realizado\n  \n  ```\n  Olá, aqui é a {{ $('Info5').item.json.nome_secretaria }} da {{ $('Info5').item.json.nome_empresa }}!\n  \n  Conforme nossa conversa telefônica agora há pouco:\n  \n  ✅ Consulta agendada para quinta-feira, 12/12 às 14:00\n  📍 Com Dr. Roberto Almeida - Cardiologista\n  💰 Valor: R$ 500,00 (PIX ou cartão)\n  \n  Por favor, chegue 15 minutos antes para cadastro.\n  Endereço: Av. das Palmeiras, 1500 - Jardim América\n  \n  Qualquer dúvida, estamos à disposição!\n  ```\n  \n  ## Exemplo 2: Reagendamento\n  \n  ```\n  Oi! {{ $('Info5').item.json.nome_secretaria }} da {{ $('Info5').item.json.nome_empresa }} por aqui.\n  \n  Confirmando o que acertamos por telefone:\n  \n  Sua consulta foi remarcada de 10/12 para 15/12 às 10:00.\n  Permanece com a Dra. Ana Silva.\n  \n  Já atualizamos em nosso sistema.\n  Obrigada pela compreensão!\n  ```\n  \n  ## Exemplo 3: Esclarecimento de Dúvidas\n  \n  ```\n  Olá, aqui é a {{ $('Info5').item.json.nome_secretaria }} da {{ $('Info5').item.json.nome_empresa }}.\n  \n  Resumindo as informações da nossa ligação:\n  \n  - Aceitamos seu convênio Unimed\n  - Necessário trazer carteirinha e documento\n  - Consulta particular caso precise: R$ 500,00\n  \n  Para agendar, pode me responder por aqui mesmo.\n  Fico à disposição!\n  ```\n  \n  ## Exemplo 4: Cancelamento\n  \n  ```\n  Oi! {{ $('Info5').item.json.nome_secretaria }} da {{ $('Info5').item.json.nome_empresa }} aqui.\n  \n  Conforme conversado por telefone:\n  \n  ✅ Cancelamos sua consulta de amanhã (11/12) às 15:00\n  \n  Quando quiser reagendar, é só entrar em contato.\n  Esperamos vê-lo em breve!\n  ```\n  \n  ## Exemplo 5: Múltiplos Assuntos\n  \n  ```\n  Olá, aqui é a {{ $('Info5').item.json.nome_secretaria }} da {{ $('Info5').item.json.nome_empresa }}!\n  \n  Resumindo nossa conversa telefônica:\n  \n  1. Consulta dia 13/12 às 9h confirmada\n  2. Exames anteriores: trazer se tiver\n  3. Pagamento: pode ser feito na recepção\n  4. Retorno: agendar após a consulta\n  \n  Alguma dúvida sobre o que conversamos?\n  ```\n</exemplos>\n\n# CASOS ESPECIAIS\n\n<casos-especiais>\n  ## Transcrição Confusa ou Incompleta\n  \n  * Use \"Pelo que entendi da nossa conversa...\"\n  * Liste apenas pontos claros\n  * Ofereça esclarecimento: \"Se precisar confirmar algo, me avise\"\n  \n  ## Ligação Interrompida\n  \n  * Mencione brevemente: \"Sobre nossa ligação que caiu...\"\n  * Foque no que foi acordado antes da interrupção\n  * Ofereça continuar por mensagem\n  \n  ## Múltiplos Participantes na Ligação\n  \n  * Identifique para quem é cada informação\n  * Separe compromissos por pessoa\n  * Use nomes quando necessário\n  \n  ## Informações Sensíveis Mencionadas\n  \n  * NÃO inclua diagnósticos ou condições médicas\n  * NÃO mencione informações pessoais desnecessárias\n  * Foque apenas em questões administrativas\n  \n  ## Promessas Não Autorizadas\n  \n  * Se detectar promessa fora do padrão\n  * Use: \"Vamos verificar a possibilidade de...\"\n  * Não confirme o que não tem certeza\n</casos-especiais>\n\n# OBSERVAÇÕES FINAIS\n\n<observacoes-finais>\n  ## LEMBRE-SE SEMPRE\n  \n  * ⚠️ SEMPRE inicie a mensagem se apresentando como {{ $('Info5').item.json.nome_secretaria }}\n  * ⚠️ Esta mensagem é o REGISTRO ESCRITO da ligação\n  * ⚠️ NUNCA adicione informações não conversadas\n  * ⚠️ Precisão é mais importante que completude\n  * ⚠️ Máximo 10-12 linhas de mensagem (incluindo apresentação)\n  * ⚠️ Foque em compromissos e ações\n  \n  ## FORMATO DE SAÍDA\n  \n  * Apenas a mensagem de follow-up\n  * Sem análise da transcrição\n  * Sem comentários sobre a ligação\n  * Direto ao paciente\n  \n  ## VERIFICAÇÕES IMPORTANTES\n  \n  * A mensagem inicia com apresentação da {{ $('Info5').item.json.nome_secretaria }}?\n  * Todas as datas e horários estão corretos?\n  * Os valores mencionados conferem?\n  * As ações têm responsáveis claros?\n  * A mensagem confirma o essencial?\n  * Está clara e sem ambiguidades?\n  \n  ## QUANDO NÃO ENVIAR MENSAGEM\n  \n  * Ligação foi apenas engano\n  * Assunto 100% resolvido sem pendências\n  * Paciente explicitamente pediu para não enviar\n  * Conteúdo puramente médico/confidencial\n</observacoes-finais>\n\n# INFORMAÇÕES DO SISTEMA\n\n<informacoes-sistema>\n  **Data e Hora Atual**: {{ $now.format('FFFF') }}\n  **Tipo de Mensagem**: Follow-up de Ligação Telefônica\n  **Entrada**: Transcrição da conversa telefônica\n  **Objetivo**: Registro escrito do que foi acordado\n</informacoes-sistema>\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -128,
+        4880
+      ],
+      "id": "82775b41-34f5-4231-98d5-724b985e75fa",
+      "name": "Agente de Follow-up de Chamada",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "content": "## Gestão de ligações",
+        "height": 608,
+        "width": 1712,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1312,
+        5232
+      ],
+      "typeVersion": 1,
+      "id": "0338be5d-6d85-4344-9661-d9ebcba5c15f",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "938829ab-89c6-4a0d-9784-2f581a03baf2",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -448,
+        5312
+      ],
+      "id": "cc636da1-32af-4160-9116-434436e2fdd0",
+      "name": "Ligações",
+      "webhookId": "938829ab-89c6-4a0d-9784-2f581a03baf2"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "5429b894-15db-4bc1-b06e-23eb6ad834aa",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1152,
+        5312
+      ],
+      "id": "622a3e2f-dc7f-41c4-a15e-6fed72904b60",
+      "name": "Ligações WhatsApp",
+      "webhookId": "5429b894-15db-4bc1-b06e-23eb6ad834aa"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $('Info4').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Info4').item.json.id_conta }}/contacts/{{ $('Buscar ou criar contato3').item.json.contato.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "chatwootApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"custom_attributes\": {\n    \"permitir_chamadas_whatsapp\": {{ $('Info4').item.json.permissao_aceita }}\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -112,
+        5504
+      ],
+      "id": "50aea3e4-e7f8-4787-9b7c-6412cac63aa3",
+      "name": "Atualizar permissão de ligação WhatsApp",
+      "credentials": {
+        "chatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "16764029-b93b-444e-b727-1266dcaaa7b8",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1248,
+        4608
+      ],
+      "id": "058de25b-3cde-4be2-88aa-4df3ae707ac7",
+      "name": "Buscar histórico da conversa",
+      "webhookId": "16764029-b93b-444e-b727-1266dcaaa7b8"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM secretaria_config WHERE id = 1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1040,
+        4608
+      ],
+      "id": "24d487b6-1b90-4e8d-9717-46d411e41368",
+      "name": "Buscar Config1",
+      "credentials": {
+        "postgres": {
+          "id": "hvkzoru976d3gWkp",
+          "name": "PostgreSQL - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "n8n_historico_mensagens",
+          "mode": "list"
+        },
+        "where": {
+          "values": [
+            {
+              "column": "session_id",
+              "value": "={{ $('Buscar ou criar contato1').item.json.contato.phone_number }}"
+            }
+          ]
+        },
+        "combineConditions": "OR",
+        "sort": {
+          "values": [
+            {
+              "column": "id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -400,
+        4608
+      ],
+      "id": "8a839a03-82eb-422b-b5a3-20a004e2f016",
+      "name": "Buscar mensagens",
+      "credentials": {
+        "postgres": {
+          "id": "hvkzoru976d3gWkp",
+          "name": "PostgreSQL - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const historico = $input.all().map(({ json }) => {\n  if (json.message.type === 'human') {\n    return `Usuário: ${json.message.content}`;\n  }\n  return `Assistente: ${json.message.content}`;\n}).join('\\n\\n');\n\nreturn { historico };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -192,
+        4608
+      ],
+      "id": "11659e0d-ae08-4a15-b14f-e6ec0f10d32f",
+      "name": "Montar histórico"
+    },
+    {
+      "parameters": {
+        "content": "## 12. Gestão de ligações",
+        "height": 80,
+        "width": 336,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1888,
+        3920
+      ],
+      "id": "13ed52be-9e8c-4a13-a304-1a9b6628ddcd",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "40ff895f-f63f-4e4f-bba3-c7d803c277f1",
+              "name": "url_chatwoot",
+              "value": "={{ $('Buscar Config1').item.json.url_chatwoot }}",
+              "type": "string"
+            },
+            {
+              "id": "1b513343-9b6a-4f6e-a012-ed819bf34a31",
+              "name": "id_conta",
+              "value": "={{ $('Buscar Config1').item.json.chatwoot_account_id }}",
+              "type": "string"
+            },
+            {
+              "id": "d540447e-4fa3-46c0-bc53-1f63433b4a70",
+              "name": "id_inbox",
+              "value": "={{ $('Buscar Config1').item.json.chatwoot_inbox_id }}",
+              "type": "string"
+            },
+            {
+              "id": "8bf522a6-75fb-434a-854c-b736539309e1",
+              "name": "telefone",
+              "value": "={{ $('Buscar histórico da conversa').item.json.headers['x-retell-user-number'] || '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -832,
+        4608
+      ],
+      "id": "f2644b20-8d74-45d1-b4cb-3b4e6876e412",
+      "name": "Info1"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "an3aELMnw5jwhLxX",
+          "mode": "id"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telefone": "={{ $('Info1').item.json.telefone }}",
+            "id_conta": "={{ $('Info1').item.json.id_conta }}",
+            "id_inbox": "={{ $('Info1').item.json.id_inbox }}",
+            "url_chatwoot": "={{ $('Info1').item.json.url_chatwoot }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "id_conta",
+              "displayName": "id_conta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "id_inbox",
+              "displayName": "id_inbox",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "url_chatwoot",
+              "displayName": "url_chatwoot",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -608,
+        4608
+      ],
+      "id": "60f91340-526b-443c-846a-10a22183db9d",
+      "name": "Buscar ou criar contato1"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "an3aELMnw5jwhLxX",
+          "mode": "id"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telefone": "={{ $('Info5').item.json.telefone }}",
+            "id_conta": "={{ $('Info5').item.json.id_conta }}",
+            "id_inbox": "={{ $('Info5').item.json.id_inbox }}",
+            "url_chatwoot": "={{ $('Info5').item.json.url_chatwoot }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "id_conta",
+              "displayName": "id_conta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "id_inbox",
+              "displayName": "id_inbox",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "url_chatwoot",
+              "displayName": "url_chatwoot",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -320,
+        4880
+      ],
+      "id": "33e2f676-044e-4315-ba69-f846081978ab",
+      "name": "Buscar ou criar contato2"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "an3aELMnw5jwhLxX",
+          "mode": "id"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telefone": "={{ $('Info4').item.json.telefone }}",
+            "id_conta": "={{ $('Info4').item.json.id_conta }}",
+            "id_inbox": "={{ $('Info4').item.json.id_inbox }}",
+            "url_chatwoot": "={{ $('Info4').item.json.url_chatwoot }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "id_conta",
+              "displayName": "id_conta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "id_inbox",
+              "displayName": "id_inbox",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "url_chatwoot",
+              "displayName": "url_chatwoot",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -320,
+        5504
+      ],
+      "id": "b3120487-91dd-4021-9ac2-53ae9c2cf9f1",
+      "name": "Buscar ou criar contato3"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "s3pAEhnjDeMFawiS",
+          "mode": "id"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "cobranca_valor": "={{ $('Info').item.json.cobranca_valor }}",
+            "cobranca_vencimento": "={{ $('Info').item.json.cobranca_vencimento }}",
+            "telefone": "={{ $('Info').item.json.telefone }}",
+            "nome": "={{ $('Info').item.json.nome }}",
+            "cpf": "={{ $('Info').item.json.cpf }}",
+            "id_conta": "={{ $('Info').item.json.id_conta }}",
+            "id_contato": "={{ $('Buscar ou criar contato').item.json.contato.id }}",
+            "asaas_id_cliente": "={{ $('Buscar ou criar contato').item.json.contato.custom_attributes.asaas_id_cliente }}",
+            "asaas_id_cobranca": "={{ $('Buscar ou criar contato').item.json.contato.custom_attributes.asaas_id_cobranca }}",
+            "url_chatwoot": "={{ $('Info').item.json.url_chatwoot }}",
+            "url_asaas": "={{ $('Info').item.json.url_asaas }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "cobranca_valor",
+              "displayName": "cobranca_valor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "cobranca_vencimento",
+              "displayName": "cobranca_vencimento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "nome",
+              "displayName": "nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "cpf",
+              "displayName": "cpf",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "id_conta",
+              "displayName": "id_conta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "id_contato",
+              "displayName": "id_contato",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "asaas_id_cliente",
+              "displayName": "asaas_id_cliente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "asaas_id_cobranca",
+              "displayName": "asaas_id_cobranca",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "url_chatwoot",
+              "displayName": "url_chatwoot",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "url_asaas",
+              "displayName": "url_asaas",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": true,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -400,
+        4352
+      ],
+      "id": "66cba7ec-0d8d-49f1-8d0d-1d9401860d22",
+      "name": "Criar ou buscar cobrança2"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Response>\n  <Dial callerId=\"{{ $json.contato }}\">\n    <Sip>sip:{{ $json.telefone_whatsapp }}@sip.retellai.com;transport=tcp?x-call_direction={{ $json.tipo_ligacao }}</Sip>\n  </Dial>\n</Response>",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/xml"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        -496,
+        5312
+      ],
+      "id": "9c0dfee9-1579-4871-85d7-331e027736be",
+      "name": "Redirecionar ligação WhatsApp"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Response>\n  <Dial callerId=\"{{ $json.contato }}\">\n    <Sip username=\"{{ $json.usuario }}\" password=\"{{ $json.senha }}\">sip:{{ $json.telefone }}@sip.retellai.com;transport=tcp?x-call_direction={{ $json.tipo_ligacao }}</Sip>\n  </Dial>\n</Response>",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/xml"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        208,
+        5312
+      ],
+      "id": "a581afdd-dfe1-40de-8e39-9efc49fec9f0",
+      "name": "Redirecionar ligação"
+    },
+    {
+      "parameters": {
+        "description": "Use essa ferramenta para refletir sobre algo. Ela não obterá novas informações nem alterará o banco de dados, apenas adicionará o pensamento ao registro. Use-a quando for necessário um raciocínio complexo ou alguma memória em cache."
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        32,
+        5040
+      ],
+      "id": "acfed960-654b-4ac9-91df-d6e5529f0eb5",
+      "name": "Refletir"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "33571cbe-0ffc-431b-9821-a001490d6edc",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -688,
+        4096
+      ],
+      "id": "9f1557ef-5370-4c49-a09b-43b773499185",
+      "name": "Buscar agendamentos do contato",
+      "webhookId": "33571cbe-0ffc-431b-9821-a001490d6edc"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "102b9b20-fff6-4242-b6f8-a73a4c750f31",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -176,
+        4096
+      ],
+      "id": "7e6370ea-ab92-4640-891e-131bd9043bf2",
+      "name": "Criar agendamento",
+      "webhookId": "102b9b20-fff6-4242-b6f8-a73a4c750f31"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "08e3d0f2-3e09-486b-b333-10882982a886",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1248,
+        4096
+      ],
+      "id": "65b75935-029d-4304-a611-7979c3943269",
+      "name": "Buscar janelas disponíveis",
+      "webhookId": "08e3d0f2-3e09-486b-b333-10882982a886"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "yP4Vk0GcYkJePyrh",
+          "mode": "id"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "tamanho_janela_minutos": 60,
+            "granularidade": 30,
+            "id_agenda": "={{ $json.body.id_agenda }}",
+            "periodo_inicio": "={{ $json.body.periodo_inicio }}",
+            "periodo_fim": "={{ $json.body.periodo_fim }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "periodo_inicio",
+              "displayName": "periodo_inicio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "periodo_fim",
+              "displayName": "periodo_fim",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "id_agenda",
+              "displayName": "id_agenda",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "tamanho_janela_minutos",
+              "displayName": "tamanho_janela_minutos",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "granularidade",
+              "displayName": "granularidade",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "amostras",
+              "displayName": "amostras",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -1040,
+        4096
+      ],
+      "id": "e268520f-9b2b-4492-804c-e9052c66078f",
+      "name": "Buscar janelas disponíveis1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "26efd5f8-2e3f-4d93-acbf-aef3def3334d",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -1024,
+        5600
+      ],
+      "id": "898a4f6b-49ce-403a-aca9-cf1eed5a9349",
+      "name": "WhatsApp Twilio",
+      "webhookId": "26efd5f8-2e3f-4d93-acbf-aef3def3334d"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Info4').item.json.url_chatwoot }}/twilio/callback",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $('WhatsApp Twilio').item.json.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -112,
+        5680
+      ],
+      "id": "c902c758-4154-43ba-88e1-994ef965f504",
+      "name": "Enviar para o Chatwoot"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "08f98640-66a6-49d4-af4f-74cc89048425",
+              "leftValue": "={{ $('WhatsApp Twilio').item.json.body.Body }}",
+              "rightValue": "VOICE_CALL_REQUEST",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -320,
+        5664
+      ],
+      "id": "6b0762de-1bf4-4272-9934-48c07e5ef1e4",
+      "name": "Permissão de ligação?"
+    },
+    {
+      "parameters": {
+        "content": "# Checklist - Gestão de ligações\n\n- [ ] Credenciais via placeholders\n- [ ] Config carregada via Buscar Config3, Config4, Config5\n- [ ] Dados Retell SIP dinamizados (usuario, senha, telefones)\n",
+        "width": 528,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1856,
+        5232
+      ],
+      "id": "709fb92a-5d0f-4341-9984-0211706296c9",
+      "name": "Sticky Note14"
+    },
+    {
+      "parameters": {
+        "content": "# Checklist - Follow-up pós-chamada\n- [ ] Credenciais via placeholders\n- [ ] Config carregada via Buscar Config2\n",
+        "width": 624,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1952,
+        4784
+      ],
+      "id": "0182399a-c4cb-4316-9fbd-516410e36056",
+      "name": "Sticky Note15"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM secretaria_config WHERE id = 1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -944,
+        5312
+      ],
+      "id": "1546dc99-d617-40d5-9808-2415233e2fae",
+      "name": "Buscar Config3",
+      "credentials": {
+        "postgres": {
+          "id": "hvkzoru976d3gWkp",
+          "name": "PostgreSQL - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "06da40d7-221a-4c03-b520-f84ef71722da",
+              "name": "telefone_whatsapp",
+              "value": "={{ $('Buscar Config3').item.json.telefone_twilio_whatsapp }}",
+              "type": "string"
+            },
+            {
+              "id": "adf526c3-eb09-43c4-a73f-7fcbf15954f0",
+              "name": "usuario",
+              "value": "={{ $('Buscar Config3').item.json.retell_sip_usuario }}",
+              "type": "string"
+            },
+            {
+              "id": "d31238f6-cf64-4cac-bbcb-a3ccc63adf72",
+              "name": "senha",
+              "value": "={{ $('Buscar Config3').item.json.retell_sip_password }}",
+              "type": "string"
+            },
+            {
+              "id": "de53b709-c1b0-49ee-bdef-01c699c35c5f",
+              "name": "contato",
+              "value": "={{ $('Ligações WhatsApp').item.json.body.Direction === 'inbound' ? $('Ligações WhatsApp').item.json.body.From.split(':').last() : $('Ligações WhatsApp').item.json.body.To.split(':').last() }}",
+              "type": "string"
+            },
+            {
+              "id": "7fc606c5-0f0e-480c-925a-09bdf1a30a7e",
+              "name": "tipo_ligacao",
+              "value": "={{ $('Ligações WhatsApp').item.json.body.Direction === 'inbound' ? 'inbound' : 'outbound' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -720,
+        5312
+      ],
+      "id": "3bd1b08b-ed09-4e59-a564-b18a0784232a",
+      "name": "Info2"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM secretaria_config WHERE id = 1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -240,
+        5312
+      ],
+      "id": "16977c12-fe21-4ae2-abc2-7859ec062c8e",
+      "name": "Buscar Config4",
+      "credentials": {
+        "postgres": {
+          "id": "hvkzoru976d3gWkp",
+          "name": "PostgreSQL - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "06da40d7-221a-4c03-b520-f84ef71722da",
+              "name": "telefone",
+              "value": "={{ $('Buscar Config4').item.json.telefone_twilio }}",
+              "type": "string"
+            },
+            {
+              "id": "2d98e675-ac1d-4b37-acec-f85926e4f59f",
+              "name": "usuario",
+              "value": "={{ $('Buscar Config4').item.json.retell_sip_usuario }}",
+              "type": "string"
+            },
+            {
+              "id": "4f426fba-3e91-4b25-add1-c115bdc9d7bc",
+              "name": "senha",
+              "value": "={{ $('Buscar Config4').item.json.retell_sip_password }}",
+              "type": "string"
+            },
+            {
+              "id": "a9f26363-d795-497c-a47a-1a2eb572cace",
+              "name": "contato",
+              "value": "={{ $('Ligações').item.json.body.Direction === 'inbound' ? $('Ligações').item.json.body.From : $('Ligações').item.json.body.To }}",
+              "type": "string"
+            },
+            {
+              "id": "33c4d7c5-22e5-4a4b-b9ef-cb6f26e40a51",
+              "name": "tipo_ligacao",
+              "value": "={{ $('Ligações').item.json.body.Direction === 'inbound' ? 'inbound' : 'outbound' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -16,
+        5312
+      ],
+      "id": "fc06db93-792f-4781-baf0-be84f9665bbe",
+      "name": "Info3"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM secretaria_config WHERE id = 1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -800,
+        5600
+      ],
+      "id": "8def61b1-13cc-41f8-ad6e-e95fdb572756",
+      "name": "Buscar Config5",
+      "credentials": {
+        "postgres": {
+          "id": "hvkzoru976d3gWkp",
+          "name": "PostgreSQL - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "19c17a70-6a49-4032-b8e4-42635fea6f04",
+              "name": "id_conta",
+              "value": "={{ $('Buscar Config5').item.json.chatwoot_account_id }}",
+              "type": "string"
+            },
+            {
+              "id": "487547fa-fb02-4da9-9168-50d074a3cf26",
+              "name": "id_inbox",
+              "value": "={{ $('Buscar Config5').item.json.chatwoot_inbox_id }}",
+              "type": "string"
+            },
+            {
+              "id": "f74bf6d4-1a71-4e62-b726-ee3a4059f37c",
+              "name": "url_chatwoot",
+              "value": "={{ $('Buscar Config5').item.json.url_chatwoot }}",
+              "type": "string"
+            },
+            {
+              "id": "a3edd128-eaa3-479d-a644-f4004c193c7a",
+              "name": "telefone",
+              "value": "=+{{ $('WhatsApp Twilio').item.json.body.WaId }}",
+              "type": "string"
+            },
+            {
+              "id": "ffad67bd-f2bd-4529-9907-bf870681a33e",
+              "name": "permissao_aceita",
+              "value": "={{ $('WhatsApp Twilio').item.json.body.ButtonPayload === 'ACCEPTED' }}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -576,
+        5600
+      ],
+      "id": "c5fc07a4-58f7-47ce-b537-1ec7e2cfb458",
+      "name": "Info4"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "19c17a70-6a49-4032-b8e4-42635fea6f04",
+              "name": "id_conta",
+              "value": "={{ $('Buscar Config2').item.json.chatwoot_account_id }}",
+              "type": "string"
+            },
+            {
+              "id": "487547fa-fb02-4da9-9168-50d074a3cf26",
+              "name": "id_inbox",
+              "value": "={{ $('Buscar Config2').item.json.chatwoot_inbox_id }}",
+              "type": "string"
+            },
+            {
+              "id": "f74bf6d4-1a71-4e62-b726-ee3a4059f37c",
+              "name": "url_chatwoot",
+              "value": "={{ $('Buscar Config2').item.json.url_chatwoot }}",
+              "type": "string"
+            },
+            {
+              "id": "a3edd128-eaa3-479d-a644-f4004c193c7a",
+              "name": "telefone",
+              "value": "={{ $('Follow-up no WhatsApp após chamada').item.json.body.call.direction === 'outbound' ? $('Follow-up no WhatsApp após chamada').item.json.body.call.to_number : $('Follow-up no WhatsApp após chamada').item.json.body.call.from_number }}",
+              "type": "string"
+            },
+            {
+              "id": "01a54a64-d357-447f-84d1-5979d308ee36",
+              "name": "transcricao",
+              "value": "={{ $('Follow-up no WhatsApp após chamada').item.json.body.call.transcript }}",
+              "type": "string"
+            },
+            {
+              "id": "nome-secretaria-id",
+              "name": "nome_secretaria",
+              "value": "={{ $('Buscar Config2').item.json.nome_secretaria }}",
+              "type": "string"
+            },
+            {
+              "id": "nome-empresa-id",
+              "name": "nome_empresa",
+              "value": "={{ $('Buscar Config2').item.json.nome_empresa }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -528,
+        4880
+      ],
+      "id": "af8d498f-c01c-4a89-90ff-0e707711e781",
+      "name": "Info5"
+    },
+    {
+      "parameters": {
+        "content": "# Checklist - Retell\n\n## Ferramentas Agente\n- [ ] Credenciais via placeholders\n- [ ] Config carregada via Buscar Config (cobrança) e Buscar Config1 (histórico)\n- [ ] Subworkflows: WF03, WF04, WF06, WF10\n",
+        "height": 200,
+        "width": 576,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1888,
+        4032
+      ],
+      "id": "e149808d-cbec-44b4-8c3e-1abee8fc2e63",
+      "name": "Sticky Note16"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Follow-up no WhatsApp após chamada": {
+      "main": [
+        [
+          {
+            "node": "Chamada encerrada?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Config": {
+      "main": [
+        [
+          {
+            "node": "Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Info": {
+      "main": [
+        [
+          {
+            "node": "Buscar ou criar contato",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar ou criar contato": {
+      "main": [
+        [
+          {
+            "node": "Criar ou buscar cobrança2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nova cobrança?": {
+      "main": [
+        [
+          {
+            "node": "Enviar notificação cobrança",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ignorar busca de cobrança existente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar ou buscar cobrança": {
+      "main": [
+        [
+          {
+            "node": "Buscar Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chamada encerrada?": {
+      "main": [
+        [
+          {
+            "node": "Buscar Config2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ignorar outros eventos de chamada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Config2": {
+      "main": [
+        [
+          {
+            "node": "Info5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente de Follow-up de Chamada",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agente de Follow-up de Chamada",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar notificação cobrança": {
+      "main": [
+        [
+          {
+            "node": "Resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente de Follow-up de Chamada": {
+      "main": [
+        [
+          {
+            "node": "Enviar mensagem follow-up chamada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ligações": {
+      "main": [
+        [
+          {
+            "node": "Buscar Config4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ligações WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Buscar Config3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar histórico da conversa": {
+      "main": [
+        [
+          {
+            "node": "Buscar Config1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Config1": {
+      "main": [
+        [
+          {
+            "node": "Info1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar mensagens": {
+      "main": [
+        [
+          {
+            "node": "Montar histórico",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Info1": {
+      "main": [
+        [
+          {
+            "node": "Buscar ou criar contato1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar ou criar contato1": {
+      "main": [
+        [
+          {
+            "node": "Buscar mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar ou criar contato2": {
+      "main": [
+        [
+          {
+            "node": "Agente de Follow-up de Chamada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar ou criar contato3": {
+      "main": [
+        [
+          {
+            "node": "Atualizar permissão de ligação WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar ou buscar cobrança2": {
+      "main": [
+        [
+          {
+            "node": "Nova cobrança?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Refletir": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente de Follow-up de Chamada",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar agendamentos do contato": {
+      "main": [
+        [
+          {
+            "node": "Buscar eventos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar agendamento": {
+      "main": [
+        [
+          {
+            "node": "Criar evento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar janelas disponíveis": {
+      "main": [
+        [
+          {
+            "node": "Buscar janelas disponíveis1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Twilio": {
+      "main": [
+        [
+          {
+            "node": "Buscar Config5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Permissão de ligação?": {
+      "main": [
+        [
+          {
+            "node": "Buscar ou criar contato3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Enviar para o Chatwoot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Config3": {
+      "main": [
+        [
+          {
+            "node": "Info2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Info2": {
+      "main": [
+        [
+          {
+            "node": "Redirecionar ligação WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Config4": {
+      "main": [
+        [
+          {
+            "node": "Info3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Info3": {
+      "main": [
+        [
+          {
+            "node": "Redirecionar ligação",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Config5": {
+      "main": [
+        [
+          {
+            "node": "Info4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Info4": {
+      "main": [
+        [
+          {
+            "node": "Permissão de ligação?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Info5": {
+      "main": [
+        [
+          {
+            "node": "Buscar ou criar contato2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "3d73669a-6554-445e-93a3-0e1b2bf89731",
+  "meta": {
+    "instanceId": "715a68c7cbc350774eb1fc64655865ae67c7d2b3860e8e8de01712db5856e1ab"
+  },
+  "id": "N9UJCKzN62nKgNQh",
+  "tags": []
+}

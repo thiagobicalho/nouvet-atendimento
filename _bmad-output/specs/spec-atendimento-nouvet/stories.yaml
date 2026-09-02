@@ -1,0 +1,176 @@
+- id: "1"
+  title: Infra e persistência base
+  description: >-
+    Provisionar as duas bases Postgres dedicadas (interna do n8n + aplicação) com as
+    tabelas do banco da aplicação, stack pinada e cofre nativo de credenciais.
+  spec_checkpoint: true
+  done_checkpoint: true
+  invoke_dev_with: >-
+    N8N_ENCRYPTION_KEY fixa via variável de ambiente (mínimo 32 hex chars) definida
+    ANTES de subir o n8n — nunca deixar auto-gerar (AD-2). Pinar Postgres na tag
+    completa 16.15-alpine3.24 (não 16-alpine solto) e n8n na tag exata 2.14.2 (AD-10).
+    Duas bases Postgres separadas no mesmo servidor, cada uma com usuário de
+    privilégio mínimo próprio (AD-3) — banco interno do n8n usa DB_TYPE=postgresdb,
+    não SQLite.
+
+- id: "2"
+  title: Config-as-Data (AD-1)
+  description: >-
+    Leitura seletiva de secretaria_config por setor a cada turno (nunca dump do
+    negócio inteiro) e seed inicial de tom, catálogo de serviços, limiares de SLA,
+    lista interina de sinais de alerta e contatos de plantonista/emergência.
+  invoke_dev_with: >-
+    Montagem do systemMessage deve ser seletiva por setor já classificado — nunca um
+    dump da config inteira (resolve preocupação de custo/tamanho de prompt do
+    Thiago). secretaria_config é singleton (id = 1).
+
+- id: "3"
+  title: Debounce e lock com recuperação de TTL (AD-5)
+  description: >-
+    Buffer de mensagens (n8n_fila_mensagens) e lock de concorrência por telefone
+    (n8n_status_atendimento) com recuperação automática de lock travado por TTL.
+  invoke_dev_with: >-
+    Recuperação de lock travado por TTL é obrigatória — achado CRÍTICO do review
+    adversarial: sem isso um crash deixa o telefone travado pra sempre. Lock fica
+    travado durante toda a sequência de pacing de mensagens (AD-7).
+
+- id: "4"
+  title: Identidade de cliente/pet e porta única idempotente (AD-6/AD-11)
+  description: >-
+    Resolução de identidade por telefone, import inicial do SimplesVet, criação de
+    contato novo e correção dinâmica de identificação (ex. telefone de cônjuge) via
+    porta única idempotente.
+  done_checkpoint: true
+  invoke_dev_with: >-
+    Normalização de telefone deve passar por uma função única centralizada (achado
+    do review adversarial). Porta única idempotente fecha o achado HIGH de
+    duplicidade de card entre dois telefones do mesmo núcleo familiar (AD-11).
+    Postgres alimenta a decisão de criar/atualizar o card do RD CRM, não o substitui
+    (AD-6) — cadastro definitivo no RD CRM só após intenção de agendamento
+    confirmada (FR-21).
+
+- id: "5"
+  title: "CAP-1 — Recepção e Identificação"
+  description: >-
+    Recepcionista IA responde 24/7 a todo contato via WhatsApp/RD Conversas,
+    identifica cliente/pet por telefone sem perguntar se tem cadastro, personaliza
+    com o que já sabe e nunca oferece convênio proativamente.
+  done_checkpoint: true
+
+- id: "6"
+  title: "CAP-2 — Triagem e Direcionamento"
+  description: >-
+    Classifica a intenção em um dos setores em escopo ou aciona handoff imediato
+    para fora de escopo/convênio/Sinal de Alerta (prioridade máxima, lista
+    configurável); sem indicação clara direciona ao clínico geral.
+  spec_checkpoint: true
+  done_checkpoint: true
+  invoke_dev_with: >-
+    Lista de sinais de alerta é interina (exemplos do material comercial, ex. vômito
+    3+ dias) até validação da equipe clínica do Nouvet antes do go-live — não
+    bloqueia o build, mas a lista ativa em produção precisa ser trocável sem alterar
+    o fluxo n8n (CAP-10/AD-1).
+
+- id: "7"
+  title: "CAP-3 — Fluxo Care Center"
+  description: >-
+    Coleta serviço (banho cachorro, banho gato, tosa), data/horário/profissional
+    preferidos e solicitação adicional não agendável; nunca reserva
+    automaticamente.
+  done_checkpoint: true
+  invoke_dev_with: >-
+    Nenhuma tool de escrita OU leitura de agenda ligada ao agente neste Piloto (AD-4,
+    corrigido no review adversarial para cobrir também leitura).
+
+- id: "8"
+  title: "CAP-4 — Fluxo Consultas e Vacinas"
+  description: >-
+    Coleta profissional desejado, especialidade ou queixa (quando cliente não sabe
+    escolher) e data/horário preferidos; mesma lógica da CAP-3, nunca reserva
+    automática.
+  done_checkpoint: true
+
+- id: "9"
+  title: "CAP-5 — Fluxo Exames"
+  description: >-
+    Recebe pedido/carta anexada, identifica necessidade de anestesia e pergunta por
+    pré-anestésicos vigentes; caminho único sem segmentação por tipo de exame, nunca
+    agenda.
+  done_checkpoint: true
+  invoke_dev_with: >-
+    Regra de anestesia vem da config (AD-1, FR-16), não hardcoded no fluxo.
+    Multimodal confirmado em escopo — documento (anexo) é obrigatório aqui; node/
+    modelo de visão para imagem é Deferred, detalhe de build.
+
+- id: "10"
+  title: "CAP-6 — Orçamentos (Roteamento puro)"
+  description: >-
+    Qualquer demanda de orçamento é roteada direto a um humano com todo o contexto
+    já coletado anexado ao card; não existe Agente de Orçamento dedicado.
+  done_checkpoint: true
+
+- id: "11"
+  title: "CAP-7 — Registro e Memória no CRM"
+  description: >-
+    Pipeline único no RD Station CRM, cadastro definitivo só após intenção de
+    agendamento confirmada, histórico preservado com o atendimento mais recente
+    primeiro, nunca sobrescrito.
+  done_checkpoint: true
+  invoke_dev_with: >-
+    Mapeamento de stage_id do funil vem da config (AD-1, FR-23) — etapas assumidas
+    como reaproveitamento dos modelos de funil já existentes no RD Station
+    (assumption/open question do SPEC, revisar com material que Thiago vai
+    providenciar). Quando um cliente novo é criado no Postgres com
+    simplesvet_status=pendente, o fluxo cria uma TAREFA no card do RD CRM (recurso
+    nativo de Tasks) pedindo cadastro manual no SimplesVet — etiqueta foi descartada
+    como mecanismo.
+
+- id: "12"
+  title: "CAP-8 — Temporizadores, Continuidade e SLA"
+  description: >-
+    Renova o vencimento da tarefa a cada resposta relevante do lead; se um humano
+    não responde em 5min, atualiza o cliente e escalona progressivamente ao gestor
+    a cada ciclo.
+  done_checkpoint: true
+  invoke_dev_with: >-
+    Gatilho de lembrete é cron (confirmado), mas o job DEVE reconferir se o card já
+    foi resolvido por humano antes de disparar — condição obrigatória de Murat
+    (Test Architect) para não virar spam percebido (contra-métrica SM-C2).
+
+- id: "13"
+  title: "CAP-9 — Guardrails de IA"
+  description: >-
+    Respostas factuais só de Fontes Confiáveis; reconhece incerteza e aciona
+    handoff; nunca diagnostica nem minimiza gravidade; resiste a prompt injection
+    inclusive em anexos.
+  spec_checkpoint: true
+  done_checkpoint: true
+  invoke_dev_with: >-
+    Resistência a prompt injection cobre também conteúdo extraído de
+    anexos/documentos, não só texto de chat. Mensagem exata de "não sei responder" é
+    Open Question do SPEC — decidir com Thiago nesta story, não inventar.
+
+- id: "14"
+  title: "CAP-12 — Emergências Declaradas pelo Cliente"
+  description: >-
+    Emergência explícita do cliente aciona handoff de prioridade máxima e alerta a
+    TODOS os profissionais envolvidos no atendimento, lista editável via config.
+  spec_checkpoint: true
+  done_checkpoint: true
+  invoke_dev_with: >-
+    Lista de destinatários é array editável via Configuração de Personalização
+    (AD-1), nunca um único fixo — padrão de escalar-humano-multi (AD-4).
+
+- id: "15"
+  title: "CAP-11 — Indicadores e Visibilidade Gerencial"
+  description: >-
+    Disponibiliza os 5 indicadores mínimos (leads recebidos, atendidos/não
+    atendidos, distribuição por setor, tempo de resposta) consultáveis diariamente
+    pela gestão.
+  done_checkpoint: true
+  invoke_dev_with: >-
+    Mecanismo de leitura/fonte para 3 dos 5 indicadores (leads recebidos,
+    distribuição por setor, tempo de 1ª resposta) ainda não tem fonte nomeada
+    (Deferred na spine) — FR-37 (atendido/não atendido) deriva das esteiras do RD
+    CRM (AD-8). Baixo risco de travar ordem de build, mas precisa de resposta antes
+    de entregar os indicadores.

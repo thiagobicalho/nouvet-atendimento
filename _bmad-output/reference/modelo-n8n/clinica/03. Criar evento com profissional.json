@@ -1,0 +1,569 @@
+{
+  "name": "03. Criar evento com profissional",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0423c482-5749-4c92-ba44-a33b281918a6",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5888,
+        2912
+      ],
+      "id": "9fe68fd0-2803-4ad6-b33b-8b08a4aa3ac1",
+      "name": "Janela disponível?"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "evento_inicio"
+            },
+            {
+              "name": "duracao_minutos",
+              "type": "number"
+            },
+            {
+              "name": "titulo"
+            },
+            {
+              "name": "descricao"
+            },
+            {
+              "name": "id_profissional"
+            },
+            {
+              "name": "id_conta"
+            },
+            {
+              "name": "id_contato"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        5264,
+        2912
+      ],
+      "id": "cb967a54-2f5a-4b65-93e0-7f7bf712e448",
+      "name": "Gatilho"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a94abf94-1a64-4995-b4f1-4644993b3ece",
+              "name": "evento_fim",
+              "value": "={{ $('Gatilho').item.json.evento_inicio.toDateTime().plus($('Gatilho').item.json.duracao_minutos, 'minutes').toString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5472,
+        2912
+      ],
+      "id": "3a0e74f7-ceb2-4f4c-88f4-742620274415",
+      "name": "Calcula fim do evento"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "2kA91JnSqnA1Y3XQ",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/2kA91JnSqnA1Y3XQ",
+          "cachedResultName": "02. Buscar janelas profissional"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "periodo_inicio": "={{ $('Gatilho').item.json.evento_inicio }}",
+            "periodo_fim": "={{ $('Calcula fim do evento').item.json.evento_fim }}",
+            "id_profissional": "={{ $('Gatilho').item.json.id_profissional }}",
+            "tamanho_janela_minutos": "={{ $('Gatilho').item.json.duracao_minutos }}",
+            "amostras": 1,
+            "granularidade": "={{ $('Gatilho').item.json.duracao_minutos }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "periodo_inicio",
+              "displayName": "periodo_inicio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "periodo_fim",
+              "displayName": "periodo_fim",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "id_profissional",
+              "displayName": "id_profissional",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "tamanho_janela_minutos",
+              "displayName": "tamanho_janela_minutos",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number"
+            },
+            {
+              "id": "granularidade",
+              "displayName": "granularidade",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "amostras",
+              "displayName": "amostras",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        5680,
+        2912
+      ],
+      "id": "2abae8a5-8a22-4a4d-b533-81c926171618",
+      "name": "Buscar janelas disponíveis",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "content": "### Configurar subworkflow!",
+        "height": 256,
+        "width": 256,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5600,
+        2832
+      ],
+      "typeVersion": 1,
+      "id": "980f840f-ceef-4dba-b792-c87c95c6c658",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "# Checklist\n- [ ] \"Buscar janelas disponíveis\" -> Subworkflow 02\n- [ ] Abrir node do Google Calendar para selecionar credencial",
+        "height": 144,
+        "width": 480,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5680,
+        3104
+      ],
+      "id": "9d3c5437-db26-4e00-8742-f05ae35a279b",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "## Buscar janelas",
+        "height": 432,
+        "width": 848,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5216,
+        2752
+      ],
+      "typeVersion": 1,
+      "id": "ab9f9aed-8db7-4676-987a-9fa0827b3878",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Criar o evento",
+        "height": 208,
+        "width": 656,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        6080,
+        2752
+      ],
+      "typeVersion": 1,
+      "id": "1fc74f7a-c4e6-413b-8d58-703611081a4a",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Horário indisponível",
+        "height": 208,
+        "width": 448,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        6080,
+        2976
+      ],
+      "typeVersion": 1,
+      "id": "b7e5677a-b428-47af-8218-f3457dea870b",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "={{ $('Buscar janelas disponíveis').item.json.id_agenda }}",
+          "mode": "id"
+        },
+        "start": "={{ $('Gatilho').item.json.evento_inicio }}",
+        "end": "={{ $('Calcula fim do evento').item.json.evento_fim }}",
+        "additionalFields": {
+          "attendees": [],
+          "description": "={{ $('Gatilho').item.json.descricao }}",
+          "summary": "={{ $('Gatilho').item.json.titulo }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        6144,
+        2816
+      ],
+      "id": "c337a0e6-6741-4f64-a378-3248b85d5372",
+      "name": "Criar evento",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "YGxt6ClFXRt6vigo",
+          "name": "Google Calendar - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9a677f76-5e00-43f7-8f7d-6de17744391b",
+              "name": "erro",
+              "value": "HORÁRIO INDISPONÍVEL. VERIFICAR SE AGENDAMENTO JÁ NÃO FOI REALIZADO PARA ESSE CONTATO.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        6240,
+        3040
+      ],
+      "id": "7fa7aa1f-4450-4265-a73f-120e9602d819",
+      "name": "Retornar \"horário indisponível\""
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "17279d45-4753-4dd3-a557-4af1e3b51477",
+              "name": "resultado",
+              "value": "AGENDAMENTO CRIADO",
+              "type": "string"
+            },
+            {
+              "id": "e6ee1079-a033-4240-be55-f2fbfdcc94b2",
+              "name": "id_evento",
+              "value": "={{ $('Criar evento').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "1d2d8eba-7e8b-4203-a9dc-16a72de08e4e",
+              "name": "evento",
+              "value": "={{ $('Criar evento').item.json }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        6576,
+        2816
+      ],
+      "id": "b34ce7dc-5b05-4528-b4bd-d236be490f45",
+      "name": "Retornar evento criado"
+    },
+    {
+      "parameters": {
+        "resource": "contact",
+        "operation": "setCustomAttributes",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Gatilho').item.json.id_conta }}",
+          "mode": "id"
+        },
+        "contactId": {
+          "__rl": true,
+          "value": "={{ $('Gatilho').item.json.id_contato }}",
+          "mode": "id"
+        },
+        "specifyCustomAttributes": "keypair",
+        "customAttributesParameters": {
+          "attributes": [
+            {
+              "name": "=data_ultima_consulta",
+              "value": "={{ $('Gatilho').item.json.evento_inicio.toDateTime().format('yyyy-MM-dd') }}"
+            }
+          ]
+        }
+      },
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
+      "position": [
+        6352,
+        2816
+      ],
+      "id": "c0a49992-39fc-47c8-8495-8e43eb8e6201",
+      "name": "Atualizar data última consulta",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Quer entender como funciona?\n\n\n### Assista o vídeo, deixe um like, e se inscreva no canal para ter acesso a mais workflows como esse!\n\n[![Vídeo YouTube Secretária v3](https://i1.ytimg.com/vi_webp/vYtaGw3vRII/maxresdefault.webp)](https://www.youtube.com/watch?v=vYtaGw3vRII)",
+        "height": 440,
+        "width": 500,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5120,
+        2240
+      ],
+      "id": "08be2828-49d7-416c-ac37-cc9ab12f30a5",
+      "name": "Sticky Note13"
+    },
+    {
+      "parameters": {
+        "content": "## [Clique aqui e entre agora para tirar suas dúvidas](https://lucasmoreira.fazer.ai)\n[![Banner comunidade](https://framerusercontent.com/images/KIXMxk9eKCoCsNeVm1oaz5HnaQ.png)](https://lucasmoreira.fazer.ai)",
+        "height": 440,
+        "width": 1380,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5632,
+        2240
+      ],
+      "id": "d918e0d1-f300-4e1b-a1ad-ab99ecc52959",
+      "name": "Sticky Note36"
+    },
+    {
+      "parameters": {
+        "content": "## Usei Hostinger pra este workflow.\n## Replique aqui.\n\n\n\n\n\n\n\n\n\n## [Use o cupom `FAZERAI` pra ter 10% de desconto na sua primeira compra!](https://www.hostg.xyz/SHIwa)",
+        "height": 316,
+        "width": 552,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        4560,
+        2688
+      ],
+      "id": "ea81c938-08a8-4f13-ae92-75e0977d9088",
+      "name": "Sticky Note21"
+    },
+    {
+      "parameters": {
+        "content": "[![Hostinger](https://framerusercontent.com/images/ptGVDA4KqG8GLNlWRDzFxaM.png?width=600&height=119)](https://www.hostg.xyz/SHIwa)\n",
+        "height": 96,
+        "width": 324,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        4672,
+        2800
+      ],
+      "id": "8dbfcbb0-3928-4f8f-b9f7-a89fca5211a6",
+      "name": "Sticky Note29"
+    },
+    {
+      "parameters": {
+        "content": "[![fazer.ai](https://framerusercontent.com/images/HqY9djLTzyutSKnuLLqBr92KbM.png?scale-down-to=256)](https://fazer.ai?utm_source=n8n&utm_campaign=sec-v3)\n\n## Esse é um template faça você mesmo do canal\n## Lucas Moreira\n\n### Inscreva-se no nosso canal no YouTube\n[![YouTube Lucas Moreira](https://img.shields.io/youtube/channel/subscribers/UCtmp6SxzLscu0GRTbgM8FTw?style=flat-square&logo=youtube&label=Inscreva-se&color=f00)](https://youtube.com/@eulucassmoreira?si=0lH7hwX9pukjhmPQ)\n[![Instagram](https://img.shields.io/badge/instagram-black?logo=instagram&style=for-the-badge)](https://instagram.com/eulucassmoreira)\n[![GitHub fazer.ai](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white&label)](https://github.com/fazer-ai)\n",
+        "height": 440,
+        "width": 550,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        4560,
+        2240
+      ],
+      "id": "9000f32f-f00c-4946-bac1-f3c4578cf8dc",
+      "name": "Sticky Note12"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Janela disponível?": {
+      "main": [
+        [
+          {
+            "node": "Criar evento",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retornar \"horário indisponível\"",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gatilho": {
+      "main": [
+        [
+          {
+            "node": "Calcula fim do evento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calcula fim do evento": {
+      "main": [
+        [
+          {
+            "node": "Buscar janelas disponíveis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar janelas disponíveis": {
+      "main": [
+        [
+          {
+            "node": "Janela disponível?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar evento": {
+      "main": [
+        [
+          {
+            "node": "Atualizar data última consulta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualizar data última consulta": {
+      "main": [
+        [
+          {
+            "node": "Retornar evento criado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "1f0476e1-4cc2-4724-813a-8339f3290560",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "715a68c7cbc350774eb1fc64655865ae67c7d2b3860e8e8de01712db5856e1ab"
+  },
+  "id": "UxopaVUTnQWdm99A",
+  "tags": []
+}

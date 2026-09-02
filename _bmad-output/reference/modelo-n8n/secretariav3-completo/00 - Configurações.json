@@ -1,0 +1,1527 @@
+{
+  "name": "00 - Configurações",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "config/postgresql",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        12176,
+        18288
+      ],
+      "id": "44d405b4-340e-431f-8f23-fa51625d7690",
+      "name": "Webhook PostgreSQL",
+      "webhookId": "config-postgresql"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- Tabelas operacionais\nCREATE TABLE IF NOT EXISTS n8n_historico_mensagens (\n  id           BIGSERIAL PRIMARY KEY,\n  session_id   VARCHAR(40) NOT NULL,\n  message      JSONB NOT NULL,\n  created_at   TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP\n);\n\nCREATE INDEX IF NOT EXISTS idx_n8n_historico_mensagens_session_id ON n8n_historico_mensagens (session_id);\n\nCREATE TABLE IF NOT EXISTS n8n_fila_mensagens (\n  id           BIGSERIAL PRIMARY KEY,\n  id_mensagem  VARCHAR(40) NOT NULL,\n  telefone     VARCHAR(40) NOT NULL,\n  mensagem     TEXT NOT NULL,\n  \"timestamp\"  TIMESTAMP WITHOUT TIME ZONE NOT NULL\n);\n\nCREATE INDEX IF NOT EXISTS idx_n8n_fila_mensagens_telefone ON n8n_fila_mensagens (telefone);\n\nCREATE TABLE IF NOT EXISTS n8n_status_atendimento (\n  id                   BIGSERIAL PRIMARY KEY,\n  session_id           VARCHAR(40) NOT NULL UNIQUE,\n  lock_conversa        BOOLEAN NOT NULL DEFAULT FALSE,\n  aguardando_followup  BOOLEAN NOT NULL DEFAULT FALSE,\n  numero_followup      INTEGER NOT NULL DEFAULT 0,\n  updated_at           TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP\n);\n\nCREATE INDEX IF NOT EXISTS idx_n8n_status_atendimento_session_id ON n8n_status_atendimento (session_id);\nCREATE INDEX IF NOT EXISTS idx_n8n_status_atendimento_aguardando_followup ON n8n_status_atendimento (aguardando_followup);\n\n-- Tabelas de configuração\nCREATE TABLE IF NOT EXISTS secretaria_config (\n  id INTEGER PRIMARY KEY DEFAULT 1 CHECK (id = 1),\n  nome_secretaria VARCHAR(100) NOT NULL,\n  nome_empresa VARCHAR(200) NOT NULL,\n  endereco TEXT,\n  cidade_estado VARCHAR(100),\n  telefone VARCHAR(20),\n  whatsapp VARCHAR(20),\n  email VARCHAR(200),\n  site VARCHAR(200),\n  horario_funcionamento TEXT NOT NULL,\n  formas_pagamento TEXT[],\n  prazo_pagamento VARCHAR(50),\n  convenios JSONB DEFAULT '[]'::jsonb,\n  chatwoot_account_id INTEGER NOT NULL,\n  chatwoot_inbox_id INTEGER NOT NULL,\n  id_conversa_alerta INTEGER NOT NULL,\n  url_chatwoot VARCHAR(500) NOT NULL,\n  url_asaas VARCHAR(500),\n  lembretes_horas INTEGER[] DEFAULT '{24, 1}',\n  follow_ups_horas INTEGER[] DEFAULT '{6, 24, 48}',\n  tipo_follow_ups VARCHAR(50)[] DEFAULT '{mensagem, mensagem, mensagem}',\n  max_followups INTEGER DEFAULT 3,\n  telefone_twilio VARCHAR(20),\n  telefone_twilio_whatsapp VARCHAR(20),\n  google_tasks_list_id VARCHAR(200),\n  retell_sip_usuario VARCHAR(100),\n  retell_sip_password VARCHAR(200),\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW()\n);\n\nCREATE TABLE IF NOT EXISTS secretaria_profissionais (\n  id BIGSERIAL PRIMARY KEY,\n  nome VARCHAR(200) NOT NULL,\n  especialidade VARCHAR(200),\n  calendar_id VARCHAR(200) NOT NULL UNIQUE,\n  duracao_minutos INTEGER DEFAULT 30,\n  valor_consulta DECIMAL(10,2) NOT NULL,\n  disponibilidade JSONB NOT NULL,\n  ativo BOOLEAN DEFAULT TRUE,\n  created_at TIMESTAMP DEFAULT NOW()\n);",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        12416,
+        18288
+      ],
+      "id": "fffa4c66-77d9-4df5-8baa-7b73ccf64fcc",
+      "name": "Criar tabelas",
+      "credentials": {
+        "postgres": {
+          "id": "hvkzoru976d3gWkp",
+          "name": "PostgreSQL - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ $('Webhook PostgreSQL').item.json.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        12656,
+        18288
+      ],
+      "id": "8cb9348a-bcf5-4111-b36d-adc1794d6251",
+      "name": "Set Body PostgreSQL"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO secretaria_config (\n  id,\n  nome_secretaria,\n  nome_empresa,\n  endereco,\n  cidade_estado,\n  telefone,\n  whatsapp,\n  email,\n  site,\n  horario_funcionamento,\n  formas_pagamento,\n  prazo_pagamento,\n  convenios,\n  chatwoot_account_id,\n  chatwoot_inbox_id,\n  id_conversa_alerta,\n  url_chatwoot,\n  url_asaas,\n  lembretes_horas,\n  follow_ups_horas,\n  tipo_follow_ups,\n  max_followups,\n  telefone_twilio,\n  telefone_twilio_whatsapp,\n  google_tasks_list_id,\n  retell_sip_usuario,\n  retell_sip_password\n) VALUES (\n  1,\n  '{{ ($json.business_data.nome_secretaria || \"\").replace(/'/g, \"''\") }}',\n  '{{ ($json.business_data.nome_empresa || \"\").replace(/'/g, \"''\") }}',\n  '{{ ($json.business_data.endereco || \"\").replace(/'/g, \"''\") }}',\n  '{{ ($json.business_data.cidade_estado || \"\").replace(/'/g, \"''\") }}',\n  '{{ ($json.business_data.telefone || \"\").replace(/'/g, \"''\") }}',\n  '{{ ($json.business_data.whatsapp || \"\").replace(/'/g, \"''\") }}',\n  '{{ ($json.business_data.email || \"\").replace(/'/g, \"''\") }}',\n  '{{ ($json.business_data.site || \"\").replace(/'/g, \"''\") }}',\n  '{{ ($json.business_data.horario_funcionamento || \"\").replace(/'/g, \"''\") }}',\n  '{{ \"{\" + ($json.business_data.formas_pagamento || []).map(v => \"\\\"\" + (v || \"\").replace(/\"/g, \"\\\\\\\"\") + \"\\\"\").join(\",\") + \"}\" }}',\n  '{{ ($json.business_data.prazo_pagamento || \"\").replace(/'/g, \"''\") }}',\n'{{ JSON.stringify($json.business_data.convenios || []) }}'::jsonb,\n {{ $json.system_ids.chatwoot_account_id || 0 }},\n  {{ $json.system_ids.chatwoot_inbox_id || 0 }},\n  {{ $json.system_ids.id_conversa_alerta || 0 }},\n  '{{ ($json.system_ids.chatwoot_url || \"\").replace(/'/g, \"''\") }}',\n  '{{ ($json.system_ids.asaas_url || \"\").replace(/'/g, \"''\") }}',\n  '{{ \"{\" + ($json.features.lembretes_horas || [24, 1]).join(\",\") + \"}\" }}',\n  '{{ \"{\" + ($json.features.follow_ups_horas || [6, 24, 48]).join(\",\") + \"}\" }}',\n  '{{ \"{\" + ($json.features.tipo_follow_ups || [\"mensagem\", \"mensagem\", \"mensagem\"]).map(v => \"\\\"\" + v + \"\\\"\").join(\",\") + \"}\" }}',\n  {{ $json.features.max_followups || 3 }},\n  '{{ ($json.credentials.telefone_twilio || \"\").replace(/'/g, \"''\") }}',\n  '{{ ($json.credentials.telefone_twilio_whatsapp || \"\").replace(/'/g, \"''\") }}',\n  '{{ ($json.system_ids.google_tasks_list_id || \"\").replace(/'/g, \"''\") }}',\n  '{{ ($json.system_ids.retell_sip_usuario || \"\").replace(/'/g, \"''\") }}',\n  '{{ ($json.retell_sip_password || \"\").replace(/'/g, \"''\") }}'\n)\nON CONFLICT (id) DO UPDATE SET\n  nome_secretaria = EXCLUDED.nome_secretaria,\n  nome_empresa = EXCLUDED.nome_empresa,\n  endereco = EXCLUDED.endereco,\n  cidade_estado = EXCLUDED.cidade_estado,\n  telefone = EXCLUDED.telefone,\n  whatsapp = EXCLUDED.whatsapp,\n  email = EXCLUDED.email,\n  site = EXCLUDED.site,\n  horario_funcionamento = EXCLUDED.horario_funcionamento,\n  formas_pagamento = EXCLUDED.formas_pagamento,\n  prazo_pagamento = EXCLUDED.prazo_pagamento,\n  convenios = EXCLUDED.convenios,\n  chatwoot_account_id = EXCLUDED.chatwoot_account_id,\n  chatwoot_inbox_id = EXCLUDED.chatwoot_inbox_id,\n  id_conversa_alerta = EXCLUDED.id_conversa_alerta,\n  url_chatwoot = EXCLUDED.url_chatwoot,\n  url_asaas = EXCLUDED.url_asaas,\n  lembretes_horas = EXCLUDED.lembretes_horas,\n  follow_ups_horas = EXCLUDED.follow_ups_horas,\n  tipo_follow_ups = EXCLUDED.tipo_follow_ups,\n  max_followups = EXCLUDED.max_followups,\n  telefone_twilio = EXCLUDED.telefone_twilio,\n  telefone_twilio_whatsapp = EXCLUDED.telefone_twilio_whatsapp,\n  google_tasks_list_id = EXCLUDED.google_tasks_list_id,\n  retell_sip_usuario = EXCLUDED.retell_sip_usuario,\n  retell_sip_password = EXCLUDED.retell_sip_password,\n  updated_at = NOW();",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        12896,
+        18288
+      ],
+      "id": "d2603475-0216-4602-9b76-7a799b2a651c",
+      "name": "Inserir Config",
+      "credentials": {
+        "postgres": {
+          "id": "hvkzoru976d3gWkp",
+          "name": "PostgreSQL - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ { professionals: $('Set Body PostgreSQL').item.json.professionals } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        13136,
+        18288
+      ],
+      "id": "get-professionals-node-id",
+      "name": "Get Professionals"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "professionals",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        13376,
+        18288
+      ],
+      "id": "8c7a75e5-4691-4389-9dbe-98f2d840d288",
+      "name": "Split Profissionais"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO secretaria_profissionais (\n  nome,\n  especialidade,\n  calendar_id,\n  duracao_minutos,\n  valor_consulta,\n  disponibilidade,\n  ativo\n) VALUES (\n  '{{ ($json.nome || \"\").replace(/'/g, \"''\") }}',\n  '{{ ($json.especialidade || \"\").replace(/'/g, \"''\") }}',\n  '{{ ($json.calendar_id || \"\").replace(/'/g, \"''\") }}',\n  {{ $json.duracao_minutos || 30 }},\n  {{ $json.valor_consulta || 0 }},\n  '{{ JSON.stringify($json.disponibilidade || {}).replace(/'/g, \"''\") }}',\n  {{ $json.ativo ?? true }}\n)\nON CONFLICT (calendar_id) DO UPDATE SET\n  nome = EXCLUDED.nome,\n  especialidade = EXCLUDED.especialidade,\n  duracao_minutos = EXCLUDED.duracao_minutos,\n  valor_consulta = EXCLUDED.valor_consulta,\n  disponibilidade = EXCLUDED.disponibilidade,\n  ativo = EXCLUDED.ativo;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        13616,
+        18288
+      ],
+      "id": "1b2b7d3e-3087-42e3-89d1-0b16e3e7583a",
+      "name": "Inserir Profissionais",
+      "credentials": {
+        "postgres": {
+          "id": "hvkzoru976d3gWkp",
+          "name": "PostgreSQL - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"status\": \"success\",\n  \"message\": \"Tabelas criadas e dados inseridos com sucesso\",\n  \"tables\": [\"n8n_historico_mensagens\", \"n8n_fila_mensagens\", \"n8n_status_atendimento\", \"secretaria_config\", \"secretaria_profissionais\"]\n} }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        13856,
+        18288
+      ],
+      "id": "68020aff-e9cd-442c-8713-ff17a465e24b",
+      "name": "Respond PostgreSQL"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "config/chatwoot",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        12176,
+        18768
+      ],
+      "id": "8944cd14-17a9-476a-bf06-bc3aa7f743eb",
+      "name": "Webhook Chatwoot",
+      "webhookId": "config-chatwoot"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ $('Webhook Chatwoot').item.json.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        12416,
+        18768
+      ],
+      "id": "f32664d0-d4d7-4c98-8095-2bd4867c0a5b",
+      "name": "Set Body Chatwoot"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "906c66c6-e855-4c24-ae15-cce828dafb92",
+              "name": "url_chatwoot",
+              "value": "={{ $json.system_ids.chatwoot_url }}",
+              "type": "string"
+            },
+            {
+              "id": "716d83b2-a693-489e-904e-79d77f33d621",
+              "name": "id_conta",
+              "value": "={{ $json.system_ids.chatwoot_account_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        12656,
+        18768
+      ],
+      "id": "3867f1c4-086c-465f-a9a1-0124dec6acec",
+      "name": "Info"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Info').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Info').item.json.id_conta }}/labels",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "fazerAiChatwootApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "testando-agente"
+            },
+            {
+              "name": "description",
+              "value": "Habilita o funcionamento da Secretária IA em modo de teste."
+            },
+            {
+              "name": "color",
+              "value": "#39EB08"
+            },
+            {
+              "name": "show_on_sidebar",
+              "value": "={{ true }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        12896,
+        18672
+      ],
+      "id": "e9c230c3-6baf-4883-af8b-54a0a9831ca5",
+      "name": "Criar etiqueta testando-agente",
+      "alwaysOutputData": true,
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot - Secretaria Teste"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Info').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Info').item.json.id_conta }}/labels",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "fazerAiChatwootApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "agente-off"
+            },
+            {
+              "name": "description",
+              "value": "Desabilita o funcionamento da Secretária IA."
+            },
+            {
+              "name": "color",
+              "value": "#FF0000"
+            },
+            {
+              "name": "show_on_sidebar",
+              "value": "={{ true }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        13136,
+        18672
+      ],
+      "id": "153d63c5-4202-4076-bbc1-fb38256145ac",
+      "name": "Criar etiqueta agente-off",
+      "alwaysOutputData": true,
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot - Secretaria Teste"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Info').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Info').item.json.id_conta }}/labels",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "fazerAiChatwootApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "gestor"
+            },
+            {
+              "name": "description",
+              "value": "Gestores com acesso ao assistente interno."
+            },
+            {
+              "name": "color",
+              "value": "#1D405B"
+            },
+            {
+              "name": "show_on_sidebar",
+              "value": "={{ true }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        13376,
+        18672
+      ],
+      "id": "bd5bec10-5e60-4a40-a301-e8c4ba7b473e",
+      "name": "Criar etiqueta gestor",
+      "alwaysOutputData": true,
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot - Secretaria Teste"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Info').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Info').item.json.id_conta }}/custom_attribute_definitions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "fazerAiChatwootApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "attribute_description",
+              "value": "Indica se o contato prefere comunicação via áudio ou texto."
+            },
+            {
+              "name": "attribute_display_name",
+              "value": "Preferência áudio/texto"
+            },
+            {
+              "name": "attribute_display_type",
+              "value": "={{ 6 }}"
+            },
+            {
+              "name": "attribute_key",
+              "value": "preferencia_audio_texto"
+            },
+            {
+              "name": "attribute_model",
+              "value": "={{ 1 }}"
+            },
+            {
+              "name": "attribute_values",
+              "value": "={{ \n[\"audio\", \"texto\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        12896,
+        18864
+      ],
+      "id": "36857663-696b-486b-9994-5a95d92fcfff",
+      "name": "Cria atributo preferência áudio texto",
+      "alwaysOutputData": true,
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot - Secretaria Teste"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Info').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Info').item.json.id_conta }}/custom_attribute_definitions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "fazerAiChatwootApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "attribute_description",
+              "value": "ID do cliente no Asaas."
+            },
+            {
+              "name": "attribute_display_name",
+              "value": "ID cliente - Asaas"
+            },
+            {
+              "name": "attribute_display_type",
+              "value": "={{ 0 }}"
+            },
+            {
+              "name": "attribute_key",
+              "value": "asaas_id_cliente"
+            },
+            {
+              "name": "attribute_model",
+              "value": "={{ 1 }}"
+            },
+            {
+              "name": "attribute_values",
+              "value": "={{ \n[] }}"
+            },
+            {
+              "name": "regex_pattern",
+              "value": "/^cus_/"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        13136,
+        18864
+      ],
+      "id": "89bc2b1c-a9d3-461c-a7fe-dda122d9d7d6",
+      "name": "Cria atributo Asaas ID cliente",
+      "alwaysOutputData": true,
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot - Secretaria Teste"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Info').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Info').item.json.id_conta }}/custom_attribute_definitions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "fazerAiChatwootApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "attribute_description",
+              "value": "ID da cobrança no Asaas."
+            },
+            {
+              "name": "attribute_display_name",
+              "value": "ID cobrança - Asaas"
+            },
+            {
+              "name": "attribute_display_type",
+              "value": "={{ 0 }}"
+            },
+            {
+              "name": "attribute_key",
+              "value": "asaas_id_cobranca"
+            },
+            {
+              "name": "attribute_model",
+              "value": "={{ 1 }}"
+            },
+            {
+              "name": "attribute_values",
+              "value": "={{ \n[] }}"
+            },
+            {
+              "name": "regex_pattern",
+              "value": "/^pay_/"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        13376,
+        18864
+      ],
+      "id": "248217e5-3bc9-4b28-b924-cf4be52dcc47",
+      "name": "Cria atributo Asaas ID cobrança",
+      "alwaysOutputData": true,
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot - Secretaria Teste"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Info').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Info').item.json.id_conta }}/custom_attribute_definitions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "fazerAiChatwootApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "attribute_description",
+              "value": "Status da cobrança no Asaas."
+            },
+            {
+              "name": "attribute_display_name",
+              "value": "Status cobrança - Asaas"
+            },
+            {
+              "name": "attribute_display_type",
+              "value": "={{ 6 }}"
+            },
+            {
+              "name": "attribute_key",
+              "value": "asaas_status_cobranca"
+            },
+            {
+              "name": "attribute_model",
+              "value": "={{ 1 }}"
+            },
+            {
+              "name": "attribute_values",
+              "value": "={{ [\n  \"Pendente\",\n  \"Cobrança recebida\",\n  \"Cobrança confirmada\",\n  \"Cobrança vencida\",\n  \"Cobrança estornada\",\n  \"Cobrança recebida em dinheiro\",\n  \"Solicitação de estorno\",\n  \"Estorno em andamento\",\n  \"Recebido chargeback\",\n  \"Em disputa de chargeback\",\n  \"Disputa vencida\",\n  \"Requisição de negativação\",\n  \"Recebimento de negativação\",\n  \"Aguardando análise de risco\"\n] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        13616,
+        18864
+      ],
+      "id": "15912c04-2a5a-47db-937a-6af2fc67a8da",
+      "name": "Cria atributo Asaas status cobrança",
+      "alwaysOutputData": true,
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot - Secretaria Teste"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Info').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Info').item.json.id_conta }}/custom_attribute_definitions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "fazerAiChatwootApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "attribute_description",
+              "value": "Usuário permitiu receber ligações pelo WhatsApp. **NÃO ALTERAR MANUALMENTE**"
+            },
+            {
+              "name": "attribute_display_name",
+              "value": "Permitir chamadas WhatsApp"
+            },
+            {
+              "name": "attribute_display_type",
+              "value": "=checkbox"
+            },
+            {
+              "name": "attribute_key",
+              "value": "permitir_chamadas_whatsapp"
+            },
+            {
+              "name": "attribute_model",
+              "value": "=contact_attribute"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        13856,
+        18864
+      ],
+      "id": "c8d14794-c195-4869-a0cd-a9aa11d0b795",
+      "name": "Cria atributo permitir chamadas",
+      "alwaysOutputData": true,
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot - Secretaria Teste"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        13856,
+        18688
+      ],
+      "id": "8bba28c8-1a87-46ea-ab94-bd1e027071ee",
+      "name": "Merge Chatwoot"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"status\": \"success\",\n  \"message\": \"Labels e atributos criados com sucesso no Chatwoot\",\n  \"labels\": [\"testando-agente\", \"agente-off\", \"gestor\"],\n  \"attributes\": [\"preferencia_audio_texto\", \"asaas_id_cliente\", \"asaas_id_cobranca\", \"asaas_status_cobranca\", \"permitir_chamadas_whatsapp\"]\n} }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        14128,
+        18768
+      ],
+      "id": "8608a32b-56c3-43e6-a0bc-781979658325",
+      "name": "Respond Chatwoot"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "config/twilio",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        12176,
+        19248
+      ],
+      "id": "dad62f1a-5f3f-49cd-8e1b-a14baa7736b4",
+      "name": "Webhook Twilio",
+      "webhookId": "config-twilio"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ $('Webhook Twilio').item.json.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        12416,
+        19248
+      ],
+      "id": "560ec8bf-3689-4633-a7f9-4f290ad3db55",
+      "name": "Set Body Twilio"
+    },
+    {
+      "parameters": {
+        "url": "https://content.twilio.com/v1/Content",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twilioApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        12656,
+        19248
+      ],
+      "id": "7b2181c8-fb01-4288-ba8e-1161b26a6505",
+      "name": "Buscar template de ligações",
+      "credentials": {
+        "twilioApi": {
+          "id": "oOPocCiuD9ezX7Yg",
+          "name": "Twilio - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7b97ffe9-0b20-4321-9693-8f6543f5e009",
+              "leftValue": "={{ $('Buscar template de ligações').item.json.contents.find(c => c.friendly_name === 'voice_call_request') }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        12896,
+        19248
+      ],
+      "id": "876001bc-5c6a-40a0-b3c5-dc17b75c7366",
+      "name": "Template já criado?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://content.twilio.com/v1/Content",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twilioApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n    \"friendly_name\": \"voice_call_request\",\n    \"language\": \"pt_BR\",     \n    \"types\": {\n      \"twilio/call-to-action\": {\n        \"body\":\"Permitir receber ligações.\",         \n        \"actions\": [\n          {             \n            \"type\": \"VOICE_CALL_REQUEST\",\n            \"title\": \"Aceitar ligações\" \n          }         \n        ]       \n    }     \n  } \n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        13136,
+        19344
+      ],
+      "id": "753c7733-0787-4f12-96bd-3d7b300fb755",
+      "name": "Criar template de ligações",
+      "credentials": {
+        "twilioApi": {
+          "id": "oOPocCiuD9ezX7Yg",
+          "name": "Twilio - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"status\": \"success\",\n  \"message\": \"Template de ligações verificado/criado com sucesso\",\n  \"template\": \"voice_call_request\"\n} }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        13376,
+        19248
+      ],
+      "id": "8223b68a-18bf-46bf-b24e-713ebe3a6b93",
+      "name": "Respond Twilio"
+    },
+    {
+      "parameters": {
+        "content": "## 00. Configurações\n\nWorkflow de configuração inicial do ambiente do cliente.\nExecutado via webhooks independentes pela plataforma de onboarding.",
+        "height": 128,
+        "width": 400,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        11536,
+        17680
+      ],
+      "id": "a4b50085-49b9-4ff5-9f2c-11c16df956a5",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Credenciais Necessárias\n\n- **PostgreSQL:** Banco do cliente (Coolify/outro)\n- **Chatwoot:** Token de acesso da conta do cliente\n- **Twilio:** Account SID + Auth Token do cliente\n\n⚠️ As credenciais usam PLACEHOLDERS.\nSubstituir pelos IDs reais durante deploy.",
+        "height": 224,
+        "width": 400,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        11536,
+        17840
+      ],
+      "id": "28c75cfe-db63-46d4-8fca-a3486214ab23",
+      "name": "Sticky Credentials Info"
+    },
+    {
+      "parameters": {
+        "content": "## ⚠️ Pré-requisitos: Community Nodes\n\n**Instalar ANTES de importar os workflows:**\n\n1. Acesse: Settings → Community Nodes\n2. Instale os seguintes pacotes:\n\n```\n@fazer-ai/n8n-nodes-chatwoot\n@elevenlabs/n8n-nodes-elevenlabs\n```\n\n**Versões testadas:**\n- chatwoot: v1.8.3\n- elevenlabs: v0.2.4",
+        "height": 288,
+        "width": 400,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        11536,
+        18080
+      ],
+      "id": "92b44323-5ed2-4570-add0-f453d1914206",
+      "name": "Sticky Community Nodes"
+    },
+    {
+      "parameters": {
+        "content": "## Webhook PostgreSQL\n\nRecebe dados completos da plataforma:\n- business_data, system_ids, features, professionals\n\n1. Cria tabelas no PostgreSQL\n2. Insere config e profissionais",
+        "height": 432,
+        "width": 1808,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        11968,
+        18080
+      ],
+      "id": "c0b02945-bcca-4789-b817-30f382b86e4a",
+      "name": "Sticky PostgreSQL Info"
+    },
+    {
+      "parameters": {
+        "content": "## Webhook Chatwoot\n\nRecebe dados da plataforma:\n- system_ids (chatwoot_url, chatwoot_account_id)\n- labels, custom_attributes\n\n1. Cria labels (testando-agente, agente-off, gestor)\n2. Cria atributos customizados",
+        "height": 464,
+        "width": 2336,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        11968,
+        18560
+      ],
+      "id": "e73d3366-fc3a-473a-ab4a-007c5086467a",
+      "name": "Sticky Chatwoot Info"
+    },
+    {
+      "parameters": {
+        "content": "## Webhook Twilio\n\nRecebe: `{ template_name, template_language, template_body }`\n\n1. Verifica se template voice_call_request existe\n2. Cria template se não existir",
+        "height": 496,
+        "width": 1680,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        11968,
+        19040
+      ],
+      "id": "f7dceb2b-92a6-4bb7-ac77-62002c3a7c3b",
+      "name": "Sticky Twilio Info"
+    }
+  ],
+  "pinData": {
+    "Webhook Chatwoot": [
+      {
+        "json": {
+          "headers": {
+            "host": "myeditor.uniqueads.com.br",
+            "user-agent": "node",
+            "content-length": "933",
+            "accept": "*/*",
+            "accept-encoding": "br, gzip, deflate",
+            "accept-language": "*",
+            "content-type": "application/json",
+            "sec-fetch-mode": "cors",
+            "x-forwarded-for": "177.62.71.41",
+            "x-forwarded-host": "myeditor.uniqueads.com.br",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "ce3e84c25547",
+            "x-real-ip": "177.62.71.41"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "system_ids": {
+              "chatwoot_url": "https://messages.uniqueads.com.br",
+              "chatwoot_account_id": 1
+            },
+            "labels": [
+              "testando-agente",
+              "agente-off",
+              "gestor"
+            ],
+            "custom_attributes": [
+              {
+                "attribute_key": "preferencia_audio_texto",
+                "attribute_display_name": "Preferência Áudio/Texto",
+                "attribute_model": "contact_attribute",
+                "attribute_type": "text"
+              },
+              {
+                "attribute_key": "asaas_id_cliente",
+                "attribute_display_name": "Asaas ID Cliente",
+                "attribute_model": "contact_attribute",
+                "attribute_type": "text"
+              },
+              {
+                "attribute_key": "asaas_id_cobranca",
+                "attribute_display_name": "Asaas ID Cobrança",
+                "attribute_model": "contact_attribute",
+                "attribute_type": "text"
+              },
+              {
+                "attribute_key": "asaas_status_cobranca",
+                "attribute_display_name": "Asaas Status Cobrança",
+                "attribute_model": "contact_attribute",
+                "attribute_type": "text"
+              },
+              {
+                "attribute_key": "permitir_chamadas_whatsapp",
+                "attribute_display_name": "Permitir Chamadas WhatsApp",
+                "attribute_model": "contact_attribute",
+                "attribute_type": "checkbox"
+              }
+            ]
+          },
+          "webhookUrl": "https://myeditor.uniqueads.com.br/webhook/config/chatwoot",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ],
+    "Webhook PostgreSQL": [
+      {
+        "json": {
+          "headers": {
+            "host": "myeditor.uniqueads.com.br",
+            "user-agent": "node",
+            "content-length": "3812",
+            "accept": "*/*",
+            "accept-encoding": "br, gzip, deflate",
+            "accept-language": "*",
+            "content-type": "application/json",
+            "sec-fetch-mode": "cors",
+            "x-forwarded-for": "177.62.71.41",
+            "x-forwarded-host": "myeditor.uniqueads.com.br",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "ce3e84c25547",
+            "x-real-ip": "177.62.71.41"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "business_data": {
+              "nome_secretaria": "Mariana",
+              "nome_empresa": "Clínica Bicalho",
+              "endereco": "Rua Frei Inácio da Conceção, 550 - Vl São Luís",
+              "cidade_estado": "São Paulo/SP",
+              "telefone": "(11) 4321-4321",
+              "whatsapp": "(11) 99999-9999",
+              "email": "clinica@bicalho.com.br",
+              "site": "clinica.com.br",
+              "horario_funcionamento": "{\"sexta\":{\"fim\":\"18:00\",\"aberto\":true,\"inicio\":\"08:00\"},\"terca\":{\"fim\":\"18:00\",\"aberto\":true,\"inicio\":\"08:00\"},\"quarta\":{\"fim\":\"18:00\",\"aberto\":true,\"inicio\":\"08:00\"},\"quinta\":{\"fim\":\"18:00\",\"aberto\":true,\"inicio\":\"08:00\"},\"sabado\":{\"fim\":\"12:00\",\"aberto\":true,\"inicio\":\"08:00\"},\"domingo\":{\"fim\":\"\",\"aberto\":false,\"inicio\":\"\"},\"segunda\":{\"fim\":\"18:00\",\"aberto\":true,\"inicio\":\"08:00\"}}",
+              "formas_pagamento": [
+                "pix",
+                "cartao",
+                "dinheiro"
+              ],
+              "prazo_pagamento": "0",
+              "convenios": [
+                {
+                  "nome": "Sul América",
+                  "produtos": [
+                    "888",
+                    "557"
+                  ]
+                }
+              ]
+            },
+            "system_ids": {
+              "chatwoot_account_id": 1,
+              "chatwoot_inbox_id": 7,
+              "id_conversa_alerta": 21,
+              "chatwoot_url": "https://messages.uniqueads.com.br",
+              "asaas_url": "https://api-sandbox.asaas.com",
+              "google_tasks_list_id": "",
+              "retell_sip_usuario": "retell"
+            },
+            "features": {
+              "lembretes_horas": [
+                24,
+                2
+              ],
+              "follow_ups_horas": [
+                6,
+                24,
+                48
+              ],
+              "tipo_follow_ups": [
+                "mensagem",
+                "ligacao_whatsapp",
+                "ligacao_telefone"
+              ],
+              "max_followups": 3
+            },
+            "credentials": {
+              "telefone_twilio": "+5511936229420",
+              "telefone_twilio_whatsapp": "+551150289695"
+            },
+            "professionals": [
+              {
+                "nome": "Dr. João Paulo Ferreira",
+                "especialidade": "Clínico Geral",
+                "calendar_id": "c_8168050b0340a4fd5fe29fb76a2a05118ba0bdb1ab1a7199fd110057806e3f77@group.calendar.google.com",
+                "duracao_minutos": 30,
+                "valor_consulta": 350,
+                "aceita_convenio": true,
+                "disponibilidade": {
+                  "blocos": {
+                    "sexta": [
+                      {
+                        "fim": "18:00",
+                        "inicio": "08:00"
+                      }
+                    ],
+                    "terca": [
+                      {
+                        "fim": "18:00",
+                        "inicio": "08:00"
+                      }
+                    ],
+                    "quarta": [
+                      {
+                        "fim": "18:00",
+                        "inicio": "08:00"
+                      }
+                    ],
+                    "quinta": [
+                      {
+                        "fim": "18:00",
+                        "inicio": "08:00"
+                      }
+                    ],
+                    "sabado": [
+                      {
+                        "fim": "12:00",
+                        "inicio": "08:00"
+                      }
+                    ],
+                    "domingo": [],
+                    "segunda": [
+                      {
+                        "fim": "18:00",
+                        "inicio": "08:00"
+                      }
+                    ]
+                  },
+                  "usarHorarioEmpresa": true
+                },
+                "ativo": true
+              },
+              {
+                "nome": "Dr. Roberto Almeida",
+                "especialidade": "Cardiologista",
+                "calendar_id": "c_063dd95aba02e5611f1283c030a22d79575de0dcc4042ad5427ff6c00e652465@group.calendar.google.com",
+                "duracao_minutos": 30,
+                "valor_consulta": 275,
+                "aceita_convenio": true,
+                "disponibilidade": {
+                  "blocos": {
+                    "sexta": [
+                      {
+                        "fim": "18:00",
+                        "inicio": "08:00"
+                      }
+                    ],
+                    "terca": [
+                      {
+                        "fim": "18:00",
+                        "inicio": "08:00"
+                      }
+                    ],
+                    "quarta": [
+                      {
+                        "fim": "18:00",
+                        "inicio": "08:00"
+                      }
+                    ],
+                    "quinta": [
+                      {
+                        "fim": "18:00",
+                        "inicio": "08:00"
+                      }
+                    ],
+                    "sabado": [
+                      {
+                        "fim": "12:00",
+                        "inicio": "08:00"
+                      }
+                    ],
+                    "domingo": [],
+                    "segunda": [
+                      {
+                        "fim": "18:00",
+                        "inicio": "08:00"
+                      }
+                    ]
+                  },
+                  "usarHorarioEmpresa": true
+                },
+                "ativo": true
+              },
+              {
+                "nome": "Dra. Ana Silva",
+                "especialidade": "Dentista- Clínica Geral",
+                "calendar_id": "c_ef63e938ff3ff758c72f978e0d2c98e61883e9a6f511d4ab7a7aecd39f9a2fd0@group.calendar.google.com",
+                "duracao_minutos": 30,
+                "valor_consulta": 185,
+                "aceita_convenio": true,
+                "disponibilidade": {
+                  "blocos": {
+                    "sexta": [
+                      {
+                        "fim": "18:00",
+                        "inicio": "08:00"
+                      }
+                    ],
+                    "terca": [
+                      {
+                        "fim": "18:00",
+                        "inicio": "08:00"
+                      }
+                    ],
+                    "quarta": [
+                      {
+                        "fim": "18:00",
+                        "inicio": "08:00"
+                      }
+                    ],
+                    "quinta": [
+                      {
+                        "fim": "18:00",
+                        "inicio": "08:00"
+                      }
+                    ],
+                    "sabado": [
+                      {
+                        "fim": "12:00",
+                        "inicio": "08:00"
+                      }
+                    ],
+                    "domingo": [],
+                    "segunda": [
+                      {
+                        "fim": "18:00",
+                        "inicio": "08:00"
+                      }
+                    ]
+                  },
+                  "usarHorarioEmpresa": true
+                },
+                "ativo": true
+              },
+              {
+                "nome": "Dra. Carla Mendes",
+                "especialidade": "Odontopediatra",
+                "calendar_id": "c_098182ec792dfa350d38ebeb4ea06f5b23425b9dc36a01e05e5d6edfa6af1f49@group.calendar.google.com",
+                "duracao_minutos": 30,
+                "valor_consulta": 164.97,
+                "aceita_convenio": true,
+                "disponibilidade": {
+                  "blocos": {
+                    "sexta": [
+                      {
+                        "fim": "18:00",
+                        "inicio": "08:00"
+                      }
+                    ],
+                    "terca": [
+                      {
+                        "fim": "18:00",
+                        "inicio": "08:00"
+                      }
+                    ],
+                    "quarta": [
+                      {
+                        "fim": "18:00",
+                        "inicio": "08:00"
+                      }
+                    ],
+                    "quinta": [
+                      {
+                        "fim": "18:00",
+                        "inicio": "08:00"
+                      }
+                    ],
+                    "sabado": [
+                      {
+                        "fim": "12:00",
+                        "inicio": "08:00"
+                      }
+                    ],
+                    "domingo": [],
+                    "segunda": [
+                      {
+                        "fim": "18:00",
+                        "inicio": "08:00"
+                      }
+                    ]
+                  },
+                  "usarHorarioEmpresa": true
+                },
+                "ativo": true
+              }
+            ],
+            "retell_sip_password": "ZOCtEu9jy3a4scTPgh6I"
+          },
+          "webhookUrl": "https://myeditor.uniqueads.com.br/webhook/config/postgresql",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook PostgreSQL": {
+      "main": [
+        [
+          {
+            "node": "Criar tabelas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar tabelas": {
+      "main": [
+        [
+          {
+            "node": "Set Body PostgreSQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Body PostgreSQL": {
+      "main": [
+        [
+          {
+            "node": "Inserir Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inserir Config": {
+      "main": [
+        [
+          {
+            "node": "Get Professionals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Professionals": {
+      "main": [
+        [
+          {
+            "node": "Split Profissionais",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Profissionais": {
+      "main": [
+        [
+          {
+            "node": "Inserir Profissionais",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inserir Profissionais": {
+      "main": [
+        [
+          {
+            "node": "Respond PostgreSQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Chatwoot": {
+      "main": [
+        [
+          {
+            "node": "Set Body Chatwoot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Body Chatwoot": {
+      "main": [
+        [
+          {
+            "node": "Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Info": {
+      "main": [
+        [
+          {
+            "node": "Criar etiqueta testando-agente",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Cria atributo preferência áudio texto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar etiqueta testando-agente": {
+      "main": [
+        [
+          {
+            "node": "Criar etiqueta agente-off",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar etiqueta agente-off": {
+      "main": [
+        [
+          {
+            "node": "Criar etiqueta gestor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar etiqueta gestor": {
+      "main": [
+        [
+          {
+            "node": "Merge Chatwoot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cria atributo preferência áudio texto": {
+      "main": [
+        [
+          {
+            "node": "Cria atributo Asaas ID cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cria atributo Asaas ID cliente": {
+      "main": [
+        [
+          {
+            "node": "Cria atributo Asaas ID cobrança",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cria atributo Asaas ID cobrança": {
+      "main": [
+        [
+          {
+            "node": "Cria atributo Asaas status cobrança",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cria atributo Asaas status cobrança": {
+      "main": [
+        [
+          {
+            "node": "Cria atributo permitir chamadas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cria atributo permitir chamadas": {
+      "main": [
+        [
+          {
+            "node": "Merge Chatwoot",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Chatwoot": {
+      "main": [
+        [
+          {
+            "node": "Respond Chatwoot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Twilio": {
+      "main": [
+        [
+          {
+            "node": "Set Body Twilio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Body Twilio": {
+      "main": [
+        [
+          {
+            "node": "Buscar template de ligações",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar template de ligações": {
+      "main": [
+        [
+          {
+            "node": "Template já criado?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Template já criado?": {
+      "main": [
+        [
+          {
+            "node": "Respond Twilio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Criar template de ligações",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar template de ligações": {
+      "main": [
+        [
+          {
+            "node": "Respond Twilio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "20e656a2-3d11-4ae8-b0b0-e32a4eb69db4",
+  "meta": {
+    "instanceId": "715a68c7cbc350774eb1fc64655865ae67c7d2b3860e8e8de01712db5856e1ab"
+  },
+  "id": "VFDyn9xufwM3PP71",
+  "tags": []
+}

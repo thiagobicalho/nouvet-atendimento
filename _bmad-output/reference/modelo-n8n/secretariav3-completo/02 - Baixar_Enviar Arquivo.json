@@ -1,0 +1,212 @@
+{
+  "name": "02 - Baixar/Enviar Arquivo",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.file_id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        8864,
+        16048
+      ],
+      "id": "63590d72-360c-426f-ad82-ef0cb5b3868f",
+      "name": "Baixar arquivo",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "AwXpxKRq0Hu4QfQC",
+          "name": "Google Drive - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "71dda3d7-4505-4d03-b70f-63f5c005c0c3",
+              "name": "resultado",
+              "value": "=ok",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        9280,
+        16048
+      ],
+      "id": "c31a5bec-475f-453b-9241-4fb6cf3e84c5",
+      "name": "Output"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Gatilho').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Gatilho').item.json.id_conta }}/conversations/{{ $('Gatilho').item.json.id_conversa }}/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "fazerAiChatwootApi",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "attachments[]",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        9072,
+        16048
+      ],
+      "id": "24958160-4a35-4cff-8786-403433b8e318",
+      "name": "Enviar arquivo",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "file_id"
+            },
+            {
+              "name": "id_conta"
+            },
+            {
+              "name": "id_conversa"
+            },
+            {
+              "name": "url_chatwoot"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        8656,
+        16048
+      ],
+      "id": "330ad69d-f03a-44ab-8796-22eaef4ac2a8",
+      "name": "Gatilho"
+    },
+    {
+      "parameters": {
+        "content": "# Checklist\n- [ ] Abrir nodes do Google Drive e Chatwoot para selecionar credenciais",
+        "height": 128,
+        "width": 512,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        9520,
+        15952
+      ],
+      "id": "728584ea-5c3f-429e-95f8-2faf54f31387",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "## 02. Baixar e enviar arquivo do Google Drive",
+        "height": 80,
+        "width": 544,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        8592,
+        15824
+      ],
+      "id": "55ca7102-3220-45af-838b-10a92e953a1d",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "content": "## Baixar e enviar arquivo",
+        "height": 276,
+        "width": 876,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        8592,
+        15952
+      ],
+      "typeVersion": 1,
+      "id": "a420ab19-609c-45d9-98c1-989d58a1145d",
+      "name": "Sticky Note3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Baixar arquivo": {
+      "main": [
+        [
+          {
+            "node": "Enviar arquivo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar arquivo": {
+      "main": [
+        [
+          {
+            "node": "Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gatilho": {
+      "main": [
+        [
+          {
+            "node": "Baixar arquivo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "fbcfad6f-f776-49f4-9901-f7dc72bb19e0",
+  "meta": {
+    "instanceId": "715a68c7cbc350774eb1fc64655865ae67c7d2b3860e8e8de01712db5856e1ab"
+  },
+  "id": "AueVlv8gXdvgzCeH",
+  "tags": []
+}

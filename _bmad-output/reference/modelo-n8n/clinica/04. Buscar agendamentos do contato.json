@@ -1,0 +1,278 @@
+{
+  "name": "04. Buscar agendamentos do contato",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "id_profissional"
+            },
+            {
+              "name": "telefone"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        1648,
+        912
+      ],
+      "id": "756423b8-d73a-4213-8c0a-7cc6e5a8f843",
+      "name": "Gatilho"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b6888d0b-b4bc-44fb-b5e3-4d2d91f8d7a3",
+              "name": "dra-ana-costa",
+              "value": "<selecionar ID da agenda no Google Calendar>",
+              "type": "string"
+            },
+            {
+              "id": "64e5a38a-7045-4a54-80b8-e54715c0b7e5",
+              "name": "dr-ricardo-lima",
+              "value": "<selecionar ID da agenda no Google Calendar>",
+              "type": "string"
+            },
+            {
+              "id": "85f4ac2d-69d5-454a-95c1-dd40916c4af2",
+              "name": "dra-beatriz-souza",
+              "value": "<selecionar ID da agenda no Google Calendar>",
+              "type": "string"
+            },
+            {
+              "id": "ef406009-2ae0-4c45-962f-42f69632f46f",
+              "name": "dr-felipe-torres",
+              "value": "<selecionar ID da agenda no Google Calendar>",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {
+          "dotNotation": false
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1840,
+        912
+      ],
+      "id": "be806858-7d58-456e-b626-cc081c0ce976",
+      "name": "ID agendas"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d4e5a5c3-cecc-461a-90ad-34fe97d3cc0c",
+              "name": "id_agenda",
+              "value": "={{ $('ID agendas').item.json[$('Gatilho').item.json.id_profissional] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2032,
+        912
+      ],
+      "id": "72dab636-ca9a-4836-8540-e3895c2e39e4",
+      "name": "Configurações"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "={{ $json.id_agenda }}",
+          "mode": "id"
+        },
+        "returnAll": true,
+        "timeMax": "=",
+        "options": {
+          "query": "={{ $('Gatilho').item.json.telefone }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        2240,
+        912
+      ],
+      "id": "d89a0a07-32da-4e1c-af56-20bf716e2503",
+      "name": "Buscar agendamentos do contato"
+    },
+    {
+      "parameters": {
+        "content": "## Quer entender como funciona?\n\n\n### Assista o vídeo, deixe um like, e se inscreva no canal para ter acesso a mais workflows como esse!\n\n[![Vídeo YouTube Secretária v3](https://i1.ytimg.com/vi_webp/vYtaGw3vRII/maxresdefault.webp)](https://www.youtube.com/watch?v=vYtaGw3vRII)",
+        "height": 440,
+        "width": 500,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1424,
+        320
+      ],
+      "id": "0122e2e4-5761-49e1-b69f-fc911ae6774e",
+      "name": "Sticky Note13"
+    },
+    {
+      "parameters": {
+        "content": "## [Clique aqui e entre agora para tirar suas dúvidas](https://lucasmoreira.fazer.ai)\n[![Banner comunidade](https://framerusercontent.com/images/KIXMxk9eKCoCsNeVm1oaz5HnaQ.png)](https://lucasmoreira.fazer.ai)",
+        "height": 440,
+        "width": 1380,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1936,
+        320
+      ],
+      "id": "aad1f9d8-7355-48a2-9625-8df6d4841816",
+      "name": "Sticky Note36"
+    },
+    {
+      "parameters": {
+        "content": "## Usei Hostinger pra este workflow.\n## Replique aqui.\n\n\n\n\n\n\n\n\n\n## [Use o cupom `FAZERAI` pra ter 10% de desconto na sua primeira compra!](https://www.hostg.xyz/SHIwa)\n",
+        "height": 316,
+        "width": 552,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        864,
+        768
+      ],
+      "id": "3d3d283d-d4f9-4a58-b605-e4984f77a605",
+      "name": "Sticky Note21"
+    },
+    {
+      "parameters": {
+        "content": "[![Hostinger](https://framerusercontent.com/images/ptGVDA4KqG8GLNlWRDzFxaM.png?width=600&height=119)](https://www.hostg.xyz/SHIwa)\n",
+        "height": 96,
+        "width": 324,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        976,
+        880
+      ],
+      "id": "3370d3ed-6a77-4c27-842d-4a8c29582ee6",
+      "name": "Sticky Note29"
+    },
+    {
+      "parameters": {
+        "content": "[![fazer.ai](https://framerusercontent.com/images/HqY9djLTzyutSKnuLLqBr92KbM.png?scale-down-to=256)](https://fazer.ai?utm_source=n8n&utm_campaign=sec-v3)\n\n## Esse é um template faça você mesmo do canal\n## Lucas Moreira\n\n### Inscreva-se no nosso canal no YouTube\n[![YouTube Lucas Moreira](https://img.shields.io/youtube/channel/subscribers/UCtmp6SxzLscu0GRTbgM8FTw?style=flat-square&logo=youtube&label=Inscreva-se&color=f00)](https://youtube.com/@eulucassmoreira?si=0lH7hwX9pukjhmPQ)\n[![Instagram](https://img.shields.io/badge/instagram-black?logo=instagram&style=for-the-badge)](https://instagram.com/eulucassmoreira)\n[![GitHub fazer.ai](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white&label)](https://github.com/fazer-ai)\n",
+        "height": 440,
+        "width": 550,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        864,
+        320
+      ],
+      "id": "6787794d-10a4-4787-8aa5-aff2fffd2bdc",
+      "name": "Sticky Note12"
+    },
+    {
+      "parameters": {
+        "content": "## Buscar agendamentos do contato",
+        "height": 272,
+        "width": 848,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1584,
+        832
+      ],
+      "id": "de0fc90b-172a-4bdc-bdeb-53ef4250d9ba",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# Checklist\n- [ ] Credencial Google Calendar\n- [ ] Configurar node \"ID agendas\"",
+        "height": 128,
+        "width": 352,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1584,
+        1120
+      ],
+      "id": "dcd41c7b-b956-4a27-b87c-97ddfdbc3b8e",
+      "name": "Sticky Note8"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gatilho": {
+      "main": [
+        [
+          {
+            "node": "ID agendas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ID agendas": {
+      "main": [
+        [
+          {
+            "node": "Configurações",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configurações": {
+      "main": [
+        [
+          {
+            "node": "Buscar agendamentos do contato",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "8db29350-d881-4535-8f49-678bf39aabac",
+  "meta": {
+    "instanceId": "715a68c7cbc350774eb1fc64655865ae67c7d2b3860e8e8de01712db5856e1ab"
+  },
+  "id": "x8HwkXFqlRRrddwm",
+  "tags": []
+}

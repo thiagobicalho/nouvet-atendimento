@@ -1,0 +1,117 @@
+Installed 7 packages in 6ms
+{
+  "scanner": "prompt-metrics-prepass",
+  "script": "prepass-prompt-metrics.py",
+  "version": "2.0.0",
+  "skill_path": ".claude/skills/rd-station-api",
+  "timestamp": "2026-09-01T00:43:58.635034+00:00",
+  "budgets": {
+    "skill_md_tokens": [
+      1500,
+      2500
+    ],
+    "multi_branch_reference_tokens": 4500,
+    "single_purpose_reference_tokens": 9000
+  },
+  "skill_md": {
+    "tokens": 978,
+    "token_method": "tiktoken",
+    "section_count": 4,
+    "frontmatter": {
+      "name": "rd-station-api",
+      "description": "Reference for the RD Station Conversas and CRM APIs as used by the Atendimento Nouvet Piloto. Use when building or reviewing an n8n node that calls RD Station, or when asked about RD Station auth, contacts, deals, funnel/pipeline stages, or webhooks.",
+      "description_chars": 250,
+      "description_has_angle_brackets": false,
+      "keys": [
+        "description",
+        "name"
+      ]
+    }
+  },
+  "aggregate": {
+    "total_files_scanned": 2,
+    "total_tokens": 1397,
+    "total_waste_patterns": 0,
+    "total_back_references": 0,
+    "files_with_numbered_prefix": 0
+  },
+  "reference_sizes": {
+    "conversas.md": {
+      "tokens": 979,
+      "token_method": "tiktoken",
+      "numbered_prefix_filename": false
+    },
+    "crm.md": {
+      "tokens": 961,
+      "token_method": "tiktoken",
+      "numbered_prefix_filename": false
+    }
+  },
+  "files": [
+    {
+      "file": "SKILL.md",
+      "tokens": 978,
+      "token_method": "tiktoken",
+      "sections": [
+        {
+          "level": 2,
+          "title": "Antes de tudo: s\u00e3o duas APIs, dois tenants, duas credenciais"
+        },
+        {
+          "level": 2,
+          "title": "Roteamento"
+        },
+        {
+          "level": 2,
+          "title": "Gotchas que n\u00e3o saltam aos olhos lendo a doc"
+        },
+        {
+          "level": 2,
+          "title": "Conta Nouvet (confirmado com Thiago, 2026-08-31)"
+        }
+      ],
+      "table_count": 0,
+      "table_rows": 0,
+      "fenced_block_count": 0,
+      "allcaps_directive_count": 0,
+      "numbered_prefix_filename": false,
+      "waste_patterns": [],
+      "back_references": [],
+      "frontmatter": {
+        "name": "rd-station-api",
+        "description": "Reference for the RD Station Conversas and CRM APIs as used by the Atendimento Nouvet Piloto. Use when building or reviewing an n8n node that calls RD Station, or when asked about RD Station auth, contacts, deals, funnel/pipeline stages, or webhooks.",
+        "description_chars": 250,
+        "description_has_angle_brackets": false,
+        "keys": [
+          "description",
+          "name"
+        ]
+      },
+      "is_skill_md": true
+    },
+    {
+      "file": ".memlog.md",
+      "tokens": 419,
+      "token_method": "tiktoken",
+      "sections": [],
+      "table_count": 0,
+      "table_rows": 0,
+      "fenced_block_count": 0,
+      "allcaps_directive_count": 0,
+      "numbered_prefix_filename": false,
+      "waste_patterns": [],
+      "back_references": [],
+      "frontmatter": {
+        "name": "",
+        "description": "",
+        "description_chars": 0,
+        "description_has_angle_brackets": false,
+        "keys": [
+          "topic",
+          "updated"
+        ]
+      },
+      "is_skill_md": false
+    }
+  ]
+}

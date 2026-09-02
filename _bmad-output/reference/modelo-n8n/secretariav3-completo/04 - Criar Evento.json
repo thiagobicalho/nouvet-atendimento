@@ -1,0 +1,496 @@
+{
+  "name": "04 - Criar Evento",
+  "nodes": [
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "={{ $('Gatilho').item.json.id_agenda }}",
+          "mode": "id"
+        },
+        "start": "={{ $('Gatilho').item.json.evento_inicio }}",
+        "end": "={{ $('Calcula fim do evento').item.json.evento_fim }}",
+        "additionalFields": {
+          "attendees": [],
+          "conferenceDataUi": {
+            "conferenceDataValues": {
+              "conferenceSolution": "hangoutsMeet"
+            }
+          },
+          "description": "={{ $('Gatilho').item.json.descricao }}",
+          "summary": "={{ $('Gatilho').item.json.titulo }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        7488,
+        14048
+      ],
+      "id": "159cc8c1-c415-4c62-b75c-47cb5c2f2a12",
+      "name": "Cria o evento",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "YGxt6ClFXRt6vigo",
+          "name": "Google Calendar - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0423c482-5749-4c92-ba44-a33b281918a6",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        7232,
+        14144
+      ],
+      "id": "c653ccb5-6e04-4f15-8071-36a9a55d807b",
+      "name": "Janela disponível?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9a677f76-5e00-43f7-8f7d-6de17744391b",
+              "name": "erro",
+              "value": "HORÁRIO INDISPONÍVEL. VERIFICAR SE AGENDAMENTO JÁ NÃO FOI REALIZADO PARA ESSE CONTATO.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        7584,
+        14272
+      ],
+      "id": "87fe46fd-4ba1-4a48-90a9-ab6e7d891fa8",
+      "name": "Retorna \"horário indisponível\""
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "evento_inicio"
+            },
+            {
+              "name": "duracao_minutos",
+              "type": "number"
+            },
+            {
+              "name": "titulo"
+            },
+            {
+              "name": "descricao"
+            },
+            {
+              "name": "id_agenda"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        6368,
+        14144
+      ],
+      "id": "ed0fddca-9fcf-490e-b360-29e662a1c04c",
+      "name": "Gatilho"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a94abf94-1a64-4995-b4f1-4644993b3ece",
+              "name": "evento_fim",
+              "value": "={{ $('Gatilho').item.json.evento_inicio.toDateTime().plus($('Buscar duração do profissional').item.json.duracao_minutos, 'minutes').toString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        6816,
+        14144
+      ],
+      "id": "adbb9b28-0153-4aa0-b0ea-69059dcba8b3",
+      "name": "Calcula fim do evento"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "yP4Vk0GcYkJePyrh",
+          "mode": "id"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "tamanho_janela_minutos": "={{ $('Buscar duração do profissional').item.json.duracao_minutos }}",
+            "periodo_inicio": "={{ $('Gatilho').item.json.evento_inicio }}",
+            "periodo_fim": "={{ $('Calcula fim do evento').item.json.evento_fim }}",
+            "id_agenda": "={{ $('Gatilho').item.json.id_agenda }}",
+            "amostras": 1
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "periodo_inicio",
+              "displayName": "periodo_inicio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "periodo_fim",
+              "displayName": "periodo_fim",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "id_agenda",
+              "displayName": "id_agenda",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "tamanho_janela_minutos",
+              "displayName": "tamanho_janela_minutos",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            },
+            {
+              "id": "granularidade",
+              "displayName": "granularidade",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": true
+            },
+            {
+              "id": "amostras",
+              "displayName": "amostras",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        7024,
+        14144
+      ],
+      "id": "1f77e007-76f3-45a8-a492-02f7e432281a",
+      "name": "Buscar janelas disponíveis",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "content": "### Subworkflow vinculado no deploy",
+        "height": 256,
+        "width": 256,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        6944,
+        14064
+      ],
+      "typeVersion": 1,
+      "id": "82b2cd00-1242-468d-97c0-4f7ebfba85f2",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "# Checklist\n- [ ] Vincular subworkflow 03 (Buscar janelas)\n- [ ] Abrir node do Google Calendar e selecionar credencial",
+        "height": 144,
+        "width": 480,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        6928,
+        14464
+      ],
+      "id": "8ae7943c-b3c0-4fe9-99e6-0c55375cce7c",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "## 04. Criar evento Google Calendar",
+        "height": 80,
+        "width": 480,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        6560,
+        13872
+      ],
+      "id": "de2fc47f-0ff6-4c23-91cb-ca37a2b927a7",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "content": "## Buscar janelas",
+        "height": 432,
+        "width": 848,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        6560,
+        13984
+      ],
+      "typeVersion": 1,
+      "id": "fbea408e-6bff-4b02-b25a-2dc85c2eed8a",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Criar o evento",
+        "height": 208,
+        "width": 448,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        7424,
+        13984
+      ],
+      "typeVersion": 1,
+      "id": "106ad313-6a7a-4648-8a4b-be0859cc714f",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Horário indisponível",
+        "height": 208,
+        "width": 448,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        7424,
+        14208
+      ],
+      "typeVersion": 1,
+      "id": "a4bb33f1-b86d-435e-9d9e-4fc993da4fbe",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "faa4a0a7-cdb9-4729-8a7e-27193513b89a",
+              "name": "resultado",
+              "value": "AGENDAMENTO CRIADO",
+              "type": "string"
+            },
+            {
+              "id": "e6ee1079-a033-4240-be55-f2fbfdcc94b2",
+              "name": "id_evento",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        7712,
+        14048
+      ],
+      "id": "556187ce-12b0-48b9-b1cf-7f081c4ed742",
+      "name": "Retorna evento criado"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT duracao_minutos FROM secretaria_profissionais WHERE calendar_id = '{{ $json.id_agenda }}'\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        6576,
+        14144
+      ],
+      "id": "acc50ff9-7cb5-4c0c-9658-cab6f79d3076",
+      "name": "Buscar duração do profissional",
+      "credentials": {
+        "postgres": {
+          "id": "hvkzoru976d3gWkp",
+          "name": "PostgreSQL - Secretaria Teste"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Gatilho": [
+      {
+        "json": {
+          "evento_inicio": "2026-05-01T10:00:00-03:00",
+          "titulo": "Thiago Bicalho",
+          "descricao": "Paciente: Thiago Bicalho\nDN: 04/10/1984\n\nTelefone: +5511989892343",
+          "id_agenda": "c_8168050b0340a4fd5fe29fb76a2a05118ba0bdb1ab1a7199fd110057806e3f77@group.calendar.google.com"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Cria o evento": {
+      "main": [
+        [
+          {
+            "node": "Retorna evento criado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Janela disponível?": {
+      "main": [
+        [
+          {
+            "node": "Cria o evento",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retorna \"horário indisponível\"",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gatilho": {
+      "main": [
+        [
+          {
+            "node": "Buscar duração do profissional",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calcula fim do evento": {
+      "main": [
+        [
+          {
+            "node": "Buscar janelas disponíveis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar janelas disponíveis": {
+      "main": [
+        [
+          {
+            "node": "Janela disponível?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar duração do profissional": {
+      "main": [
+        [
+          {
+            "node": "Calcula fim do evento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "47e00f6d-a6c6-4570-a2b8-904ae455c2ef",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "715a68c7cbc350774eb1fc64655865ae67c7d2b3860e8e8de01712db5856e1ab"
+  },
+  "id": "v0bMSZSn4EgzwG3s",
+  "tags": []
+}

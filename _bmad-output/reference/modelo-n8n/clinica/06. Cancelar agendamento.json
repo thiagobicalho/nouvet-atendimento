@@ -1,0 +1,294 @@
+{
+  "name": "06. Cancelar agendamento",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "id_profissional"
+            },
+            {
+              "name": "id_conversa"
+            },
+            {
+              "name": "id_evento"
+            },
+            {
+              "name": "id_conta"
+            },
+            {
+              "name": "tarefa",
+              "type": "object"
+            },
+            {
+              "name": "motivo_cancelamento"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        2016,
+        784
+      ],
+      "id": "bff2fa3d-f45d-46f1-a06d-621461b17d34",
+      "name": "Gatilho"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b6888d0b-b4bc-44fb-b5e3-4d2d91f8d7a3",
+              "name": "dra-ana-costa",
+              "value": "<selecionar ID da agenda no Google Calendar>",
+              "type": "string"
+            },
+            {
+              "id": "64e5a38a-7045-4a54-80b8-e54715c0b7e5",
+              "name": "dr-ricardo-lima",
+              "value": "<selecionar ID da agenda no Google Calendar>",
+              "type": "string"
+            },
+            {
+              "id": "85f4ac2d-69d5-454a-95c1-dd40916c4af2",
+              "name": "dra-beatriz-souza",
+              "value": "<selecionar ID da agenda no Google Calendar>",
+              "type": "string"
+            },
+            {
+              "id": "ef406009-2ae0-4c45-962f-42f69632f46f",
+              "name": "dr-felipe-torres",
+              "value": "<selecionar ID da agenda no Google Calendar>",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {
+          "dotNotation": false
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2208,
+        784
+      ],
+      "id": "35156258-31cb-4990-881a-aa2c89c023b0",
+      "name": "ID agendas"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d4e5a5c3-cecc-461a-90ad-34fe97d3cc0c",
+              "name": "id_agenda",
+              "value": "={{ $('ID agendas').item.json[$('Gatilho').item.json.id_profissional] }}",
+              "type": "string"
+            },
+            {
+              "id": "97b938d9-8b1d-4a55-acb4-5e584136d75d",
+              "name": "id_etapa_cancelada",
+              "value": "={{ $('Gatilho').item.json.tarefa.board.steps.find(s => s.cancelled)?.id ?? '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2400,
+        784
+      ],
+      "id": "896bb866-086e-4bcf-9c26-ef030f3b0a28",
+      "name": "Configurações"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "={{ $json.id_agenda }}",
+          "mode": "id"
+        },
+        "eventId": "={{ $('Gatilho').item.json.id_evento }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        2608,
+        784
+      ],
+      "id": "3f6c339c-a56d-48c8-adab-a39dbd44140a",
+      "name": "Cancelar agendamento"
+    },
+    {
+      "parameters": {
+        "content": "## Quer entender como funciona?\n\n\n### Assista o vídeo, deixe um like, e se inscreva no canal para ter acesso a mais workflows como esse!\n\n[![Vídeo YouTube Secretária v3](https://i1.ytimg.com/vi_webp/vYtaGw3vRII/maxresdefault.webp)](https://www.youtube.com/watch?v=vYtaGw3vRII)",
+        "height": 440,
+        "width": 500,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1792,
+        160
+      ],
+      "id": "ef8f2063-e6ff-4257-a8b9-cc025331aed3",
+      "name": "Sticky Note13"
+    },
+    {
+      "parameters": {
+        "content": "## [Clique aqui e entre agora para tirar suas dúvidas](https://lucasmoreira.fazer.ai)\n[![Banner comunidade](https://framerusercontent.com/images/KIXMxk9eKCoCsNeVm1oaz5HnaQ.png)](https://lucasmoreira.fazer.ai)",
+        "height": 440,
+        "width": 1380,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2304,
+        160
+      ],
+      "id": "8dbb16a9-9793-4dd8-b4e4-fa997d479bfc",
+      "name": "Sticky Note36"
+    },
+    {
+      "parameters": {
+        "content": "## Usei Hostinger pra este workflow.\n## Replique aqui.\n\n\n\n\n\n\n\n\n\n## [Use o cupom `FAZERAI` pra ter 10% de desconto na sua primeira compra!](https://www.hostg.xyz/SHIwa)",
+        "height": 316,
+        "width": 552,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        608
+      ],
+      "id": "b86764a8-9fd3-4858-8392-b80f97e9d70d",
+      "name": "Sticky Note21"
+    },
+    {
+      "parameters": {
+        "content": "[![Hostinger](https://framerusercontent.com/images/ptGVDA4KqG8GLNlWRDzFxaM.png?width=600&height=119)](https://www.hostg.xyz/SHIwa)\n",
+        "height": 96,
+        "width": 324,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        720
+      ],
+      "id": "85a8d81c-2a20-4f7f-a816-8a8b96d11b92",
+      "name": "Sticky Note29"
+    },
+    {
+      "parameters": {
+        "content": "[![fazer.ai](https://framerusercontent.com/images/HqY9djLTzyutSKnuLLqBr92KbM.png?scale-down-to=256)](https://fazer.ai?utm_source=n8n&utm_campaign=sec-v3)\n\n## Esse é um template faça você mesmo do canal\n## Lucas Moreira\n\n### Inscreva-se no nosso canal no YouTube\n[![YouTube Lucas Moreira](https://img.shields.io/youtube/channel/subscribers/UCtmp6SxzLscu0GRTbgM8FTw?style=flat-square&logo=youtube&label=Inscreva-se&color=f00)](https://youtube.com/@eulucassmoreira?si=0lH7hwX9pukjhmPQ)\n[![Instagram](https://img.shields.io/badge/instagram-black?logo=instagram&style=for-the-badge)](https://instagram.com/eulucassmoreira)\n[![GitHub fazer.ai](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white&label)](https://github.com/fazer-ai)\n",
+        "height": 440,
+        "width": 550,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        160
+      ],
+      "id": "131e9c6b-9d64-40eb-9c8f-aff3ad8766cc",
+      "name": "Sticky Note12"
+    },
+    {
+      "parameters": {
+        "content": "## Cancelar agendamento",
+        "height": 272,
+        "width": 848,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1952,
+        704
+      ],
+      "id": "0aca95b1-604b-4961-932c-43891b9d9846",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# Checklist\n- [ ] Credencial Google Calendar\n- [ ] Configurar node \"ID agendas\"",
+        "height": 128,
+        "width": 352,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1952,
+        992
+      ],
+      "id": "b9849e15-2b45-421e-b273-1a768c44aa93",
+      "name": "Sticky Note8"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gatilho": {
+      "main": [
+        [
+          {
+            "node": "ID agendas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ID agendas": {
+      "main": [
+        [
+          {
+            "node": "Configurações",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configurações": {
+      "main": [
+        [
+          {
+            "node": "Cancelar agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "5c53c36a-117e-4f35-a751-a2556dbe0265",
+  "meta": {
+    "instanceId": "715a68c7cbc350774eb1fc64655865ae67c7d2b3860e8e8de01712db5856e1ab"
+  },
+  "id": "2aOJazc7RiaWlYRT",
+  "tags": []
+}

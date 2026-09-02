@@ -1,0 +1,70 @@
+{
+  "scanner": "workflow-integrity-prepass",
+  "script": "prepass-workflow-integrity.py",
+  "version": "1.0.0",
+  "skill_path": ".claude/skills/rd-station-api",
+  "timestamp": "2026-09-01T00:43:58.724291+00:00",
+  "status": "warning",
+  "metadata": {
+    "frontmatter": {
+      "name": "rd-station-api",
+      "description": "Reference for the RD Station Conversas and CRM APIs as used by the Atendimento Nouvet Piloto. Use when building or reviewing an n8n node that calls RD Station, or when asked about RD Station auth, contacts, deals, funnel/pipeline stages, or webhooks."
+    },
+    "sections": [
+      {
+        "level": 2,
+        "title": "Antes de tudo: s\u00e3o duas APIs, dois tenants, duas credenciais",
+        "line": 10
+      },
+      {
+        "level": 2,
+        "title": "Roteamento",
+        "line": 14
+      },
+      {
+        "level": 2,
+        "title": "Gotchas que n\u00e3o saltam aos olhos lendo a doc",
+        "line": 19
+      },
+      {
+        "level": 2,
+        "title": "Conta Nouvet (confirmado com Thiago, 2026-08-31)",
+        "line": 29
+      }
+    ],
+    "workflow_type": "simple-utility"
+  },
+  "stage_summary": {
+    "total_stages": 0,
+    "referenced": [],
+    "actual": [],
+    "missing_stages": [],
+    "orphaned_stages": []
+  },
+  "prompt_details": [],
+  "issues": [
+    {
+      "file": "SKILL.md",
+      "line": 1,
+      "severity": "high",
+      "category": "sections",
+      "issue": "Missing ## Overview section"
+    },
+    {
+      "file": "SKILL.md",
+      "line": 1,
+      "severity": "high",
+      "category": "sections",
+      "issue": "Missing ## On Activation section"
+    }
+  ],
+  "summary": {
+    "total_issues": 2,
+    "by_severity": {
+      "critical": 0,
+      "high": 2,
+      "medium": 0,
+      "low": 0
+    }
+  }
+}

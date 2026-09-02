@@ -1,0 +1,796 @@
+{
+  "name": "02. Buscar janelas profissional",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "periodo_inicio"
+            },
+            {
+              "name": "periodo_fim"
+            },
+            {
+              "name": "id_profissional"
+            },
+            {
+              "name": "tamanho_janela_minutos",
+              "type": "number"
+            },
+            {
+              "name": "granularidade",
+              "type": "number"
+            },
+            {
+              "name": "amostras",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        1568,
+        1360
+      ],
+      "id": "6b194cf1-2b53-4915-a9e0-395acde36c4e",
+      "name": "Gatilho"
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * Divide um período de tempo em \"janelas\".\n */\nconst {\n  periodo_inicio_timestamp,\n  periodo_fim_timestamp,\n  granularidade,\n  tamanho_janela_minutos,\n} = $(\"Configurações\").first().json;\n\nconst total_minutos = (periodo_fim_timestamp - periodo_inicio_timestamp) / 60;\nconst quantidade_janelas = total_minutos / granularidade;\n\nconst janelas = [];\n\nfor (let janela_i = 0; janela_i < quantidade_janelas; janela_i++) {\n  const offset_janela = janela_i * granularidade * 60;\n  const inicio_janela_timestamp = periodo_inicio_timestamp + offset_janela;\n  const fim_janela_timestamp =\n    inicio_janela_timestamp + tamanho_janela_minutos * 60;\n\n  // Não criar janelas fora do período.\n  if (fim_janela_timestamp > periodo_fim_timestamp) {\n    break;\n  }\n\n  const inicio_janela = DateTime.fromSeconds(inicio_janela_timestamp);\n  const fim_janela = DateTime.fromSeconds(fim_janela_timestamp);\n\n  janelas.push({ inicio_janela, fim_janela });\n}\n\nreturn janelas;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3136,
+        1360
+      ],
+      "id": "1c4a7501-6e42-47c4-bd90-016244027451",
+      "name": "Gerar janelas de tempo",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * Filtra janelas pela disponibilidade.\n */\n\nconst DIAS = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sabado'];\n\nfunction tempo_para_minutos(tempo_str) {\n  const [horas, minutos] = tempo_str.split(':').map(Number);\n  return horas * 60 + minutos;\n}\n\nfunction janela_dentro_disponibilidade(janela, disponibilidade) {\n  const inicio = DateTime.fromISO(janela.inicio_janela);\n  const fim = DateTime.fromISO(janela.fim_janela);\n  \n  if (inicio.toISODate() !== fim.toISODate()) {\n    return false;\n  }\n  \n  const dia_semana = DIAS[inicio.weekday % 7];\n  const disponibilidade_dia = disponibilidade[dia_semana];\n  \n  if (!disponibilidade_dia || disponibilidade_dia.length === 0) {\n    return false;\n  }\n  \n  // .hour e .minute respeitam o timezone original\n  const inicio_janela = inicio.hour * 60 + inicio.minute;\n  const fim_janela = fim.hour * 60 + fim.minute;\n  \n  for (const periodo of disponibilidade_dia) {\n    const inicio_periodo = tempo_para_minutos(periodo.inicio);\n    const fim_periodo = tempo_para_minutos(periodo.fim);\n    \n    if (inicio_janela >= inicio_periodo && fim_janela <= fim_periodo) {\n      return true;\n    }\n  }\n  \n  return false;\n}\n\nconst janelas = $('Gerar janelas de tempo').all();\nconst { id_profissional } = $('Gatilho').first().json;\nconst disponibilidade = $('Disponibilidade').first().json[id_profissional];\n\nif (!disponibilidade) {\n  throw new Error('Disponibilidade não cadastrada para agenda. Verificar nó \"Disponibilidade\"');\n}\n\nreturn janelas.filter(janela => janela_dentro_disponibilidade(janela.json, disponibilidade));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3568,
+        1360
+      ],
+      "id": "2e81f6fc-cc06-4c38-8e94-a1670cc67104",
+      "name": "Filtrar disponibilidade",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "type": "random"
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        4016,
+        1360
+      ],
+      "id": "f6e0df54-d092-4371-9823-654dbf5391c7",
+      "name": "Aleatoriza a ordem",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * Selecionar amostras de janelas. Retorna todas caso número de amostras não seja informado.\n */\n\nconst { amostras } = $(\"Gatilho\").first().json;\n\nconst janelas = $(\"Aleatoriza a ordem\")\n  .all()\n  .map(({ json }) => json)\n  // Se `amostras` não foi informado, retorna todas as janelas\n  .slice(0, amostras ?? undefined);\n\nreturn janelas.sort(\n  (a, b) =>\n    new Date(a.inicio_janela).getTime() -\n    new Date(b.inicio_janela).getTime()\n);"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4240,
+        1360
+      ],
+      "id": "5cb29c7b-2345-43e4-9c63-b8b585852ba3",
+      "name": "Selecionar amostras",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * Verificar se as janelas de tempo disponíveis não conflitam com eventos já agendados.\n */\nconst janelas = $(\"Selecionar amostras\")\n  .all()\n  .map(({ json }) => ({\n    inicio_janela: DateTime.fromJSDate(new Date(json.inicio_janela)),\n    fim_janela: DateTime.fromJSDate(new Date(json.fim_janela)),\n  }));\n\nconst eventos = $(\"Consulta eventos no período\").all();\nconst id_agenda = $(\"Configurações\").first().json.id_agenda;\n\n// Se não há eventos agendados, todas as janelas estão disponíveis\nif (Object.keys(eventos[0].json).length === 0) {\n  return janelas.map(({ inicio_janela, fim_janela }) => ({\n    inicio_janela,\n    fim_janela,\n    id_agenda,\n  }));\n}\n\nconst periodo_eventos = eventos.map(({ json }) => ({\n  inicio_evento: DateTime.fromJSDate(new Date(json.start.dateTime)),\n  fim_evento: DateTime.fromJSDate(new Date(json.end.dateTime)),\n}));\n\nreturn janelas\n  .filter(({ inicio_janela, fim_janela }) => {\n    for (const { inicio_evento, fim_evento } of periodo_eventos) {\n      if (inicio_janela < fim_evento && fim_janela > inicio_evento) {\n        // Overlap da janela com o evento\n        return false;\n      }\n    }\n    return true;\n  })\n  .map(({ inicio_janela, fim_janela }) => ({\n    inicio_janela,\n    fim_janela,\n    id_agenda,\n  }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4464,
+        1360
+      ],
+      "id": "6cc778a7-e3ce-4ee7-bd38-811a176768a4",
+      "name": "Verificar eventos na agenda",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9e63d847-edcd-4d79-9526-b9d42f1358c7",
+              "leftValue": "={{ [10, 15, 20, 30, 45, 60, 90, 120] }}",
+              "rightValue": "={{ $json.tamanho_janela_minutos || 60 }}",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              }
+            },
+            {
+              "id": "e06a278f-6b16-4f1e-8e04-78002eb7f02d",
+              "leftValue": "={{ [10, 15, 20, 30, 45, 60, 90, 120] }}",
+              "rightValue": "={{ $json.granularidade || 30 }}",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1776,
+        1360
+      ],
+      "id": "0d1b12f6-5210-4ff5-be5b-47f3f41d3037",
+      "name": "Tamanho janela válido?"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "={{ $('Configurações').item.json.id_agenda }}",
+          "mode": "id"
+        },
+        "returnAll": true,
+        "timeMin": "={{ $('Configurações').item.json.periodo_inicio_timestamp.toDateTime('s') }}",
+        "timeMax": "={{ $('Configurações').item.json.periodo_fim_timestamp.toDateTime('s') }}",
+        "options": {
+          "recurringEventHandling": "expand",
+          "showHiddenInvitations": true
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        2912,
+        1360
+      ],
+      "id": "3b056851-1052-4494-aeeb-065a23e088e7",
+      "name": "Consulta eventos no período",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "YGxt6ClFXRt6vigo",
+          "name": "Google Calendar - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ed84157f-b3d7-454c-88e9-099a28153c0a",
+              "leftValue": "={{ $('Gatilho').item.json.periodo_inicio.toDateTime() }}",
+              "rightValue": "= {{ $now }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "afterOrEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1984,
+        1360
+      ],
+      "id": "128ee099-1103-49ee-aff1-b8c125abff5e",
+      "name": "Período válido?"
+    },
+    {
+      "parameters": {
+        "content": "### Configurar ID agendas e disponibilidade!",
+        "height": 256,
+        "width": 464,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2160,
+        1280
+      ],
+      "typeVersion": 1,
+      "id": "f9cfbaff-2f4c-48e0-8790-9899e61ced38",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "568f0822-bbc7-4e96-a32c-63953201e5b5",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3344,
+        1360
+      ],
+      "id": "e1ea233a-5070-46bc-b5b1-4be28d7cc2be",
+      "name": "Alguma janela?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "568f0822-bbc7-4e96-a32c-63953201e5b5",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3776,
+        1360
+      ],
+      "id": "36e09b58-a27d-443a-a3f2-1c1337d89d58",
+      "name": "Alguma janela?1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        4016,
+        1552
+      ],
+      "id": "554d4a4e-3350-4392-aeaf-975e107fb12d",
+      "name": "Retorna vazio"
+    },
+    {
+      "parameters": {
+        "errorMessage": "Tamanho da janela ou granularidade inválidos. Utilize um desses valores: [10, 15, 20, 30, 45, 60, 90, 120]"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        1984,
+        1552
+      ],
+      "id": "60bb55e2-3621-4e2c-8d65-77c61d8e222b",
+      "name": "Janela inválida"
+    },
+    {
+      "parameters": {
+        "errorMessage": "Período informado já passou."
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        2224,
+        1552
+      ],
+      "id": "f69cb2d6-4e21-4fce-ba60-50aad00a7c08",
+      "name": "Período inválido"
+    },
+    {
+      "parameters": {
+        "content": "## Configurações e validações",
+        "height": 480,
+        "width": 1328,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        1248
+      ],
+      "typeVersion": 1,
+      "id": "305ff9ae-0c93-402d-bc8f-1a104c19cba9",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Buscar eventos e construir janelas",
+        "height": 480,
+        "width": 1808,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2864,
+        1248
+      ],
+      "typeVersion": 1,
+      "id": "1e1a798d-e240-4cd8-a266-b387e90690e1",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "# Checklist\n- [ ] Abrir node do Google Calendar e criar nova credencial\n- [ ] Configurar node \"Disponibilidade\"\n- [ ] Configurar node \"Profissionais\"\n",
+        "height": 144,
+        "width": 448,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2384,
+        1552
+      ],
+      "id": "b533d9cc-f42d-42ed-9101-7e22f4f4873d",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "## Quer entender como funciona?\n\n\n### Assista o vídeo, deixe um like, e se inscreva no canal para ter acesso a mais workflows como esse!\n\n[![Vídeo YouTube Secretária v3](https://i1.ytimg.com/vi_webp/vYtaGw3vRII/maxresdefault.webp)](https://www.youtube.com/watch?v=vYtaGw3vRII)",
+        "height": 440,
+        "width": 500,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1456,
+        752
+      ],
+      "id": "4641b15d-9b35-4f01-b7d9-283f925fda47",
+      "name": "Sticky Note13"
+    },
+    {
+      "parameters": {
+        "content": "## [Clique aqui e entre agora para tirar suas dúvidas](https://lucasmoreira.fazer.ai)\n[![Banner comunidade](https://framerusercontent.com/images/KIXMxk9eKCoCsNeVm1oaz5HnaQ.png)](https://lucasmoreira.fazer.ai)",
+        "height": 440,
+        "width": 1380,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1968,
+        752
+      ],
+      "id": "211385bb-4865-47d1-8440-3e6998540e5f",
+      "name": "Sticky Note36"
+    },
+    {
+      "parameters": {
+        "content": "## Usei Hostinger pra este workflow.\n## Replique aqui.\n\n\n\n\n\n\n\n\n\n## [Use o cupom `FAZERAI` pra ter 10% de desconto na sua primeira compra!](https://www.hostg.xyz/SHIwa)",
+        "height": 316,
+        "width": 552,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        896,
+        1200
+      ],
+      "id": "3ad596cb-83bb-451c-9ab9-9a91ad5c3280",
+      "name": "Sticky Note21"
+    },
+    {
+      "parameters": {
+        "content": "[![Hostinger](https://framerusercontent.com/images/ptGVDA4KqG8GLNlWRDzFxaM.png?width=600&height=119)](https://www.hostg.xyz/SHIwa)\n",
+        "height": 96,
+        "width": 324,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1008,
+        1312
+      ],
+      "id": "5b029200-0ea1-446f-9b41-dbb129f8c7fb",
+      "name": "Sticky Note29"
+    },
+    {
+      "parameters": {
+        "content": "[![fazer.ai](https://framerusercontent.com/images/HqY9djLTzyutSKnuLLqBr92KbM.png?scale-down-to=256)](https://fazer.ai?utm_source=n8n&utm_campaign=sec-v3)\n\n## Esse é um template faça você mesmo do canal\n## Lucas Moreira\n\n### Inscreva-se no nosso canal no YouTube\n[![YouTube Lucas Moreira](https://img.shields.io/youtube/channel/subscribers/UCtmp6SxzLscu0GRTbgM8FTw?style=flat-square&logo=youtube&label=Inscreva-se&color=f00)](https://youtube.com/@eulucassmoreira?si=0lH7hwX9pukjhmPQ)\n[![Instagram](https://img.shields.io/badge/instagram-black?logo=instagram&style=for-the-badge)](https://instagram.com/eulucassmoreira)\n[![GitHub fazer.ai](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white&label)](https://github.com/fazer-ai)\n",
+        "height": 440,
+        "width": 550,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        896,
+        752
+      ],
+      "id": "c144317f-6c0f-4858-b371-9b5b56cad988",
+      "name": "Sticky Note12"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b6888d0b-b4bc-44fb-b5e3-4d2d91f8d7a3",
+              "name": "dra-ana-costa",
+              "value": "={\n  \"segunda\": [\n    {\n      \"inicio\": \"08:00\", \n      \"fim\": \"12:00\"\n    }, \n    {\n      \"inicio\": \"14:00\", \n      \"fim\": \"18:00\"\n    }\n  ],\n  \"terça\": [\n    {\n      \"inicio\": \"08:00\", \n      \"fim\": \"12:00\"\n    }, \n    {\n      \"inicio\": \"14:00\", \n      \"fim\": \"18:00\"\n    }\n  ],\n  \"quarta\": [\n    {\n      \"inicio\": \"08:00\", \n      \"fim\": \"12:00\"\n    }, \n    {\n      \"inicio\": \"14:00\", \n      \"fim\": \"18:00\"\n    }\n  ],\n  \"quinta\": [\n    {\n      \"inicio\": \"08:00\", \n      \"fim\": \"12:00\"\n    }, \n    {\n      \"inicio\": \"14:00\", \n      \"fim\": \"18:00\"\n    }\n  ],\n  \"sexta\": [\n    {\n      \"inicio\": \"08:00\", \n      \"fim\": \"12:00\"\n    }, \n    {\n      \"inicio\": \"14:00\", \n      \"fim\": \"18:00\"\n    }\n  ],\n  \"sabado\": [\n    {\n      \"inicio\": \"08:00\", \n      \"fim\": \"11:00\"\n    }\n  ], \n  \"domingo\": []\n}",
+              "type": "object"
+            },
+            {
+              "id": "64e5a38a-7045-4a54-80b8-e54715c0b7e5",
+              "name": "dr-ricardo-lima",
+              "value": "={\n  \"segunda\": [\n    {\n      \"inicio\": \"08:00\", \n      \"fim\": \"12:00\"\n    }, \n    {\n      \"inicio\": \"14:00\", \n      \"fim\": \"18:00\"\n    }\n  ],\n  \"terça\": [\n    {\n      \"inicio\": \"08:00\", \n      \"fim\": \"12:00\"\n    }, \n    {\n      \"inicio\": \"14:00\", \n      \"fim\": \"18:00\"\n    }\n  ],\n  \"quarta\": [\n    {\n      \"inicio\": \"08:00\", \n      \"fim\": \"12:00\"\n    }, \n    {\n      \"inicio\": \"14:00\", \n      \"fim\": \"18:00\"\n    }\n  ],\n  \"quinta\": [\n    {\n      \"inicio\": \"08:00\", \n      \"fim\": \"12:00\"\n    }, \n    {\n      \"inicio\": \"14:00\", \n      \"fim\": \"18:00\"\n    }\n  ],\n  \"sexta\": [\n    {\n      \"inicio\": \"08:00\", \n      \"fim\": \"12:00\"\n    }, \n    {\n      \"inicio\": \"14:00\", \n      \"fim\": \"18:00\"\n    }\n  ],\n  \"sabado\": [\n    {\n      \"inicio\": \"08:00\", \n      \"fim\": \"11:00\"\n    }\n  ], \n  \"domingo\": []\n}",
+              "type": "object"
+            },
+            {
+              "id": "85f4ac2d-69d5-454a-95c1-dd40916c4af2",
+              "name": "dra-beatriz-souza",
+              "value": "={\n  \"segunda\": [\n    {\n      \"inicio\": \"08:00\", \n      \"fim\": \"12:00\"\n    }, \n    {\n      \"inicio\": \"14:00\", \n      \"fim\": \"18:00\"\n    }\n  ],\n  \"terça\": [\n    {\n      \"inicio\": \"08:00\", \n      \"fim\": \"12:00\"\n    }, \n    {\n      \"inicio\": \"14:00\", \n      \"fim\": \"18:00\"\n    }\n  ],\n  \"quarta\": [\n    {\n      \"inicio\": \"08:00\", \n      \"fim\": \"12:00\"\n    }, \n    {\n      \"inicio\": \"14:00\", \n      \"fim\": \"18:00\"\n    }\n  ],\n  \"quinta\": [\n    {\n      \"inicio\": \"08:00\", \n      \"fim\": \"12:00\"\n    }, \n    {\n      \"inicio\": \"14:00\", \n      \"fim\": \"18:00\"\n    }\n  ],\n  \"sexta\": [\n    {\n      \"inicio\": \"08:00\", \n      \"fim\": \"12:00\"\n    }, \n    {\n      \"inicio\": \"14:00\", \n      \"fim\": \"18:00\"\n    }\n  ],\n  \"sabado\": [\n    {\n      \"inicio\": \"08:00\", \n      \"fim\": \"11:00\"\n    }\n  ], \n  \"domingo\": []\n}",
+              "type": "object"
+            },
+            {
+              "id": "ef406009-2ae0-4c45-962f-42f69632f46f",
+              "name": "dr-felipe-torres",
+              "value": "={\n  \"segunda\": [\n    {\n      \"inicio\": \"08:00\", \n      \"fim\": \"12:00\"\n    }, \n    {\n      \"inicio\": \"14:00\", \n      \"fim\": \"18:00\"\n    }\n  ],\n  \"terça\": [\n    {\n      \"inicio\": \"08:00\", \n      \"fim\": \"12:00\"\n    }, \n    {\n      \"inicio\": \"14:00\", \n      \"fim\": \"18:00\"\n    }\n  ],\n  \"quarta\": [\n    {\n      \"inicio\": \"08:00\", \n      \"fim\": \"12:00\"\n    }, \n    {\n      \"inicio\": \"14:00\", \n      \"fim\": \"18:00\"\n    }\n  ],\n  \"quinta\": [\n    {\n      \"inicio\": \"08:00\", \n      \"fim\": \"12:00\"\n    }, \n    {\n      \"inicio\": \"14:00\", \n      \"fim\": \"18:00\"\n    }\n  ],\n  \"sexta\": [\n    {\n      \"inicio\": \"08:00\", \n      \"fim\": \"12:00\"\n    }, \n    {\n      \"inicio\": \"14:00\", \n      \"fim\": \"18:00\"\n    }\n  ],\n  \"sabado\": [\n    {\n      \"inicio\": \"08:00\", \n      \"fim\": \"11:00\"\n    }\n  ], \n  \"domingo\": []\n}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": false
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2464,
+        1360
+      ],
+      "id": "a7dcc3e4-4e62-4321-869c-c0353fa25f45",
+      "name": "Disponibilidade"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b6888d0b-b4bc-44fb-b5e3-4d2d91f8d7a3",
+              "name": "dra-ana-costa",
+              "value": "c_ef63e938ff3ff758c72f978e0d2c98e61883e9a6f511d4ab7a7aecd39f9a2fd0@group.calendar.google.com",
+              "type": "string"
+            },
+            {
+              "id": "64e5a38a-7045-4a54-80b8-e54715c0b7e5",
+              "name": "dr-ricardo-lima",
+              "value": "c_063dd95aba02e5611f1283c030a22d79575de0dcc4042ad5427ff6c00e652465@group.calendar.google.com",
+              "type": "string"
+            },
+            {
+              "id": "85f4ac2d-69d5-454a-95c1-dd40916c4af2",
+              "name": "dra-beatriz-souza",
+              "value": "c_8168050b0340a4fd5fe29fb76a2a05118ba0bdb1ab1a7199fd110057806e3f77@group.calendar.google.com",
+              "type": "string"
+            },
+            {
+              "id": "ef406009-2ae0-4c45-962f-42f69632f46f",
+              "name": "dr-felipe-torres",
+              "value": "c_098182ec792dfa350d38ebeb4ea06f5b23425b9dc36a01e05e5d6edfa6af1f49@group.calendar.google.com",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": false
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2240,
+        1360
+      ],
+      "id": "294a94d2-ea79-45bd-b1f7-a6175ced4e1e",
+      "name": "ID agendas"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f5c5b28b-90e4-4cc4-a962-2ea27332245a",
+              "name": "periodo_inicio_timestamp",
+              "value": "={{ (new Date($('Gatilho').item.json.periodo_inicio) || $now.startOf('day')).format('X') }}",
+              "type": "number"
+            },
+            {
+              "id": "5ce5160d-3506-4cb8-b282-2bd5fcf0733a",
+              "name": "periodo_fim_timestamp",
+              "value": "={{ (new Date($('Gatilho').item.json.periodo_fim ) || $now.plus(1,'day').startOf('day')).format('X') }}",
+              "type": "number"
+            },
+            {
+              "id": "bc1d94bb-9a0a-4d0c-a760-642a07d96cbc",
+              "name": "tamanho_janela_minutos",
+              "value": "={{ $('Tamanho janela válido?').item.json.tamanho_janela_minutos || 60 }}",
+              "type": "number"
+            },
+            {
+              "id": "8cfe23c6-6e54-474f-b792-91e1d5323cce",
+              "name": "granularidade",
+              "value": "={{ $('Tamanho janela válido?').item.json.granularidade || 30 }}",
+              "type": "number"
+            },
+            {
+              "id": "d4e5a5c3-cecc-461a-90ad-34fe97d3cc0c",
+              "name": "id_agenda",
+              "value": "={{ $('ID agendas').item.json[$('Gatilho').item.json.id_profissional] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2688,
+        1360
+      ],
+      "id": "abfcef47-a676-40d6-bf15-d011eeb0d1fd",
+      "name": "Configurações"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gatilho": {
+      "main": [
+        [
+          {
+            "node": "Tamanho janela válido?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gerar janelas de tempo": {
+      "main": [
+        [
+          {
+            "node": "Alguma janela?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar disponibilidade": {
+      "main": [
+        [
+          {
+            "node": "Alguma janela?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aleatoriza a ordem": {
+      "main": [
+        [
+          {
+            "node": "Selecionar amostras",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Selecionar amostras": {
+      "main": [
+        [
+          {
+            "node": "Verificar eventos na agenda",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tamanho janela válido?": {
+      "main": [
+        [
+          {
+            "node": "Período válido?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Janela inválida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consulta eventos no período": {
+      "main": [
+        [
+          {
+            "node": "Gerar janelas de tempo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Período válido?": {
+      "main": [
+        [
+          {
+            "node": "ID agendas",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Período inválido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alguma janela?": {
+      "main": [
+        [
+          {
+            "node": "Filtrar disponibilidade",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retorna vazio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alguma janela?1": {
+      "main": [
+        [
+          {
+            "node": "Aleatoriza a ordem",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retorna vazio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Disponibilidade": {
+      "main": [
+        [
+          {
+            "node": "Configurações",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Configurações",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ID agendas": {
+      "main": [
+        [
+          {
+            "node": "Disponibilidade",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configurações": {
+      "main": [
+        [
+          {
+            "node": "Consulta eventos no período",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "87288441-dc99-48a4-88ab-92ea9caebf37",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "715a68c7cbc350774eb1fc64655865ae67c7d2b3860e8e8de01712db5856e1ab"
+  },
+  "id": "2kA91JnSqnA1Y3XQ",
+  "tags": []
+}

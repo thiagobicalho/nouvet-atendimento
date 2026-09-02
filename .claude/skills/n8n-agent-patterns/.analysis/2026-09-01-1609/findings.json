@@ -1,0 +1,128 @@
+{
+  "schema_version": 2,
+  "subject": ".claude/skills/n8n-agent-patterns",
+  "generated": "2026-09-01T16:45:00-03:00",
+  "verdict": "Os dois padrões mais valiosos (config em Postgres lida em runtime, e o precedente de escalonamento multi-destinatário para o FR-41) estão bem documentados e grounded — mas a lente de enhancement mostrou que a skill sub-documenta o pacote mais maduro (`secretariav3-completo`): faltam o padrão de agente de follow-up/lembrete proativo e o de multimodal (áudio/arquivo), e dois workflows do pacote ficam em limbo (nem documentados, nem listados como fora de escopo). Dois problemas estruturais pequenos (path sem prefixo, exemplo de arquivo inexistente no Resolution rules) já foram corrigidos nesta sessão.",
+  "grade": "fair",
+  "summary": "As lentes de leanness, arquitetura, determinismo e customização confirmam que a base é sólida: conteúdo grounded em exports reais, sem cerimônia desnecessária, sem necessidade de customize.toml, sem sequência determinística deixada como prosa. O que pesa a nota é a lente de enhancement: ela fez um passe nó-a-nó pelos 16 arquivos de `secretariav3-completo` e achou padrões reais e relevantes para o Nouvet (agente de lembrete/follow-up disparado por cron ou por mudança de etapa no funil, tratamento de áudio/arquivo) que a skill ainda não cobre, além de duas exclusões que merecem revisão (uma corta um padrão reaproveitável junto com o conector específico; duas outras nem foram documentadas nem listadas como fora de escopo).",
+  "standards": {
+    "canon": "/home/thiago/projetos/nouvet/atendimento/.claude/skills/bmad-workflow-builder/references/prompt-quality-canon.md",
+    "principles": "/home/thiago/projetos/nouvet/atendimento/.claude/skills/bmad-workflow-builder/references/skill-quality-principles.md",
+    "scripts": "/home/thiago/projetos/nouvet/atendimento/.claude/skills/bmad-workflow-builder/references/script-standards.md"
+  },
+  "themes": [
+    {
+      "title": "Loose ends estruturais — já corrigidos nesta sessão",
+      "root_cause": "SKILL.md carregava um exemplo de nome de arquivo desatualizado no Resolution rules (`postgres-schema.md` em vez do nome real `config-postgres.md`) e um path de projeto sem o prefixo `{project-root}/` exigido pela convenção.",
+      "finding_ids": ["leanness-1", "architecture-1"],
+      "action": "Corrigido: exemplo do Resolution rules atualizado para o nome real do arquivo; path prefixado com `{project-root}/`. O bloco de Resolution rules em si foi mantido (não removido) porque a lente de arquitetura considerou o bloco estruturalmente correto para um SKILL.md que roteia para múltiplos arquivos em `references/` — a leanness lens tinha proposto remover a seção inteira; a divergência entre as duas lentes foi resolvida a favor da convenção estrutural, já que o defeito real era só o exemplo quebrado, não a existência do bloco."
+    },
+    {
+      "title": "Padrões reais do pacote maduro ainda não documentados",
+      "root_cause": "A skill documenta bem o núcleo (config em Postgres, agente + sub-fluxos de agenda, escalonamento humano), mas um passe nó-a-nó pelos 16 arquivos de `secretariav3-completo` mostra pelo menos dois padrões inteiros com relevância direta para o Nouvet que não aparecem em lugar nenhum: agente de lembrete/follow-up proativo (disparado por cron ou por mudança de etapa) e tratamento multimodal de áudio/arquivo (crítico para uma clínica veterinária, onde cliente manda áudio e foto do pet com frequência). Dois arquivos do pacote (`02 - Baixar_Enviar Arquivo.json`, `08 - Assistente Interno.json`) também ficam em limbo — nem documentados, nem citados como fora de escopo.",
+      "finding_ids": ["enhancement-1", "enhancement-2", "enhancement-4"],
+      "action": "Decisão pendente, não aplicada nesta sessão — depende também de que escopo o Nouvet fecha para follow-up/lembrete (a proposta de Thiago já fala em '2 ciclos'/'progressivo' para escalonamento ao gestor, mas não fechou se o cliente final recebe lembretes automáticos de retorno) e de custo/complexidade extra de suportar áudio recebido. Levar para avaliação — inclui a decisão em aberto sobre manter os dois pacotes de referência (`clinica/` e `secretariav3-completo/`) ou só o mais maduro."
+    },
+    {
+      "title": "Exclusão em bloco descarta um padrão reaproveitável",
+      "root_cause": "O workflow `07 - Quebrar_Enviar Mensagens (Evolution)` foi listado inteiro como fora de escopo por usar o conector Evolution API — mas o núcleo do arquivo (split de resposta longa em várias mensagens curtas + envio pausado simulando digitação humana) é independente do conector e pode valer a pena sobre RD Conversas.",
+      "finding_ids": ["enhancement-3"],
+      "action": "Não aplicado — depende de confirmar se RD Conversas suporta indicador de 'digitando' ou envio pausado (não confirmado na skill `rd-station-api` hoje). Fica registrado como possibilidade, não como fato a documentar sem essa confirmação."
+    }
+  ],
+  "strengths": [
+    "Os dois exemplos reais (`clinica/` vs `secretariav3-completo/`) são apresentados com o estágio de maturidade certo — a skill não trata os dois como equivalentes, e usa a diferença entre eles (hardcode vs config em Postgres) como o próprio ensinamento central.",
+    "O achado do padrão de escalonamento multi-destinatário (`05.1 - Escalar Humano Multi.json`) é citado explicitamente como precedente direto do FR-41 do PRD do Nouvet — é o tipo de conexão entre a doc técnica e o requisito de produto que evita reinventar a roda.",
+    "Nenhuma das lentes de customização ou determinismo encontrou problema algum: sem customize.toml desnecessário, sem sequência determinística deixada como prosa para o consumidor repetir.",
+    "As exclusões explícitas (Asaas, Twilio, leads) evitam que a skill infle com conteúdo de um produto mais amplo que não pertence ao Piloto do Nouvet — mesmo que uma dessas exclusões (Evolution) mereça revisão parcial."
+  ],
+  "recommendations": [
+    {
+      "rank": 1,
+      "action": "Antes de expandir o conteúdo, decidir a questão de escopo dos dois pacotes de referência (manter `clinica/` e `secretariav3-completo/`, ou só o mais maduro) — isso muda o que faz sentido documentar a seguir.",
+      "resolves": []
+    },
+    {
+      "rank": 2,
+      "action": "Se o Nouvet confirmar que quer lembretes automáticos de retorno/no-show, documentar o padrão de agente proativo (enhancement-1) e decidir o status de `02` e `08` (enhancement-4) no mesmo passe.",
+      "resolves": ["enhancement-1", "enhancement-4"]
+    },
+    {
+      "rank": 3,
+      "action": "Documentar o padrão multimodal (áudio/arquivo) assim que houver decisão sobre se o Piloto aceita áudio do cliente — item de produto, não só de doc.",
+      "resolves": ["enhancement-2"]
+    }
+  ],
+  "experience": {
+    "journeys": [
+      { "name": "Desenhar onde a Configuração de Personalização do Nouvet vai morar", "steps": "Abrir SKILL.md para o aviso clinica-vs-secretaria -> references/config-postgres.md para o schema e o padrão de leitura em runtime -> aplicar no desenho do Nouvet trocando Chatwoot/Google Calendar pelos conectores certos." },
+      { "name": "Desenhar o mecanismo de alerta de emergência (FR-41)", "steps": "Abrir references/agente-e-subfluxos.md, seção 'Escalar para humano' -> usar o padrão Multi (array + splitOut) como base." }
+    ],
+    "headless": "Não aplicável — skill de referência sem modo headless ou multi-turno."
+  },
+  "findings": [
+    {
+      "id": "leanness-1",
+      "lens": "leanness",
+      "severity": "high",
+      "title": "Resolution rules section carregava exemplo de arquivo inexistente",
+      "location": "SKILL.md:12-16",
+      "evidence": "O exemplo citava `references/postgres-schema.md`, mas o arquivo real se chama `references/config-postgres.md`. A lente propôs remover a seção inteira, já que os tokens `{skill-root}`/`{project-root}` não eram usados em nenhum outro lugar da skill.",
+      "recommendation": "Corrigido nesta sessão: exemplo do arquivo atualizado. Seção mantida (não removida) — ver nota de reconciliação com a lente de arquitetura no tema correspondente."
+    },
+    {
+      "id": "architecture-1",
+      "lens": "architecture",
+      "severity": "medium",
+      "title": "Path de projeto sem prefixo {project-root}/",
+      "location": "SKILL.md:20",
+      "evidence": "\"_bmad-output/reference/modelo-n8n/\" citado sem o prefixo `{project-root}/` exigido pela convenção de paths (o scanner automático não pega esse caso porque seu regex só reconhece `_bmad/` literal, não `_bmad-output/`).",
+      "recommendation": "Corrigido nesta sessão: path prefixado com `{project-root}/`."
+    },
+    {
+      "id": "enhancement-1",
+      "lens": "enhancement",
+      "severity": "high",
+      "title": "Falta o padrão de agente de follow-up/lembrete proativo (disparado por cron ou por etapa do funil)",
+      "location": "references/agente-e-subfluxos.md (tabela de sub-workflows, linha '11 - Lembretes Agendamento.json')",
+      "evidence": "Esse workflow roda por `scheduleTrigger` (cron), com sua própria instância de agente + memória — não é chamado sob demanda pelo agente principal como as outras linhas da tabela, e a tabela não deixa essa diferença clara. O exemplo mais simples (`clinica/08`) mostra a mesma família disparada por mudança de etapa no Kanban do Chatwoot. Os campos de config (`lembretes_horas`, `follow_ups_horas`, `max_followups`) já estão documentados em config-postgres.md, mas o mecanismo que os consome nunca é explicado.",
+      "recommendation": "Adicionar uma subseção própria para o padrão de 'agente proativo/agendado', distinta do padrão de ferramenta sob demanda, citando os dois gatilhos possíveis (cron vs. mudança de etapa) como decisão de design para o Nouvet."
+    },
+    {
+      "id": "enhancement-2",
+      "lens": "enhancement",
+      "severity": "high",
+      "title": "Falta o padrão multimodal (áudio de entrada, voz de saída, arquivo como ferramenta)",
+      "location": "references/agente-e-subfluxos.md (seção 'O agente principal')",
+      "evidence": "`secretariav3-completo/01` tem um switch de tipo de mensagem que trata texto, áudio (transcrição via nó OpenAI) e arquivo separadamente, mais síntese de voz (ElevenLabs) condicionada à preferência do contato. config-postgres.md só cita a preferência de áudio/texto como campo, sem explicar o mecanismo. Relevante para o Nouvet porque cliente de clínica veterinária manda áudio e foto do pet com frequência.",
+      "recommendation": "Adicionar subseção documentando o switch de tipo de mensagem, transcrição de áudio de entrada, síntese de voz de saída condicionada à preferência salva, e envio de arquivo como ferramenta chamável."
+    },
+    {
+      "id": "enhancement-3",
+      "lens": "enhancement",
+      "severity": "medium",
+      "title": "Exclusão do workflow Evolution descarta também um padrão de pacing de mensagens reaproveitável",
+      "location": "references/agente-e-subfluxos.md ('Fora do escopo do Nouvet', item Evolution)",
+      "evidence": "O núcleo do arquivo `07 - Quebrar_Enviar Mensagens (Evolution)` — um agente que divide uma resposta longa em várias mensagens curtas, enviadas com pausa e indicador de 'digitando' — é independente do conector Evolution; só as chamadas HTTP finais são específicas dele.",
+      "recommendation": "Manter a exclusão das chamadas específicas do Evolution, mas nomear separadamente o padrão de divisão/pacing de mensagens como algo a avaliar para RD Conversas, se o canal suportar indicador de digitação ou envio pausado (verificar na skill `rd-station-api`)."
+    },
+    {
+      "id": "enhancement-4",
+      "lens": "enhancement",
+      "severity": "medium",
+      "title": "Dois workflows do pacote ficam em status ambíguo (nem documentados, nem listados como fora de escopo)",
+      "location": "references/agente-e-subfluxos.md ('Fora do escopo do Nouvet', lista incompleta)",
+      "evidence": "`02 - Baixar_Enviar Arquivo.json` (enviar arquivo como ferramenta, ex.: PDF de orçamento) e `08 - Assistente Interno.json` (agente interno voltado à equipe, com ferramentas de Gmail/Tasks/Asaas) existem no pacote de 16 arquivos, mas não aparecem nem na tabela de padrões nem na lista explícita de exclusões (que só cita 06/07/12/13).",
+      "recommendation": "Decidir e registrar o status de cada um: `02` é plausivelmente útil para o Nouvet (enviar PDF de orçamento/exame); `08` é candidato a fase futura ou exclusão explícita com motivo, no mesmo padrão já usado para 06/07/12/13."
+    },
+    {
+      "id": "enhancement-5",
+      "lens": "enhancement",
+      "severity": "medium",
+      "title": "Nó de raciocínio (think-tool), presente em todo agente maduro do pacote, não é mencionado",
+      "location": "references/agente-e-subfluxos.md ('O agente principal')",
+      "evidence": "`@n8n/n8n-nodes-langchain.toolThink` aparece em praticamente toda instância de agente madura do pacote (principal, interno, lembretes, ligações, leads, divisor de mensagens), mas a lista de componentes do agente principal na skill não o cita.",
+      "recommendation": "Adicionar como um quinto componente do agente principal, com uma linha explicando que é usado de forma consistente no material de referência para tool-calling multi-etapa mais confiável."
+    }
+  ]
+}

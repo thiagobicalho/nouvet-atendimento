@@ -1,0 +1,1483 @@
+{
+  "name": "13 - Recuperação de Leads",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -2208,
+        3408
+      ],
+      "id": "9fe794b6-e2b5-45a3-9719-0caf1ee2833c",
+      "name": "Gatilho"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM secretaria_config WHERE id = 1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -2000,
+        3408
+      ],
+      "id": "37367b6c-6f8e-4a2f-ba3f-a13a294b0e45",
+      "name": "Buscar Config",
+      "credentials": {
+        "postgres": {
+          "id": "hvkzoru976d3gWkp",
+          "name": "PostgreSQL - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1b513343-9b6a-4f6e-a012-ed819bf34a31",
+              "name": "id_conta",
+              "value": "={{ $('Buscar Config').item.json.chatwoot_account_id }}",
+              "type": "string"
+            },
+            {
+              "id": "6e8c2d3c-bec5-4ee0-8524-a2ddb787de21",
+              "name": "id_inbox",
+              "value": "={{ $('Buscar Config').item.json.chatwoot_inbox_id }}",
+              "type": "string"
+            },
+            {
+              "id": "8e93a9fc-5b1c-43ca-8534-86a7db7f64de",
+              "name": "max_followups",
+              "value": "={{ $('Buscar Config').item.json.max_followups }}",
+              "type": "string"
+            },
+            {
+              "id": "40ff895f-f63f-4e4f-bba3-c7d803c277f1",
+              "name": "url_chatwoot",
+              "value": "={{ $('Buscar Config').item.json.url_chatwoot }}",
+              "type": "string"
+            },
+            {
+              "id": "720d6a5c-27ab-4763-9866-5d35ae9a5d3c",
+              "name": "follow_ups_horas",
+              "value": "={{ $('Buscar Config').item.json.follow_ups_horas }}",
+              "type": "array"
+            },
+            {
+              "id": "2927ec04-1252-4b67-97b3-10a6f678228b",
+              "name": "tipo_follow_ups",
+              "value": "={{ $('Buscar Config').item.json.tipo_follow_ups }}",
+              "type": "array"
+            },
+            {
+              "id": "280c843d-3974-42eb-9ab3-07475c2d0b64",
+              "name": "url_webhook_ligacoes_whatsapp",
+              "value": "https://myeditor.uniqueads.com.br/webhook/5429b894-15db-4bc1-b06e-23eb6ad834aa",
+              "type": "string"
+            },
+            {
+              "id": "d3dd466a-2645-47aa-b8f3-6b5f14fd429b",
+              "name": "url_webhook_ligacoes",
+              "value": "https://myeditor.uniqueads.com.br/webhook/938829ab-89c6-4a0d-9784-2f581a03baf2",
+              "type": "string"
+            },
+            {
+              "id": "e9a44b2f-8622-479a-a281-021e0c6cc8fb",
+              "name": "telefone",
+              "value": "={{ $('Buscar Config').item.json.telefone_twilio }}",
+              "type": "string"
+            },
+            {
+              "id": "4b9e8c7c-be98-4389-a968-14b3d452d52f",
+              "name": "telefone_whatsapp",
+              "value": "={{ $('Buscar Config').item.json.telefone_twilio_whatsapp }}",
+              "type": "string"
+            },
+            {
+              "id": "nome-secretaria-info",
+              "name": "nome_secretaria",
+              "value": "={{ $('Buscar Config').item.json.nome_secretaria }}",
+              "type": "string"
+            },
+            {
+              "id": "nome-empresa-info",
+              "name": "nome_empresa",
+              "value": "={{ $('Buscar Config').item.json.nome_empresa }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1792,
+        3408
+      ],
+      "id": "ffb49088-652b-496d-8295-988b2e542cd4",
+      "name": "Info"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM n8n_status_atendimento WHERE aguardando_followup = true AND updated_at < '{{ $now.toUTC().minus(24, 'hours') }}' ORDER BY updated_at ASC LIMIT 1;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1584,
+        3408
+      ],
+      "id": "3ac8a684-3968-4680-be4d-1557376f414d",
+      "name": "Buscar aguardando follow-up",
+      "credentials": {
+        "postgres": {
+          "id": "hvkzoru976d3gWkp",
+          "name": "PostgreSQL - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "an3aELMnw5jwhLxX",
+          "mode": "list",
+          "cachedResultName": "10. Buscar ou criar contato + conversa"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telefone": "={{ $json.session_id }}",
+            "id_conta": "={{ $('Info').item.json.id_conta }}",
+            "id_inbox": "={{ $('Info').item.json.id_inbox }}",
+            "url_chatwoot": "={{ $('Info').item.json.url_chatwoot }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "id_conta",
+              "displayName": "id_conta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "id_inbox",
+              "displayName": "id_inbox",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "url_chatwoot",
+              "displayName": "url_chatwoot",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        -1376,
+        3424
+      ],
+      "id": "07e36bf3-adc1-440f-9b0d-dd3c984552df",
+      "name": "Buscar contato"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "62c1d07f-f45e-4d57-916c-ab76e4693a73",
+              "leftValue": "={{ $('Buscar contato').item.json.conversa.messages.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            },
+            {
+              "id": "41195048-d958-4326-a989-20931b4316a0",
+              "leftValue": "={{ $('Buscar contato').item.json.conversa.labels }}",
+              "rightValue": "agente-off",
+              "operator": {
+                "type": "array",
+                "operation": "notContains",
+                "rightType": "any"
+              }
+            },
+            {
+              "id": "f0eb2c77-0c21-4677-bec2-484ebf5c8424",
+              "leftValue": "={{ $('Buscar contato').item.json.contato.custom_attributes.asaas_status_cobranca }}",
+              "rightValue": "Cobrança recebida",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1184,
+        3408
+      ],
+      "id": "faadad81-d643-4629-b42e-7d870d70789f",
+      "name": "Follow-up ativo?"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "n8n_status_atendimento",
+          "mode": "list"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "aguardando_followup": false,
+            "id": "={{ $('Buscar aguardando follow-up').item.json.id }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "aguardando_followup",
+              "displayName": "aguardando_followup",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -944,
+        3504
+      ],
+      "id": "bde82125-fdde-4bf1-92fb-4631c2f8f57d",
+      "name": "Desligar follow-up",
+      "credentials": {
+        "postgres": {
+          "id": "hvkzoru976d3gWkp",
+          "name": "PostgreSQL - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6c5ff61e-c9da-4789-9de6-648ab9cd9e38",
+              "leftValue": "={{ $json.conversa.last_non_activity_message.created_at.toDateTime('s') }}",
+              "rightValue": "={{ $now.minus($('Info').item.json.follow_ups_horas[$('Buscar aguardando follow-up').item.json.numero_followup] || 24, 'hours') }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "before"
+              }
+            },
+            {
+              "id": "fdd2432e-6dbd-4581-952b-6775af20615b",
+              "leftValue": "={{ $('Buscar aguardando follow-up').item.json.numero_followup }}",
+              "rightValue": "={{ $('Info').item.json.max_followups }}",
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -944,
+        3312
+      ],
+      "id": "c0ae951b-0670-4cf7-bb69-40f20fe24ab4",
+      "name": "Follow-up pendente?"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Info').item.json.tipo_follow_ups[$('Buscar aguardando follow-up').item.json.numero_followup] }}",
+                    "rightValue": "mensagem",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "a97a30a9-aa9d-412e-88c3-694daa3ab4dc"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Mensagem"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "1295de3b-f99d-4c5d-a730-614582b04391",
+                    "leftValue": "={{ $('Info').item.json.tipo_follow_ups[$('Buscar aguardando follow-up').item.json.numero_followup] }}",
+                    "rightValue": "ligacao_whatsapp",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Ligação WhatsApp"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "5ed48045-58a9-4bb8-933f-14a2cda62c8f",
+                    "leftValue": "={{ $('Info').item.json.tipo_follow_ups[$('Buscar aguardando follow-up').item.json.numero_followup] }}",
+                    "rightValue": "ligacao",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Ligação"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -560,
+        3168
+      ],
+      "id": "b0858dea-4976-4d20-b772-7d2461be4ce5",
+      "name": "Tipo de follow-up"
+    },
+    {
+      "parameters": {
+        "errorMessage": "=Tipo follow-up configurado incorretamente. Use um desses valores:\n\n\"mensagem\"\n\"ligacao_whatsapp\"\n\"ligacao\""
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        3472
+      ],
+      "id": "7bf7fd4e-6499-4d9f-ae61-aa958a02dd0c",
+      "name": "Tipo de follow-up inválido"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -176,
+        3024
+      ],
+      "id": "77fc9527-dbf5-449c-b8e8-d553423c416e",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "j6AiZEwsvMWr7Lx7",
+          "name": "OpenAI - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Buscar contato').item.json.contato.phone_number }}",
+        "tableName": "n8n_historico_mensagens",
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -64,
+        3024
+      ],
+      "id": "c68e0543-f4cd-4df4-96ce-ccbc90bfd4fd",
+      "name": "Memoria",
+      "credentials": {
+        "postgres": {
+          "id": "hvkzoru976d3gWkp",
+          "name": "PostgreSQL - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=<lead não respondeu após período estendido de tempo>",
+        "options": {
+          "systemMessage": "=# PAPEL\n\n<papel>\n  Você é a {{ $('Info').item.json.nome_secretaria }}, secretária virtual da {{ $('Info').item.json.nome_empresa }}, responsável por reengajar pacientes que não concluíram o processo de agendamento via WhatsApp. Sua função é enviar uma única mensagem de follow-up cordial e estratégica para recuperar o interesse do paciente.\n</papel>\n\n# PERSONALIDADE E TOM DE VOZ\n\n<personalidade>\n  * **Sutil e não invasiva**: Evite parecer insistente ou desesperada\n  * **Empática e compreensiva**: Reconheça que pessoas têm rotinas corridas\n  * **Prestativa**: Ofereça facilitar o processo abandonado\n  * **Profissional e respeitosa**: Aceite graciosamente se não houver interesse\n  * **Estratégica**: Adapte a abordagem ao ponto onde a conversa parou\n</personalidade>\n\n# CONTEXTO DA TAREFA\n\n<contexto>\n  Um paciente iniciou conversa com a clínica mas parou de responder em algum ponto do processo. Após período de inatividade, o sistema solicita uma tentativa de recuperação. Você deve:\n\n  1. Identificar em qual estágio a conversa parou\n  2. Criar mensagem apropriada ao contexto\n  3. Facilitar a retomada do processo\n  4. Respeitar o espaço do paciente\n</contexto>\n\n# SOP - PROCEDIMENTO OPERACIONAL PADRÃO\n\n## 1. ANÁLISE DO PONTO DE ABANDONO\n\n<analise-abandono>\n  ### 1.1 Identificação do Estágio\n\n  Analise o histórico para determinar onde parou:\n\n  * **ESTÁGIO INICIAL**: Apenas cumprimentou ou fez pergunta inicial\n  * **COLETA DE DADOS**: Forneceu nome mas não data de nascimento\n  * **ESCOLHA PROFISSIONAL**: Não escolheu especialidade/profissional\n  * **SELEÇÃO DE DATA**: Não definiu quando quer agendar\n  * **ESCOLHA DE HORÁRIO**: Recebeu opções mas não escolheu\n  * **PRÉ-CONFIRMAÇÃO**: Faltou confirmar dados finais\n  * **PÓS-AGENDAMENTO**: Agendou mas não forneceu CPF para cobrança\n  * **DÚVIDA NÃO ESCLARECIDA**: Fez pergunta que ficou sem resposta completa\n\n  ### 1.2 Tempo Decorrido\n\n  Considere o tempo desde a última interação:\n  * Menos de 24h: Tom mais casual\n  * 24-48h: Tom padrão de follow-up\n  * Mais de 48h: Tom mais formal de recontato\n\n  ### 1.3 Contexto da Última Mensagem\n\n  * Paciente fez pergunta? Responda primeiro\n  * Você fez pergunta? Facilite a resposta\n  * Conversa travou? Ofereça recomeçar\n</analise-abandono>\n\n## 2. ESTRATÉGIAS POR ESTÁGIO\n\n<estrategias>\n  ### 2.1 Estágio Inicial\n\n  **Abordagem**: Reapresentação suave\n  ```\n  \"Oi! Aqui é a {{ $('Info').item.json.nome_secretaria }} da {{ $('Info').item.json.nome_empresa }}. \n  Vi que você entrou em contato conosco mais cedo.\n  Ainda posso ajudar com alguma informação ou agendamento?\"\n  ```\n\n  ### 2.2 Coleta de Dados Incompleta\n\n  **Abordagem**: Retomar de onde parou\n  ```\n  \"Olá, [Nome]! Voltando ao nosso atendimento...\n  Para prosseguir com seu agendamento, \n  preciso apenas da sua data de nascimento. Pode me informar?\"\n  ```\n\n  ### 2.3 Escolha Profissional Pendente\n\n  **Abordagem**: Simplificar decisão\n  ```\n  \"Oi, [Nome]! Sobre seu agendamento...\n  Qual especialidade você precisa?\n  Temos Clínico Geral, Cardiologista e Dentista disponíveis.\"\n  ```\n\n  ### 2.4 Data não Definida\n\n  **Abordagem**: Oferecer sugestões\n  ```\n  \"Olá, [Nome]! Consultei a agenda do [Profissional].\n  Temos bons horários disponíveis esta semana.\n  Quando seria melhor para você?\"\n  ```\n\n  ### 2.5 Horário não Escolhido\n\n  **Abordagem**: Reenviar opções simplificadas\n  ```\n  \"Oi, [Nome]! Ainda temos aqueles horários disponíveis:\n  - [Opção 1]\n  - [Opção 2]\n  Algum deles funciona para você?\"\n  ```\n\n  ### 2.6 Pós-Agendamento (Falta CPF)\n\n  **Abordagem**: Lembrete gentil\n  ```\n  \"Olá, [Nome]! Sua consulta está agendada para [data/hora].\n  Só preciso do seu CPF para finalizar e gerar o boleto.\n  Pode me passar quando puder?\"\n  ```\n\n  ### 2.7 Dúvida não Esclarecida\n\n  **Abordagem**: Retomar e esclarecer\n  ```\n  \"Oi! Sobre sua pergunta anterior...\n  [Resposta à dúvida]\n  Posso ajudar com mais alguma coisa?\"\n  ```\n</estrategias>\n\n## 3. ELEMENTOS DA MENSAGEM\n\n<elementos-mensagem>\n  ### 3.1 Estrutura Base\n\n  ```\n  RECONEXÃO SUAVE\n  ↓\n  REFERÊNCIA AO CONTEXTO ANTERIOR\n  ↓\n  FACILITAÇÃO/PROPOSTA\n  ↓\n  CALL-TO-ACTION SIMPLES\n  ```\n\n  ### 3.2 Componentes Essenciais\n\n  * Identificação (se primeira recuperação)\n  * Referência ao assunto anterior\n  * Proposta de continuidade\n  * Pergunta aberta ou fechada (conforme contexto)\n\n  ### 3.3 Componentes a Evitar\n\n  * Cobranças ou críticas\n  * Menção a \"não respondeu\" ou \"sumiu\"\n  * Pressão ou urgência artificial\n  * Múltiplas perguntas\n  * Textos longos\n</elementos-mensagem>\n\n# REGRAS E VALIDAÇÕES\n\n<validacoes>\n  ## Regras Críticas\n\n  1. **Limites Absolutos**\n    * APENAS UMA mensagem de recuperação\n    * MÁXIMO 4 linhas de texto\n    * NUNCA mencionar o abandono explicitamente\n    * NUNCA usar tom de cobrança\n\n  2. **Abordagem por Tempo**\n    * <24h: \"Voltando ao nosso assunto...\"\n    * 24-48h: \"Oi! Sobre nosso contato anterior...\"\n    * >48h: \"Olá! Aqui é a {{ $('Info').item.json.nome_secretaria }} da {{ $('Info').item.json.nome_empresa }}...\"\n\n  3. **Decisões Estratégicas**\n    * Se muito vago o histórico: Ofereça ajuda genérica\n    * Se muito avançado: Seja mais específica\n    * Se houve problema técnico: Ofereça recomeçar\n</validacoes>\n\n# EXEMPLOS DE MENSAGENS\n\n<exemplos>\n  **ATENÇÃO**: Estes são exemplos ilustrativos. Sempre siga o SOP e adapte conforme necessário. Evite simplesmente copiar as mensagens conforme os exemplos, sempre faça um atendimento personalizado.\n\n  ## Exemplo 1: Abandono Inicial (só disse \"oi\")\n\n  ```\n  Oi! Aqui é a {{ $('Info').item.json.nome_secretaria }} da {{ $('Info').item.json.nome_empresa }}.\n  Vi que você entrou em contato conosco.\n  Precisa agendar uma consulta ou tirar alguma dúvida?\n  ```\n\n  ## Exemplo 2: Parou no Meio do Agendamento\n\n  ```\n  Olá, João! Voltando ao seu agendamento...\n  O Dr. Roberto tem horários na quinta às 9h ou sexta às 10h30.\n  Qual prefere?\n  ```\n\n  ## Exemplo 3: Não Forneceu CPF Após Agendar\n\n  ```\n  Oi, Maria! Sua consulta está confirmada para amanhã às 14h.\n  Quando puder, me passe seu CPF para gerar o boleto.\n  Sem pressa!\n  ```\n\n  ## Exemplo 4: Fez Pergunta Sobre Valor\n  \n  ```\n  Olá! Sobre os valores que você perguntou:\n  A consulta custa o valor informado, aceitamos cartão, PIX ou dinheiro.\n  Gostaria de agendar?\n  ```\n\n  ## Exemplo 5: Muito Tempo Sem Resposta (>48h)\n\n  ```\n  Olá! {{ $('Info').item.json.nome_secretaria }} da {{ $('Info').item.json.nome_empresa }} aqui.\n  Caso ainda precise de uma consulta, estou à disposição.\n  É só me avisar!\n  ```\n\n  ## Exemplo 6: Cliente Parecia Indeciso\n\n  ```\n  Oi! Se quiser pensar melhor sobre o agendamento, sem problemas.\n  Quando decidir, é só me chamar por aqui mesmo.\n  ```\n</exemplos>\n\n# CASOS ESPECIAIS\n\n<casos-especiais>\n  ## Conversa Confusa ou Incompleta\n\n  * Ofereça recomeçar do zero\n  * Não tente recuperar informações confusas\n  * Use: \"Podemos recomeçar seu atendimento?\"\n\n  ## Múltiplos Abandonos no Histórico\n\n  * Esta pode ser 2ª ou 3ª tentativa\n  * Seja ainda mais breve e menos invasiva\n  * Considere: \"Última vez: ainda precisa da consulta?\"\n\n  ## Abandono Após Problema Técnico\n\n  * Reconheça possível frustração\n  * Ofereça caminho alternativo\n  * \"Desculpe se houve algum problema. Posso tentar de novo?\"\n\n  ## Cliente Demonstrou Urgência Antes\n\n  * Relembre disponibilidade imediata\n  * \"Posso verificar pra você o horário mais próximo disponível!\"\n</casos-especiais>\n\n# OBSERVAÇÕES FINAIS\n\n<observacoes-finais>\n  ## LEMBRE-SE SEMPRE\n\n  * Esta é a ÚNICA tentativa - seja estratégica\n  * NUNCA pareça desesperada ou insistente\n  * Máximo 4 linhas de mensagem\n  * Adapte ao ponto exato onde parou\n  * Mantenha dignidade profissional sempre\n\n  ## FORMATO DE SAÍDA\n\n  * Apenas a mensagem de recuperação\n  * Sem comentários ou explicações\n  * Sem análise do abandono\n  * Direto ao paciente\n\n  ## VERIFICAÇÕES IMPORTANTES\n\n  * A mensagem está adequada ao tempo decorrido?\n  * Referencia o contexto anterior corretamente?\n  * Facilita a retomada do processo?\n  * Tem no máximo 4 linhas?\n  * Tom está apropriado (não invasivo)?\n</observacoes-finais>\n\n# INFORMAÇÕES DO SISTEMA\n\n<informacoes-sistema>\n  **Data e Hora Atual**: {{ $now.format('FFFF') }}\n  **Número desse follow-up**: {{ $('Buscar aguardando follow-up').item.json.numero_followup + 1 }}\n</informacoes-sistema>\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -160,
+        2848
+      ],
+      "id": "683c8860-f43d-4867-8ef6-a3e004b6d178",
+      "name": "Agente de Recuperação de Leads",
+      "executeOnce": false,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Info').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Info').item.json.id_conta }}/conversations/{{ $('Buscar contato').item.json.conversa.id }}/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "fazerAiChatwootApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "content",
+              "value": "={{ $('Agente de Recuperação de Leads').item.json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        192,
+        2848
+      ],
+      "id": "8212ecc3-2f8a-4177-a01f-7de4b8c3fd0d",
+      "name": "Enviar mensagem",
+      "executeOnce": false,
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "n8n_status_atendimento",
+          "mode": "list"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Buscar aguardando follow-up').item.json.id }}",
+            "numero_followup": "={{ $('Buscar aguardando follow-up').item.json.numero_followup + 1 }}",
+            "updated_at": "={{ $now }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "numero_followup",
+              "displayName": "numero_followup",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        880,
+        3440
+      ],
+      "id": "e4002372-5b0b-47f2-981f-4e5b19ec038a",
+      "name": "Atualizar contagem follow-up",
+      "credentials": {
+        "postgres": {
+          "id": "hvkzoru976d3gWkp",
+          "name": "PostgreSQL - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "035a87e0-926f-4279-907d-3d749181c329",
+              "leftValue": "={{ $('Buscar contato').item.json.contato.custom_attributes.permitir_chamadas_whatsapp }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -320,
+        3328
+      ],
+      "id": "ad6f1858-ebc1-4a5a-ab99-fdeaf85d9522",
+      "name": "Contato já permitiu ligações?"
+    },
+    {
+      "parameters": {
+        "url": "https://api.twilio.com/2010-04-01/Accounts.json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twilioApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -64,
+        3264
+      ],
+      "id": "be369469-67e6-40cd-ba64-7f520189270b",
+      "name": "Buscar contas Twilio",
+      "credentials": {
+        "twilioApi": {
+          "id": "oOPocCiuD9ezX7Yg",
+          "name": "Twilio - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.twilio.com/2010-04-01/Accounts/{{ $json.accounts.first().sid }}/Calls.json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twilioApi",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "Url",
+              "value": "={{ $('Info').item.json.url_webhook_ligacoes_whatsapp }}"
+            },
+            {
+              "name": "From",
+              "value": "=whatsapp:{{ $('Info').item.json.telefone_whatsapp }}"
+            },
+            {
+              "name": "To",
+              "value": "=whatsapp:{{ $('Buscar contato').item.json.contato.phone_number }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        128,
+        3264
+      ],
+      "id": "e97df18e-0963-4de2-8773-418974f1ba21",
+      "name": "Fazer ligação WhatsApp",
+      "credentials": {
+        "twilioApi": {
+          "id": "oOPocCiuD9ezX7Yg",
+          "name": "Twilio - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://content.twilio.com/v1/Content",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twilioApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -128,
+        3424
+      ],
+      "id": "cdfd5e55-5946-4042-816d-c545bde31314",
+      "name": "Buscar template de ligações",
+      "credentials": {
+        "twilioApi": {
+          "id": "oOPocCiuD9ezX7Yg",
+          "name": "Twilio - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "eca4b1bd-7ac2-49c8-86a0-16b3e7035306",
+              "name": "sid_template_ligacao",
+              "value": "={{ $('Buscar template de ligações').item.json.contents.find(c => c.friendly_name === 'voice_call_request')?.sid }}",
+              "type": "string"
+            },
+            {
+              "id": "cb44c343-9dda-4f22-ac45-eb533c4d97d3",
+              "name": "sid_conta",
+              "value": "={{ $('Buscar template de ligações').item.json.contents.find(c => c.friendly_name === 'voice_call_request')?.account_sid }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        80,
+        3424
+      ],
+      "id": "49b6d686-7a63-4b9b-9677-9d526eca46b3",
+      "name": "Extrair template de ligações"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.twilio.com/2010-04-01/Accounts/{{ $json.sid_conta }}/Messages.json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twilioApi",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "ContentSid",
+              "value": "={{ $json.sid_template_ligacao }}"
+            },
+            {
+              "name": "From",
+              "value": "=whatsapp:{{ $('Info').item.json.telefone_whatsapp }}"
+            },
+            {
+              "name": "To",
+              "value": "=whatsapp:{{ $('Buscar contato').item.json.contato.phone_number }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        288,
+        3424
+      ],
+      "id": "225bc15a-1e44-4df5-860c-7b2cba9cce08",
+      "name": "Enviar template de ligação",
+      "credentials": {
+        "twilioApi": {
+          "id": "oOPocCiuD9ezX7Yg",
+          "name": "Twilio - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.twilio.com/2010-04-01/Accounts.json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twilioApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -272,
+        3712
+      ],
+      "id": "8a6a8cec-0dd3-484c-bf85-f6e718cde00f",
+      "name": "Buscar contas Twilio1",
+      "credentials": {
+        "twilioApi": {
+          "id": "oOPocCiuD9ezX7Yg",
+          "name": "Twilio - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.twilio.com/2010-04-01/Accounts/{{ $json.accounts.first().sid }}/Calls.json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "twilioApi",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "Url",
+              "value": "={{ $('Info').item.json.url_webhook_ligacoes }}"
+            },
+            {
+              "name": "From",
+              "value": "={{ $('Info').item.json.telefone }}"
+            },
+            {
+              "name": "To",
+              "value": "={{ $('Buscar contato').item.json.contato.phone_number.replace(/(\\+55\\d{2})9?(\\d{8})/,'$19$2') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -64,
+        3712
+      ],
+      "id": "8a58aeb7-86ba-47e5-9998-69c595621d3a",
+      "name": "Fazer ligação",
+      "credentials": {
+        "twilioApi": {
+          "id": "oOPocCiuD9ezX7Yg",
+          "name": "Twilio - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1a2aa80c-29ec-4add-b546-6f76914e3451",
+              "leftValue": "={{ $('Buscar aguardando follow-up').item.json.numero_followup }}",
+              "rightValue": "={{ $('Info').item.json.max_followups }}",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            },
+            {
+              "id": "0fdccf13-e1d1-472d-8e93-846fbab49096",
+              "leftValue": "={{ $json.conversa.last_non_activity_message.created_at.toDateTime('s') }}",
+              "rightValue": "={{ $now.minus(24, 'hours') }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "before"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -320,
+        4064
+      ],
+      "id": "f7b28162-bc7e-4a6b-9b88-a40d7e83746d",
+      "name": "Follow-ups excedidos"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "n8n_status_atendimento",
+          "mode": "list"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "aguardando_followup": false,
+            "id": "={{ $('Buscar aguardando follow-up').item.json.id }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "aguardando_followup",
+              "displayName": "aguardando_followup",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -96,
+        4064
+      ],
+      "id": "6bbd4267-5fec-4d7f-8b05-6e9722724d7c",
+      "name": "Desligar follow-up1",
+      "credentials": {
+        "postgres": {
+          "id": "hvkzoru976d3gWkp",
+          "name": "PostgreSQL - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Info').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Info').item.json.id_conta }}/conversations/{{ $('Buscar contato').item.json.conversa.id }}/labels",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "fazerAiChatwootApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "labels",
+              "value": "={{ $('Buscar contato').item.json.conversa.labels.append('agente-off').unique() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        112,
+        4064
+      ],
+      "id": "965bb5df-1950-46a0-8921-79ccc18e0f47",
+      "name": "Desligar agente",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## 13. Agente de Recuperação de Leads\n\nWorkflow configurado dinamicamente via PostgreSQL.\nCredenciais e subworkflows usam PLACEHOLDERS.",
+        "height": 128,
+        "width": 544,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2272,
+        2800
+      ],
+      "id": "3d23c8c8-f980-4140-82f9-df722589b6b0",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "content": "## Buscar follow-ups pendentes",
+        "height": 384,
+        "width": 1504,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2272,
+        3264
+      ],
+      "id": "ab8bd527-6206-445e-807f-a76a36eadc82",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Atenção!!\n\nSó é possível fazer no máximo 5 chamadas pelo WhatsApp para um mesmo contato em um período de 24h.",
+        "width": 304,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        112,
+        3136
+      ],
+      "typeVersion": 1,
+      "id": "a0cbd078-d47b-4da9-9e83-eb85e6f8f908",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Follow-ups excedidos",
+        "height": 256,
+        "width": 672,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -368,
+        3984
+      ],
+      "id": "e5016251-d35e-4841-af17-479943c6f6ae",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Ligação de telefone",
+        "height": 240,
+        "width": 480,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -368,
+        3632
+      ],
+      "typeVersion": 1,
+      "id": "57b01e12-5d08-46c5-813d-790754d331e3",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Ligação WhatsApp",
+        "height": 432,
+        "width": 848,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -368,
+        3184
+      ],
+      "typeVersion": 1,
+      "id": "ced55d46-5ca2-48f0-a55d-61a055658e55",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## Mensagem no WhatsApp",
+        "height": 432,
+        "width": 848,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -368,
+        2736
+      ],
+      "typeVersion": 1,
+      "id": "1f02a479-c8e2-490c-8ab3-cbd0af2580b3",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "## Sobre follow-ups excedidos\n\nApós realizar todas as tentativas de follow-up, caso o lead não responda depois de 24h, nós marcamos ele como \"follow-up desligado\".\n\nOpcionalmente, é possível habilitar o node \"Desligar agente\" para colocar a etiqueta \"agente-off\" na conversa, para sinalizar que o lead esfriou.",
+        "height": 240,
+        "width": 416
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        80,
+        4256
+      ],
+      "id": "90c30734-0c86-4b14-b5f1-f406e42b9bd2",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "## Checklist de Deploy\n\n- [ ] Configuração dinâmica via PostgreSQL\n- [ ] Credenciais: PLACEHOLDER_CRED_*\n- [ ] Subworkflow: an3aELMnw5jwhLxX\n- [ ] URLs WF12: DEPLOY_INJECT_*\n- [ ] System prompt dinamizado",
+        "height": 192,
+        "width": 400,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -2272,
+        2960
+      ],
+      "id": "f507adf3-11af-4ca2-a172-1879f78facb3",
+      "name": "Sticky Note8"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gatilho": {
+      "main": [
+        [
+          {
+            "node": "Buscar Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Config": {
+      "main": [
+        [
+          {
+            "node": "Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Info": {
+      "main": [
+        [
+          {
+            "node": "Buscar aguardando follow-up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar aguardando follow-up": {
+      "main": [
+        [
+          {
+            "node": "Buscar contato",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar contato": {
+      "main": [
+        [
+          {
+            "node": "Follow-up ativo?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Follow-up ativo?": {
+      "main": [
+        [
+          {
+            "node": "Follow-up pendente?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Desligar follow-up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Follow-up pendente?": {
+      "main": [
+        [
+          {
+            "node": "Tipo de follow-up",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Follow-ups excedidos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tipo de follow-up": {
+      "main": [
+        [
+          {
+            "node": "Agente de Recuperação de Leads",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Contato já permitiu ligações?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Buscar contas Twilio1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Tipo de follow-up inválido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente de Recuperação de Leads",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memoria": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agente de Recuperação de Leads",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente de Recuperação de Leads": {
+      "main": [
+        [
+          {
+            "node": "Enviar mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar mensagem": {
+      "main": [
+        [
+          {
+            "node": "Atualizar contagem follow-up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contato já permitiu ligações?": {
+      "main": [
+        [
+          {
+            "node": "Buscar contas Twilio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Buscar template de ligações",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar contas Twilio": {
+      "main": [
+        [
+          {
+            "node": "Fazer ligação WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fazer ligação WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Atualizar contagem follow-up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar template de ligações": {
+      "main": [
+        [
+          {
+            "node": "Extrair template de ligações",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair template de ligações": {
+      "main": [
+        [
+          {
+            "node": "Enviar template de ligação",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar contas Twilio1": {
+      "main": [
+        [
+          {
+            "node": "Fazer ligação",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fazer ligação": {
+      "main": [
+        [
+          {
+            "node": "Atualizar contagem follow-up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Follow-ups excedidos": {
+      "main": [
+        [
+          {
+            "node": "Desligar follow-up1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Desligar follow-up1": {
+      "main": [
+        [
+          {
+            "node": "Desligar agente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "72f41bb4-cbec-4683-b430-3d3930ba8b38",
+  "meta": {
+    "instanceId": "715a68c7cbc350774eb1fc64655865ae67c7d2b3860e8e8de01712db5856e1ab"
+  },
+  "id": "3IAybOnxjcIW1YEz",
+  "tags": []
+}

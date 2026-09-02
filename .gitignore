@@ -21,3 +21,10 @@ CLAUDE.local.md
 Thumbs.db
 
 .claude/.headroom_wrap_owners.json
+.bmad-loop/runs/
+.bmad-loop/cache/
+.bmad-loop/policy.toml
+_bmad/render/
+
+# Metadados do Windows/WSL (arquivo baixado da internet)
+*:Zone.Identifier

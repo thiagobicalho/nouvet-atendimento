@@ -1,0 +1,291 @@
+{
+  "name": "05. Atualizar agendamento",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "id_profissional"
+            },
+            {
+              "name": "id_evento"
+            },
+            {
+              "name": "titulo"
+            },
+            {
+              "name": "descricao"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        1680,
+        560
+      ],
+      "id": "75d439dd-700a-4954-ac5b-b8b0cd3bb07f",
+      "name": "Gatilho"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b6888d0b-b4bc-44fb-b5e3-4d2d91f8d7a3",
+              "name": "dra-ana-costa",
+              "value": "<selecionar ID da agenda no Google Calendar>",
+              "type": "string"
+            },
+            {
+              "id": "64e5a38a-7045-4a54-80b8-e54715c0b7e5",
+              "name": "dr-ricardo-lima",
+              "value": "<selecionar ID da agenda no Google Calendar>",
+              "type": "string"
+            },
+            {
+              "id": "85f4ac2d-69d5-454a-95c1-dd40916c4af2",
+              "name": "dra-beatriz-souza",
+              "value": "<selecionar ID da agenda no Google Calendar>",
+              "type": "string"
+            },
+            {
+              "id": "ef406009-2ae0-4c45-962f-42f69632f46f",
+              "name": "dr-felipe-torres",
+              "value": "<selecionar ID da agenda no Google Calendar>",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {
+          "dotNotation": false
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1872,
+        560
+      ],
+      "id": "9109aab3-3ca7-410e-a568-cd88dbb25764",
+      "name": "ID agendas"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d4e5a5c3-cecc-461a-90ad-34fe97d3cc0c",
+              "name": "id_agenda",
+              "value": "={{ $('ID agendas').item.json[$('Gatilho').item.json.id_profissional] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2064,
+        560
+      ],
+      "id": "72a397bc-adda-4c7d-ae05-882a4aca262f",
+      "name": "Configurações"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "={{ $('Configurações').item.json.id_agenda }}",
+          "mode": "id"
+        },
+        "eventId": "={{ $('Gatilho').item.json.id_evento }}",
+        "updateFields": {
+          "description": "={{ $('Gatilho').item.json.descricao }}",
+          "summary": "={{ $('Gatilho').item.json.titulo }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        2272,
+        560
+      ],
+      "id": "ad175c19-e57e-4c9b-97e7-2d7d5151281b",
+      "name": "Atualizar agendamento",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "YGxt6ClFXRt6vigo",
+          "name": "Google Calendar - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Quer entender como funciona?\n\n\n### Assista o vídeo, deixe um like, e se inscreva no canal para ter acesso a mais workflows como esse!\n\n[![Vídeo YouTube Secretária v3](https://i1.ytimg.com/vi_webp/vYtaGw3vRII/maxresdefault.webp)](https://www.youtube.com/watch?v=vYtaGw3vRII)",
+        "height": 440,
+        "width": 500,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1472,
+        -48
+      ],
+      "id": "5bf8c084-a874-4cc0-a533-a7b051bfa3bb",
+      "name": "Sticky Note13"
+    },
+    {
+      "parameters": {
+        "content": "## [Clique aqui e entre agora para tirar suas dúvidas](https://lucasmoreira.fazer.ai)\n[![Banner comunidade](https://framerusercontent.com/images/KIXMxk9eKCoCsNeVm1oaz5HnaQ.png)](https://lucasmoreira.fazer.ai)",
+        "height": 440,
+        "width": 1380,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1984,
+        -48
+      ],
+      "id": "568c6ae4-2f45-49df-8f6a-b7b97269881a",
+      "name": "Sticky Note36"
+    },
+    {
+      "parameters": {
+        "content": "## Usei Hostinger pra este workflow.\n## Replique aqui.\n\n\n\n\n\n\n\n\n\n## [Use o cupom `FAZERAI` pra ter 10% de desconto na sua primeira compra!](https://www.hostg.xyz/SHIwa)\n",
+        "height": 316,
+        "width": 552,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        912,
+        400
+      ],
+      "id": "b271217b-3890-43b9-bd62-9064adafb12d",
+      "name": "Sticky Note21"
+    },
+    {
+      "parameters": {
+        "content": "[![Hostinger](https://framerusercontent.com/images/ptGVDA4KqG8GLNlWRDzFxaM.png?width=600&height=119)](https://www.hostg.xyz/SHIwa)\n",
+        "height": 96,
+        "width": 324,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1024,
+        512
+      ],
+      "id": "6659a194-a936-4148-89ac-43a6b8e30060",
+      "name": "Sticky Note29"
+    },
+    {
+      "parameters": {
+        "content": "[![fazer.ai](https://framerusercontent.com/images/HqY9djLTzyutSKnuLLqBr92KbM.png?scale-down-to=256)](https://fazer.ai?utm_source=n8n&utm_campaign=sec-v3)\n\n## Esse é um template faça você mesmo do canal\n## Lucas Moreira\n\n### Inscreva-se no nosso canal no YouTube\n[![YouTube Lucas Moreira](https://img.shields.io/youtube/channel/subscribers/UCtmp6SxzLscu0GRTbgM8FTw?style=flat-square&logo=youtube&label=Inscreva-se&color=f00)](https://youtube.com/@eulucassmoreira?si=0lH7hwX9pukjhmPQ)\n[![Instagram](https://img.shields.io/badge/instagram-black?logo=instagram&style=for-the-badge)](https://instagram.com/eulucassmoreira)\n[![GitHub fazer.ai](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white&label)](https://github.com/fazer-ai)\n",
+        "height": 440,
+        "width": 550,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        912,
+        -48
+      ],
+      "id": "67c0bdf0-6b89-4f14-b047-af1286141a04",
+      "name": "Sticky Note12"
+    },
+    {
+      "parameters": {
+        "content": "## Atualizar agendamento",
+        "height": 272,
+        "width": 848,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1616,
+        480
+      ],
+      "id": "75566fd6-2f88-4300-bab1-ff20414f472f",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# Checklist\n- [ ] Credencial Google Calendar\n- [ ] Configurar node \"ID agendas\"",
+        "height": 128,
+        "width": 352,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1616,
+        768
+      ],
+      "id": "93c252c0-53f4-48b0-aebc-29b7467f9add",
+      "name": "Sticky Note8"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gatilho": {
+      "main": [
+        [
+          {
+            "node": "ID agendas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ID agendas": {
+      "main": [
+        [
+          {
+            "node": "Configurações",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configurações": {
+      "main": [
+        [
+          {
+            "node": "Atualizar agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "f7f9fcd9-2c5e-40cb-9533-86d1f869cdbc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "715a68c7cbc350774eb1fc64655865ae67c7d2b3860e8e8de01712db5856e1ab"
+  },
+  "id": "BqQhdZqejnXPjha8",
+  "tags": []
+}

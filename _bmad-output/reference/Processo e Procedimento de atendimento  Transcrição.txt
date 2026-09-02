@@ -1,0 +1,1598 @@
+Processo e Procedimento de atendimento 
+qui., 20 de ago. de 2026
+
+0:01 - Conference Room (Edson Candido) - Speaker 1
+E aí E aí Oi Simone, bom dia.
+
+0:30 - Palestrante Não Identificado
+Bom dia.
+
+0:31 - Simone Sansi | Btech.Cloud
+Te ouço bem, você me ouve?
+
+0:34 - Palestrante Não Identificado
+Ouço.
+
+0:35 - Simone Sansi | Btech.Cloud
+Eu achei que ia ser presencial. Ah, não, não consigo.
+
+0:41 - Conference Room (Edson Candido) - Speaker 2
+Já estou na minha terra. Aí a gente já vai entrar. Falta só...
+
+0:49 - Palestrante Não Identificado
+A Débora.
+
+0:51 - Simone Sansi | Btech.Cloud
+A Débora, Luis e Thiago. Oi, Ti, bom dia. A secretária do Thiago ainda não deu retorno, né? Só para a gente ajustar as agendas aqui.
+
+1:21 - Thiago Bicalho | Btech.Cloud
+Não, ainda não. Você verifica depois, por gentileza. É verdade?
+
+1:28 - Palestrante Não Identificado
+Sim.
+
+1:49 - Simone Sansi | Btech.Cloud
+E aí Nossa, gente, estou colocando minhas contas aqui em dia de São Paulo. Que desespero, né?
+
+2:23 - Palestrante Não Identificado
+É, meu bem.
+
+2:25 - Simone Sansi | Btech.Cloud
+Luis está pegando no meu pé para me organizar financeiramente. Eu tenho um aplicativo que me mostra tudo. Quanto eu estou gastando, por que eu estou gastando, aonde eu estou gastando. Eu falo, nossa, que desespero.
+
+2:39 - Conference Room (Edson Candido) - Speaker 1
+Que aplicativo você usa?
+
+2:42 - Simone Sansi | Btech.Cloud
+O Procify, o que a gente usa aqui para fazer o financeiro da empresa.
+
+2:54 - Conference Room (Edson Candido) - Speaker 2
+Maravilhoso, tá?
+
+2:56 - Simone Sansi | Btech.Cloud
+Nossa, depois eu te mostro. Procify, P-O-R-P-R-O-C-F-Y. O Duro era quando a o CRM da Pipeify, né? Aí a gente falava do Procify e do Pipeify. Aí esquece, trava-língua puro. Nossa, tô gastando da fora.
+
+3:21 - Conference Room (Edson Candido) - Speaker 1
+E aí 493, só de comida.
+
+3:44 - Palestrante Não Identificado
+Como é essa?
+
+3:46 - Palestrante Não Identificado
+Depende de qual período você tá falando.
+
+3:51 - Simone Sansi | Btech.Cloud
+Se você tá falando de dois dias, é bastante.
+
+3:58 - Thiago Bicalho | Btech.Cloud
+Se você tá falando de um mês, talvez não.
+
+4:04 - Simone Sansi | Btech.Cloud
+Não, só da a semana passada que eu fui para aí e esses dias que eu estava aí.
+
+4:13 - Palestrante Não Identificado
+Vamos falar sete, vai, no total.
+
+4:15 - Simone Sansi | Btech.Cloud
+É muito dinheiro gasto na rua.
+
+4:18 - Conference Room (Edson Candido) - Speaker 1
+Dá não. Ô, Edson, você acha que vai dar conflito de microfone, você perto da Thay?
+
+4:24 - Simone Sansi | Btech.Cloud
+Não, eu estou com o meu fone. Eu estou com o meu fone. Tá, ótimo.
+
+4:33 - Palestrante Não Identificado
+Tem, tem. A Débora vai conseguir entrar?
+
+4:39 - Simone Sansi | Btech.Cloud
+A pergunta não é essa.
+
+4:44 - Palestrante Não Identificado
+Hã?
+
+4:45 - Palestrante Não Identificado
+A pergunta não é essa.
+
+4:50 - Thiago Bicalho | Btech.Cloud
+É que horas, né?
+
+4:53 - Simone Sansi | Btech.Cloud
+Eu já coloquei aqui para chamar ela, mas não...
+
+4:58 - Simone Sansi | Btech.Cloud
+Ela está como ocupada aqui no...
+
+5:01 - Palestrante Não Identificado
+É que ela estava...
+
+5:02 - Conference Room (Edson Candido) - Speaker 2
+eu não sei se ela já terminou a reunião dela, né? Ela está numa reunião antes, né? Ah, aquela com o Thiago, né? Isso, como é sequência, eu não sei se já terminou, porque ela já conseguiu...
+
+5:21 - Simone Sansi | Btech.Cloud
+Não tem problema, a gente aguarda ela, sem problema nenhum. Bom dia, Luis.
+
+5:32 - Palestrante Não Identificado
+Pode ir.
+
+5:33 - Palestrante Não Identificado
+Bom dia.
+
+5:35 - Palestrante Não Identificado
+Já vai entrar, tá?
+
+5:38 - Conference Room (Edson Candido) - Speaker 2
+A Eva já consegue, já foi, ó. Deixa eu perguntar pra Simone. É referente a esse projeto. Esse projeto é exclusivo aqui para o Beto ou ele já existe em outras empresas?
+
+5:56 - Simone Sansi | Btech.Cloud
+Como que funciona? O Thiago, ele já tem, ele é um especialista de inteligência artificial, ele já fez alguns outros agentes para outras empresas. Lembra até que ele falou que ele ia colocar um ativo para você ver e você testar como que seria mais ou menos a parte agente e tal.
+
+6:18 - Simone Sansi | Btech.Cloud
+Você conseguiu te ativar?
+
+6:20 - Palestrante Não Identificado
+Estou finalizando.
+
+6:21 - Conference Room (Edson Candido) - Speaker 2
+É importante também na apresentação, incluir esses dados, porque foi uma das primeiras perguntas que o conselho fez. É para saber se não é um projeto piloto aqui, que isso já existe.
+
+6:38 - Simone Sansi | Btech.Cloud
+Esse tipo de agente, para esse número de finalidades de campus, etc, Seu agente, ele é 100% personalizado. Então, o seu agente, ele é piloto, porque ele é só seu. A gente não vai pegar o seu agente e copiar pra ninguém mais. Pra outra empresa. Não, não.
+
+6:58 - Conference Room (Edson Candido) - Speaker 1
+Por mais que seja do grupo de vocês, por exemplo, entendeu?
+
+7:02 - Conference Room (Edson Candido) - Speaker 2
+Entendi. Eu vou tirar o fone, então, e aí a gente...
+
+7:06 - Simone Sansi | Btech.Cloud
+Você mutou agora. Isso.
+
+7:11 - Conference Room (Edson Candido) - Speaker 2
+Olá pessoal, desculpa.
+
+7:12 - Conference Room (Edson Candido) - Speaker 1
+Bom dia. Tudo bom?
+
+7:14 - Simone Sansi | Btech.Cloud
+Quanto você é? Tudo bom, desculpa a demora. Fica tranquila, estamos ainda aguardando a Débora, tá tudo certo, você tá em tempo ainda. Eu acho bem simples, né?
+
+7:26 - Conference Room (Edson Candido) - Speaker 2
+Porque a Débora só entra lá e vai contribuindo.
+
+7:30 - Simone Sansi | Btech.Cloud
+Tudo bem, pode ser também, mas só finalizando aqui o que você pediu de explicação, é exatamente isso. Tem um grupo aí, né? São várias empresas. Vamos supor que a gente tenha outra empresa, outro hospital veterinário com outro nome, vai, é o Pet Center. Mesmo que o Pet Center precise também de um agente de inteligência artificial, lembra que eu comentei com você que depende muito do tom de voz que vocês no VET usam para o cliente de vocês? É um nível de comunicação, é um tom de voz. Então esse agente, deve ser conscientizado nesse tom de voz do Nuvet, exclusivo. Entendeu? Ah, temos aqui no mesmo grupo um outro hospital veterinário também, esse Pet Center, e a gente também quer um agente para eles. A gente pode ter algumas nuances do que funciona no Nuvet para fazer nesse outro hospital veterinário, mas não vai ser o mesmo. A gente não vai fazer Ctrl-C, Ctrl-V.
+
+8:31 - Conference Room (Edson Candido) - Speaker 2
+Entendeu? Porque aí depende de novo. Mas é um sistema ele já funciona com outras empresas, óbvio, adaptado às suas funcionalidades, mas já existe, já funciona.
+
+8:42 - Simone Sansi | Btech.Cloud
+Já, a gente inclusive, lembra que o Luis comentou sobre a televisão, sobre os gráficos de Dash, mas a gente já fez esse agente para uma empresa que ela é um escritório de advocacia, eles fazem advocacia só corporativa, de rede hoteleira, então nós temos esse o cliente, que ele recebe as informações tanto de cliente quanto dos processos e aí ele setoriza tudo que eles precisam setorizar lá dentro. Ah, é um processo sobre oncologia que precisa passar para o Edson. Esse a gente recebe nessa empresa e passa diretamente para você e aparece lá no dashboard, entendeu? Então a gente já fez essa composição e tudo que a gente oferece hoje a gente não faz assim nossa e se a gente criasse do zero não é sobre isso por isso que a gente conseguiu responder todas as perguntas que vocês trouxeram para gente de é possível não é possível a gente consegue tempo fazer a enquanto gente o consegue fazer porque isso já existe no mercado o Thiago já tem experiência suficiente para isso e ainda mais a gente já tem clientes nossos da BTEC utilizando esse tipo de coisa.
+
+10:00 - Luis Niel Matt | Btech.Cloud
+Edson, a inteligência artificial que a gente emprega ela não vai ser um produto ou é que nem você ou qualquer outra inteligência que tenha de mercado. Essa inteligência vai ser um personagem para você, que vai trabalhar para você com as instruções que a gente der para ela. Então não é robotizado, né?
+
+10:26 - Conference Room (Edson Candido) - Speaker 2
+Não. Ele não é nada robotizado.
+
+10:28 - Luis Niel Matt | Btech.Cloud
+Só para você ter ideia desse negócio do escritório de advocacia, eles recebem mil documentos por dia. De uma equipe para separar os documentos, que caso que vai para quem, para qual equipe de advogados, qual é o assunto, isso as pessoas ficavam o dia inteiro para separar os documentos e no outro dia de novo a mesma leva. A inteligência artificial faz isso em segundos, já divide, já olha a carga de trabalho das pessoas, ela já distribui acompanha, se deu entrada no fórum, dá o alerta, fala, olha, você tá atrasado aqui. Então, assim, ela é um funcionário extremamente veloz. Essa é a ideia da inteligência oficial.
+
+11:18 - Thiago Bicalho | Btech.Cloud
+E o grande detalhe deste caso, exclusivamente, é que eles precisaram passar por uma perda para entender o que estava acontecendo e procurar a gente. Como procederam a documentos eram feitas todas manuais, todas por um, acho que duas, dois estagiários, alguma coisa do tipo, a gente tá lidando com um ano, e não é todo dia que você levanta, né, daquele jeito. Bem. Então, uma das estagiárias simplesmente esqueceu de classificar um documento, largou de lado e perderam, o escritório perdeu o prazo. Imagina o problema que gerou com o cliente, custo, então foi absurdo, né?
+
+11:59 - Conference Room (Edson Candido) - Speaker 1
+A nossa principal demanda nesse momento realmente são os clientes que estão demorando para serem atendidos. Inclusive, acabei de demorar, porque realmente peguei exatamente esse caso de que a pessoa fala, nossa, vocês são muito ruins de responder. Onde ela estava em uma esteira da internação, teve paciente de triga alta, e aí simplesmente ela fez um questionamento, jogou ali para a esteira geral, infelizmente a gente está ainda com falta de pessoas para dar essa assistência, e eu peguei ela no pulo ali para tentar resolver. Mas já gerou uma insatisfação, dessa demora de atendimento. Ontem também eu fiquei um tempo conversando com uma doutora por conta desse tipo de atendimento no WhatsApp que é demorado. Um dia para você resolver algo simples. Então o que a gente conseguir minimizar da questão de precisar necessariamente de pessoas para resolver aquilo é o ideal. Porque muitas vezes ela pode até estar em tratativa com isso. Só que se ela vai esquecer ou fazer outra coisa aquela demanda fica e não é passada para frente. Então o máximo que a gente puder...
+
+12:56 - Conference Room (Edson Candido) - Speaker 1
+O maior interesse é nosso de resolver isso, né?
+
+12:59 - Simone Sansi | Btech.Cloud
+De atender esse cliente a tempo para que ele fique satisfeito e tudo mais. Então, não sei se o Edson te colocou no contexto todo, mas o principal objetivo desse projeto é exatamente esse. Eliminar esse tempo de horas e ponto assim, chave, deixar de ter pessoa sem ter atendimento todos os dias. Porque a gente estava aí em um outro momento a outra pessoa no atendimento que agora não vou falar o nome né. Então é eu. Ela falou eu tenho mais de 50 pessoas aqui na fila e é um ser humano você não consegue atender 50 resolver 50. E aí você volta porque está chegando mais. Tem a 51 ou 52 está mandando oi. E aí a 3 ela ficou de pegar um documento e te enviar de volta.
+
+13:48 - Conference Room (Edson Candido) - Speaker 1
+Só que aí ela esqueceu porque ela foi para o fim da fila.
+
+13:52 - Simone Sansi | Btech.Cloud
+E assim, a pessoa, sei lá, ela é TDAH, né? Hoje quase todo mundo tem um CIDzinho, né? E aí a gente vai pegar um negócio na... Aí você coloca o exame na geladeira, você abre a geladeira e você fala, esqueci de tirar a comida do freezer. E ela vai tirar, ela vai pra cozinha. Isso é normal, é o nosso dia a dia do adulto. Então, quem é o responsável por retornar esse contato? Quem é responsável por pegar esse cliente pela mão e falar assim não peraí vem cá que eu vou te ajudar a resolver porque eu preciso que você resolva comigo e se não com outro lugar. Então a IA ela vai justamente entender tem dois minutos que esse cliente que você mandou a última mensagem para esse cliente esse cliente não está mais ativo. Oi tá tudo bem. Você ficou de mandar o Iza me encontrou. Deu tudo certo ou ficou com alguma dúvida. Não vai dar tempo de esfriar esse lead. Entendeu. Então essa é E principalmente, que nem eu falei para o Edson, num contexto de banhitosa. Então, hoje, a gente precisa entender qual que é o processo de todos os pontos desse filtro, tá? Por isso que a gente está aqui hoje. Então, o que a gente precisa entender? Ah, esse lead chegou. Ah, eu quero um banhitosa. Quando a gente manda o link externo, a gente já sabe e o chatbot, a gente já sabe que a gente está perdendo gente também. Então, o que essa IA vai fazer? Olhar lá no calendário. Ah, qual seria um dia legal para você, Thay? Ah, seria dia 23. Dia 23 eu tenho 11, 12 e tenho 4 da tarde. Qual que fica melhor para você? É tipo...
+
+15:28 - Conference Room (Edson Candido) - Speaker 1
+Sim, porque até mesmo a gente não vê que o simples é algo que... De verdade, isso demora, né? E aí como a gente tem... Isso não deveria ser potencial, tem que ser espantâneo.
+
+15:39 - Simone Sansi | Btech.Cloud
+E aí como hoje a gente não... Tem o SimplesVet que não tem API para fazer isso muito rápido, a pessoa, hoje, do atendimento, ela vai receber esse contato de, ó, eu quero agendar agora e quero dia 23. A única coisa que você vai ter que olhar é, olha na agenda do Simplicidade e fala, ó, dia 23. A gente tem uma outra solução possível, mas a gente vai primeiro estudar o processo para ver se realmente é possível, mas a gente já tem uma outra ideia para compor aí, entendeu?
+
+16:07 - Conference Room (Edson Candido) - Speaker 1
+E tem com essa agenda que a gente fica atendendo? Dos clínicos, né? Então, o que eu acabo fazendo até...
+
+16:16 - Simone Sansi | Btech.Cloud
+Não tô conseguindo te ouvir direito, desculpa. Tá ouvindo?
+
+16:20 - Conference Room (Edson Candido) - Speaker 1
+Pode me ouvir, por favor? É. O que a gente tava falando aqui, e por exemplo, como a IA consegue identificar até que ponto entra a inteligência artificial, até que ponto vai ser necessário o humano, pensando na parte clínica, né?
+
+16:37 - Simone Sansi | Btech.Cloud
+Esse primeiro módulo, a gente o Edson fez uma solicitação para a gente que a gente precisa de um módulo quase que expressa aí tipo uma pastelaria de um módulo muito rápido porque para a gente parar de perder gente entrando e a gente parar também de perder esse timing de atendimento básico. Então vai chegar o momento em que a gente vai conseguir colocar consciência suficiente na inteligência artificial para ela dizer olha a partir daqui e vocês vão falar transmite dentro dos processos para nós. Olha, ah, eu quero falar sobre oncologia. É exame, é orçamento, é um monte de coisa que precisa considerar o especialista. Entendeu?
+
+17:17 - Conference Room (Edson Candido) - Speaker 1
+A gente até brincou, a gente consegue direcionar, mas, por exemplo, tem justamente pensando em pós-alta da internação, que é o que eu acabo pegando na rotina. Ah, o paciente tá bem, só que ele falou que ele tá com um pouco a mole. Então, o que eu faço é, mas ele tá bem. Então, eu não sei determina se ele tá bem, se ele não tá vomitando, se a frequência não é alta. Então, a própria IA já faz umas perguntas e ela já identifica grave ou não. Aí, realmente, se for algum sinal de alerta, ela já direcionaria. Então, entra no clínico ou não. A partir daqui, a IA fala, caso esses sintomas piorem, a gente recomenda agendar para o médico veterinário. Então, ela conseguiria filtrar Porque às vezes a gente está correndo atrás de algo que eu vou atrás para ter certeza. Mas se for possível alimentar esse CLA junto com a parte clínica e determinar. Essas são as red flags para a gente conseguir direcionar. Isso é grave, isso tem que voltar.
+
+18:21 - Simone Sansi | Btech.Cloud
+A gente só tem que entender o seguinte. Hoje a gente está fazendo um agente de atendimento como ele se fosse um filtro inicial. A gente tem como conscientizar até esse ponto ponto. Isso já é uma outra consciência de quase como uma especialista, um auxiliar de especialista.
+
+18:43 - Luis Niel Matt | Btech.Cloud
+Posso dar um adendo?
+
+18:46 - Simone Sansi | Btech.Cloud
+Pode, Luis, pode.
+
+18:48 - Luis Niel Matt | Btech.Cloud
+É exatamente isso que você vai nos passar. É o ponto onde entra você, uma outra pessoa ou especialista, qualquer. Qual é o ponto de contato do humano? A inteligência artificial, ela vai até ali. Aqui, eu sei que eu preciso passar por uma pessoa e ela vai tratar desta forma. É exatamente a forma que você quer, tá? Então, é importante a gente desenhar esse processo para entender se o atendimento vai até o final. Por exemplo, um banho em Tosa é só o tratamento, ela vai fazer tudo, vai devolver o calendário, vai marcar no calendário, vai avisar a pessoa, vai chegar no dia anterior e falar ó, amanhã a gente tem o banho, a van vai retirar o cachorro, essa pessoa mesmo que vai tá lá, ah não, mudou, eu não vou tá em casa, vai ser outra pessoa, não tem problema, vou vou anotar aqui pra você, aí chega no dia, olha, a van tá saindo pra buscar, tá confirmado? Tá Ótimo.
+
+19:58 - Luis Niel Matt | Btech.Cloud
+Ah, é uma cirurgia.
+
+20:00 - Conference Room (Edson Candido) - Speaker 1
+Que é essa primeira parte simples, mas é a que gera a insatisfação, né? Que é o negócio.
+
+20:06 - Luis Niel Matt | Btech.Cloud
+Poderia ser de um lado mais rápido, né? E assim, é também... O negócio mais sério, a cirurgia, ela vai passar pra alguém conversar com o cliente, entendeu?
+
+20:16 - Conference Room (Edson Candido) - Speaker 1
+Mas dá pra ver que vai afiltrar, essa aí chegar pessoa as só informações continuar, já né? Mastigadas
+
+20:21 - Thiago Bicalho | Btech.Cloud
+Assim como, por exemplo...
+
+20:23 - Simone Sansi | Btech.Cloud
+Pode falar, Tietz.
+
+20:24 - Thiago Bicalho | Btech.Cloud
+Só complementando, você coloca justamente essas handflags aí nela, né? Então fala assim, ó, a gente tem um sistema de classificação de pós-cirúrgico. Se o outro simplesmente relatar sintomas XYZ é normal. Se relatar daqui pra frente é médio, mas a gente pode remediar, a gente pode passar informações que vai resolver. Daqui pra frente, sei lá, tá vomitando faz três dias seguidos, opa, tem que acionar o veterinário urgente.
+
+20:54 - Simone Sansi | Btech.Cloud
+E claro, também colocar nesse exemplo, a gente pode também colocar, porque assim, tem alguns tutores que são um pouco mais impressionados, né? Então, Ele vomitou e não era para vomitar. E eu quero uma consulta.
+
+21:09 - Simone Sansi | Btech.Cloud
+Beleza você quer uma consulta então a gente vai te encaminhar para uma consulta.
+
+21:14 - Simone Sansi | Btech.Cloud
+Está tudo bem. Mas a questão principal é ela vai se sentir acolhida. Exatamente. E assim o ponto também é antes de chegar nessa consciência. Vamos colocar assim mais mais completa dentro desse ciclo todo. Vai ser como a gente estava até falando com o Wilson quais são O cliente chegou, o lead chegou. Oi, quero saber como que eu faço qualquer coisa. Qual convênio? Pet love? Qual a composição desse convênio? Entendeu? Então, a gente... Que nem você está falando dessas perguntas clínicas. Então, a gente já vai fazer uma primeira composição disso, sobre convênios e tudo mais. E como a gente explicou para o Edson aí, tudo o que acontecer de novo, você que é do sucesso, vai falar para a gente. A gente aconteceu uma segunda... A gente teve aqui uma padronização. Ah, ele vomitou três dias. Ele teve febre. Ele não estava muito bem. Então, vai para a consulta. Mas aí, no primeiro dia de febre, também pode ser um sinal. Entendeu? Então, a gente vai conscientizar e eu falo assim... Olha, você não quer marcar uma consulta? Você quer uma telemedicina? Eu não sei, tá? Estou colocando assim coisas... Sem conhecer o processo ainda. Mas é isso. Vocês vão falar para a gente quais que é... Possibilidade de como vocês tratariam esse ponto para que a gente tire esse tempo de vocês e consiga atender o maior número de pessoas?
+
+22:38 - Conference Room (Edson Candido) - Speaker 1
+Porque algo pensando até em parte de fidelização que a gente queria fazer, é justamente pós-atendimento. Então passou em consulta, principalmente noturno, para a gente evitar essas falhas de troca de plantão, que a unidade não pira atendimento, que ele não fique preso, né? Então ele passou em consulta, fez solicitação de exames, mas ele não agendou. Uma coisa que toda consulta existe algum IA que fale, olá fulaninho, como tá o seu PET? Tá tudo bem? Você gostaria de agendar esse exame que foi solicitado pelo doutor? Obviamente a pós-alta da internação, que aqui eu faço na unha mesmo, eu entro em contato um por um para saber se tá tudo bem, se ele tem alguma dúvida, né? Se isso conseguiria ser automatizado, que ele teve alta, aí no dia seguinte da alta, olá fulano, foi tudo bem na sua alta pós-internação? Tem alguma dúvida? Que é onde que eu Encontra esses gargalos. Mas ele teve uma diarreia. O que eu faço agora. Ou o doutor ficou em passar uma solicitação para a gente começar a resgatar o que pode ter ficado perdido de informação do sistema.
+
+23:38 - Conference Room (Edson Candido) - Speaker 1
+Ficaram aí.
+
+23:39 - Simone Sansi | Btech.Cloud
+Aí o que a gente é que a gente precisa. Eu não tenho como duplicar a Thay com toda a consciência que você já tem de processos hoje. Eu tenho como você tem como voltar a esse lide. Ele já saiu daí ele volta para o para um processo de pós-cirúrgico. Tá tudo bem. Ele vai fazer essa pergunta em 24, 48 horas depois da alta. Ele pode fazer, mas vai ter um momento em que você vai ter que entrar por enquanto. Tem como eu alimentar?
+
+24:10 - Conference Room (Edson Candido) - Speaker 1
+Eu tenho já a planilha das altas, da internação e o tempo que ele vai voltar. Teria como que eu alimentar essa I.A. E ela automatiza essa parte do... Que é o espontâneo, né? Que um ou outro vai fazer algum questionamento. Outros vão falar, não, tá tudo bem. Aí, quando realmente tiver alguma questão que ele precisa de uma demanda de médico veterinário mesmo, ou uma foto, né? E aí, eu entraria, mas teria como o básico ser automatizado, que é o recorrente, principalmente as consultas. Porque, às vezes, eles falam, eles podem não voltar, dizendo que tá tudo bem. Mas vai que ele não volta por conta de uma assistência que ficou faltando, um exame que ficou faltando. Esse é o meu receio, né?
+
+24:48 - Simone Sansi | Btech.Cloud
+Da gente perder ele na agenda, né?
+
+24:51 - Conference Room (Edson Candido) - Speaker 1
+E aí, se ele responder, se tiver uma demanda que eu consiga entrar, aí eu consigo fazer, já agilizar e já ir repassando para os próximos setores.
+
+25:01 - Simone Sansi | Btech.Cloud
+Tanto que a gente vai fazer um treinamento com...
+
+25:05 - Thiago Bicalho | Btech.Cloud
+Desculpa, tiver que falar?
+
+25:06 - Palestrante Não Identificado
+Não, Luis.
+
+25:07 - Luis Niel Matt | Btech.Cloud
+Eu falo, eu posso falar primeiro. Mas a gente vai fazer tudo isso com você também. Imagina que você vai ter funcionários. A IA, na realidade, vai ser um funcionário vai ter um funcionário seu. Vai ter um funcionário que vai atender o banho e tosse, vai ter um que vai atender a cirurgia, vai ter um funcionário que vai dar os retornos. E você vai dizer o que quer. Inclusive, você pode falar assim, olha, eu quero...
+
+25:35 - Conference Room (Edson Candido) - Speaker 1
+Porque tem gente que não gosta de falar com coisa automatizada.
+
+25:39 - Luis Niel Matt | Btech.Cloud
+Você pode identificar assim, no momento que a pessoa falar assim, olha, eu quero falar com alguém, aí ela para. Entendi, só um minuto, vou te passar uma pessoa. Então, assim, o que você vai fazer é dar o treinamento para o seu funcionário, que por um acaso ele é digital, e ele vai fazer exatamente o que você quer. Quando você acha necessário, quando você acha que tem que parar, quando ele tem que terminar 100%. Esse propósito de reunião é entender todo um processo para que o funcionário seja bem treinado.
+
+26:17 - Luis Niel Matt | Btech.Cloud
+No fim das contas é isso.
+
+26:19 - Conference Room (Edson Candido) - Speaker 1
+Eu não quero que ele seja um robô, porque as pessoas elas detestam falar que é um robô, mas talvez esse robô seja um pouquinho mais personalizado pensando na parte de acolhimento.
+
+26:30 - Simone Sansi | Btech.Cloud
+Então eu queria que você... Que é isso que a gente estava falando do tom de voz. Como é que você trataria essa parte no tom de voz? Você trataria, por exemplo, tá? Vou colocar exemplos aqui cabeça que a gente já fez com outros clientes. Ah eu gosto de tratar depois dessa fase com apelido. E qual que é o apelido que você quer chamar esse tutor. Ah é o Edson. Ah eu vou chamar ele de Ed. Oi Ed tudo bem. Como que tá o seu pet. Como que tá a pequenininha. Tá passando bem nas últimas 24 horas. Teve alguma coisa que você quer conversar. Ah tem. Ah sabe o que é. Aconteceu isso. Você já vai ser sinalizado que tem alguma coisa mas ele nem vai entender era uma IA mandando uma mensagem, entende?
+
+27:14 - Conference Room (Edson Candido) - Speaker 2
+Tietchan, deixa eu pegar duas coisas, tá?
+
+27:17 - Thiago Bicalho | Btech.Cloud
+Não, não tá errada, não, tá certo, é isso aí, mas deixa eu voltar duas coisas. Por exemplo, você falou a questão da... Ah, dá para pegar os dados da planilha e fazer o disparo do pós-cirúrgico, etc? Dá, tá? O mundo ideal, e que hoje a não tem esse mundo ideal e a gente vai adaptar. O mundo ideal é a gente trabalhar com uma única fonte da verdade. Quem seria essa única fonte da verdade? O banco de dados do SimplesVet. A gente não tem acesso a isso. Vamos deixar de fazer? Não. Vamos usar as ferramentas que a gente tem disponível para fazer. Então, o que que a gente vai estudar? Nós vamos pegar toda essa única fonte da verdade e nós vamos, na minha cabeça Só nesse bate-papo inicial, no que eu venho pensando, o que vai passar a ser a nossa fonte da verdade? O CRM. Porque o CRM eu consigo acessar. Então, tudo a gente vai deixar registrado lá. Inclusive, dá para automatizar, por exemplo, essa questão de que ao você inserir um dado na sua planilha, a gente consegue lançar automaticamente no CRM. E aí, beleza, a gente consegue fazer todos esses disparos de forma organizada. Você pensa o seguinte, imagina que, vou entrar um pouquinho no técnico, mas imagina assim, por exemplo, você tem aí na sua planilha que o meu cachorro fez uma cirurgia hoje e que amanhã a inteligência artificial precisa entrar em contato comigo para fazer alguma coisa, tá? E aí vamos dizer que a gente delimita ali que são 24 horas após cirurgia. Ou seja, se ele acabou a cirurgia às 11 horas. E aí, às 11 horas de amanhã, a Iá vai entrar em contato comigo. Mas, eu entrei em contato, eu entrei em contato com vocês antes, eu entrei às 10 e meia. Então, ela não pode, de novo, às 11, mandar uma mensagem me cobrando, entendeu? Então, é só um pouquinho do técnico, assim, para entender que a gente precisa construir resultado que vai ser a nossa única fonte da verdade, tá? Então, esse é o ponto. Segundo ponto, concordando Simone um e pouco discordando com ao a mesmo tempo, e com vocês também. As pessoas, não é que elas não gostam de falar com robôs, elas não gostam de processos engessados, tá? Algumas experiências que eu já vi e vivenciei sobre isso. Você enganou o Lydie em não deixar claro que ele está conversando, porque conversando Geralmente, não é uma automação de botão. Ah, se você quiser fazer isso, clique nisso. É uma conversa mesmo. Então, talvez você esconder, vamos falar assim, esconder que é um atendimento virtual, soe mais, sabe, alguma coisa... Puta, os caras estão querendo me enganar, acho que eu sou trouxa. Entendeu? Ah, eu sou o fulano, sou o atendente virtual da... Meu, inclusive, A gente pode colocar ela para mandar um áudio se for necessário, entendeu? Eu sou atendente virtual do Nubed, estou aqui para te ajudar, etc, etc.
+
+30:50 - Conference Room (Edson Candido) - Speaker 2
+Entendeu?
+
+30:50 - Thiago Bicalho | Btech.Cloud
+Então, algumas coisas que a gente tem aí para construir, etc.
+
+30:56 - Conference Room (Edson Candido) - Speaker 1
+O problema sendo resolvido, acho que para o cliente é o principal. Ele tem que lidar com o atendimento. Especial desde que não seja Técnico 1 se você quer falar com o fulano, Técnico 2 se você quiser falar com o ciclano. Olá Tania, Técnico 1 se o seu pet está bem, Técnico 2 se o seu pet está vomitando. Pelo amor de Deus. Exato.
+
+31:23 - Conference Room (Edson Candido) - Speaker 1
+Espere o atendente iniciar o seu atendimento.
+
+31:26 - Simone Sansi | Btech.Cloud
+Ele já se cansa.
+
+31:28 - Conference Room (Edson Candido) - Speaker 1
+Ou o que acontece muito, o cliente já vem com a queixa, ele até de boca e aí o atendente fala como posso te ajudar aí sendo que ele já aí a pessoa já não responde mais e aí ela fez todo o trabalho no final como posso te ajudar eu passo por isso com muita raiva que você liga lá diz que aonde isso que não sei o que não é a qual é o seu cpf Aí quando alguém te atende faz tudo de novo. Exato. Nossa sai muita fumaça da minha cabeça quando eu perdi cinco minutos o tempo da minha vida para isso.
+
+32:15 - Conference Room (Edson Candido) - Speaker 1
+Dando informações que foram para o lixo.
+
+32:19 - Simone Sansi | Btech.Cloud
+Exatamente exatamente. Então vamos lá. Débora já está aí. Como que você prefere fazer Edson a gente vai por setores, para que a IA possa pegar aqui todos os pontos para a gente, só para a Thay e a Débora entenderem, aqui também tem uma inteligência artificial nossa, que vai transcrever isso e ajudar a gente nessa, nesse primeiro módulo, tanto para o Thiago, que vai fazer essa construção na unha, literalmente, de como vai ser esse agente para vocês, quanto para a gente já ajudar, porque vocês vão precisar também futuramente de processo geral, para os próximos colaboradores, mas para vocês poderem entregar, de fato, o departamento já mais redondinho aí para os próximos passos que tem aí internamente acontecendo, tá? Então, Edson, como que você prefere conduzir? A gente vai por setor ou a Débora fala como que ela já passava pela recepção? Como que você prefere fazer?
+
+33:20 - Conference Room (Edson Candido) - Speaker 2
+Eu acho melhor a gente fazer o início de tudo, né? O cliente fazer?
+
+33:27 - Thiago Bicalho | Btech.Cloud
+Posso dar uma sugestão?
+
+33:31 - Thiago Bicalho | Btech.Cloud
+Primeiro, a gente fala, porque, assim, cada setor de atendimento vai ter um agente, um funcionário. Então, o importante é, um, mapear banhidosa, oncologia, enfim, todos os setores. Então, aqui na Nuvent, a gente tem os setores de atendimento. Setor, entenda setor como quando eu estou falando com alguém e bati na minha limitação, preciso transferir para outro, tá? Então, por exemplo, a mesma pessoa que faz agendamento de panitosa é o mesmo que faz agendamento para cirurgias, eu consideraria como um único setor, que é o setor de agendamentos. Segundo, aí a gente segue um fluxo, né? Vamos começar pelo começo. Qual é o começo? A recepção. O Lidia chegou, oi, bom dia. Só falei isso, oi, bom dia. Aí você desenha o fluxo, ó, a gente Bom dia. Aí, ah, não sei o que, preciso saber, entender qual atendimento você quer, etc, etc. E aí a gente vai realificando, né? Ah, o cliente primeiro. O cliente chegou pra marcar agoritosa. Transfira o setor de rendamento. Aí o segundo atendimento. Chegou pra marcar, não sei quais outros serviços vocês têm aí.
+
+35:05 - Conference Room (Edson Candido) - Speaker 1
+Uma tomografia, por exemplo. Tomografia, exato. Aí tem que estudar carta de encaminhamento, exames.
+
+35:09 - Thiago Bicalho | Btech.Cloud
+Isso, é exato. É assim, ó, detalhar. Você vai treinar a nossa IAPM ou você que você estivesse treinando o seu funcionário para o atendimento.
+
+35:18 - Simone Sansi | Btech.Cloud
+Lembrando que a gente precisa que vocês, principalmente a Débora, né, que já esteve lá na parte da recepção, lembre de toda a informação que a gente precisa dele para a gente já conscientizar o máximo possível desde o princípio, que nem eu estava falando. Ah, você vai tentar atendimento particular ou por convênio? Se convênio, quais são as perguntas necessárias para que ele possa melhor ser qualificado vocês dentro do simples vet para não dar aquele conflito né Edson que a gente estava falando com o Wilson tal para que todo mundo e também futuramente para que a gente possa tá guiar tá tá vindo 80 por cento da empresa tá vindo por pet love mas qual pet love que tem vindo a gente tem como ajudar o nosso repasse para depois né tipo os outros departamentos o nosso repasse tá legal a gente tá ganhando com isso ou tá sendo pior para nós entendeu para vocês fazerem uma verificação estrutura muito mais completa, tá bom?
+
+36:15 - Thiago Bicalho | Btech.Cloud
+E outra coisinha, isso tende e vai se tornar um negócio desse tamanho, tá? A gente não vai conseguir mapear tudo isso hoje, tá? Esquece. Na minha visão, até para não ficar uma coisa cansativa e maçante e a gente deixar passar pontos, na minha opinião, o que eu deveria fazer hoje.
+
+36:42 - Conference Room (Edson Candido) - Speaker 2
+Vocês estão totalmente...
+
+36:43 - Thiago Bicalho | Btech.Cloud
+podem discordar de linha a qualquer momento, tá? Mapear todos os processos, né, só nomear. A gente tem um atendimento, um setor de atendimento tal, tal, e aí mapear de cabo a rabo a recepção, que é o crucial aí, que é o piloto que a gente vai fazer. Porque se a gente 5 horas da tarde a gente vai estar aqui, eu vou estar fazendo perguntas para vocês ainda.
+
+37:14 - Conference Room (Edson Candido) - Speaker 3
+Sim, porque eu prefiro escrever um saludo e passar para eles.
+
+37:19 - Conference Room (Edson Candido) - Speaker 2
+A pessoa ligou no telefone, é isso?
+
+37:21 - Conference Room (Edson Candido) - Speaker 2
+E aí a atendida?
+
+37:23 - Conference Room (Edson Candido) - Speaker 1
+Não, só WhatsApp.
+
+37:24 - Thiago Bicalho | Btech.Cloud
+O telefone a gente tem, mas a gente pode passar o serviço mais para frente.
+
+37:30 - Simone Sansi | Btech.Cloud
+É, a gente tem também um atendimento por inteligência, tá?
+
+37:34 - Conference Room (Edson Candido) - Speaker 2
+Tá indo para cá. O grande maioria tá pelo WhatsApp.
+
+37:38 - Conference Room (Edson Candido) - Speaker 1
+Aí quando ele não consegue pelo WhatsApp, ele liga. Mas se ele talvez já conseguisse pelo WhatsApp, a gente eliminaria muito mais. A grande maioria é aqueles que não tem resposta.
+
+37:51 - Conference Room (Edson Candido) - Speaker 3
+Mas eu concordo com o Thiago, até prefiro, porque como mudou as questões de Care Center, tem algumas regras novas, algumas questões novas de banho e tosa, eu prefiro entender como está hoje, né, só para conseguir alimentar e a 100%, porque eu sabia uns dois meses atrás, agora tá novo. Então, eu prefiro a gente entende como que realmente vai estar, coloca ali no Word, alguma coisa passa para vocês, aí a mesma coisa do comercial, vai entender o que o comercial vai atender, vai ser tudo. Vai ser o banho, então vai ficar só na recepção do térreo, a gente acho que precisa...
+
+38:31 - Conference Room (Edson Candido) - Speaker 1
+vai cair o que?
+
+38:32 - Conference Room (Edson Candido) - Speaker 3
+Se aqui vai cair a ligação e também o WhatsApp, aqui vai ser só o orçamento, então a gente acho que prefere sentar primeiro para conversar, aí a clínica vai atender só visita e atendimento de consulta, ultrassom em raio-x, agendamento, não, vai vir para a Cláudia, então acho que eu prefiro...
+
+38:48 - Conference Room (Edson Candido) - Speaker 1
+É que não vai assistir mais as pessoas, na verdade vai ser o próprio sistema que vai fazer isso, mas a gente tem que identificar até onde o tutor ele vai ser segmentado, porque E aí quem vai ser o responsável? Existe o setor comercial, não vai mais existir a Cláudia. Então ele vai resolver. Quem estiver aqui vai ter que resolver. Exato. Então quem vai ser a pessoa, mas só a demanda que vai passar para ela.
+
+39:16 - Simone Sansi | Btech.Cloud
+Quando o AIA não conseguir mais atender.
+
+39:19 - Conference Room (Edson Candido) - Speaker 1
+Sim.
+
+39:19 - Simone Sansi | Btech.Cloud
+Mas inicialmente só. Desculpa, desculpa. Só lembrando que esse primeiro módulo e esse nosso nosso bate-papo de hoje para entender 100%, igual o Thiago falou, recepção. Por quê? Porque a gente ainda tem o simples VET que a gente não tem como verificar a agenda, tudo o que a gente quer que a gente vai fazer no próximo RP. Então, o que a gente vai fazer hoje? Ah, receber o lead. Quais são as principais perguntas? Quais são as possibilidades de ir para onde para a gente perder menos lead? E a gente também tentar já diminuir o número de ligações porque ele não está sendo atendido no WhatsApp. Entendeu? Então, é é esse esse módulo filtro 1, especial vamos falar assim, que a gente precisa entregar no Express, tá bom? Por isso que a gente precisa de você. Ah, mas eu sei do que aconteceu dois meses atrás. É melhor do que a gente não saber nada porque eu não faço ideia E como não tem processo, então é melhor a gente ter que se basear com aquilo que funcionava, digamos assim. E aí, de novo, a gente ajusta conforme. E aí, nesse paralelo de construção desse agente inicial, você faz esse mapeamento, vocês todos, né? E aí você fala assim, Thiago, ó, a gente conseguiu agora nessa parte do atendimento de Oncologia, eu preciso saber disso. E a gente vai começar a montar tudo bonitinho. Mas esse primeiro, que nem a gente comentou com o Edson, o que a gente quer muito hoje correr é que a gente consiga entregar isso para vocês até dia 1º de setembro, entendeu?
+
+40:52 - Simone Sansi | Btech.Cloud
+Então, para o Thiago poder construir tudo isso...
+
+40:55 - Conference Room (Edson Candido) - Speaker 1
+Então, para o Thiago poder construir tudo isso... O Thiago, olha o instrumento dele. O que aconteceu? Eu fui até preparar o calendário aqui.
+
+41:04 - Luis Niel Matt | Btech.Cloud
+Eu acho que eu acho que eu vou pedir para o Thiago criar um Thiago virtual para que ele possa desenvolver mais rápido.
+
+41:15 - Simone Sansi | Btech.Cloud
+Eu acho que ainda mais. Mas então é isso então vamos começar para não pegar mais tempo de vocês aí que já são três agendas mais mais ajustadas e vocês precisam cada um fazer suas demandas. Então, Ti, você começa aí com as perguntas ou tá?
+
+41:38 - Luis Niel Matt | Btech.Cloud
+Só uma coisa, eu acho que primeiro vocês, como todo mundo aqui falou, pontuem todos os setores de atendimento possíveis. Ah, eu tenho banho tosse, eu tenho consulta, eu tenho internação, pontuem tudo isso. Quais são? Dos tipos de atendimento que vocês têm. Com isso pontuado, a gente vai falar da recepção, qual é o processo todo dela, do atendimento ao cliente humanizado que vai para a IA. E aí, posteriormente, a gente pega cada ponto de atendimento que foi listado aqui e vai tratar ele como está tratando a recepção hoje. Porque aí você vai tratar um assunto por vez, do começo ao fim. E aí, nesse fluxo, acho que a Débora vai fazer, né?
+
+42:32 - Thiago Bicalho | Btech.Cloud
+Você vai fazendo assim, Débora, você vai descrever, ó, a gente tem os setores 1, 2, 3, 4, 5, 6. Ah, beleza, agora eu vou descrever a recepção. Na recepção, a gente chega, pede pra fazer isso, isso e isso, aí, tipo, vai morrer ali, né? Aí você vai falar. Então, neste ponto, a gente transfere pro setor 1. Aí, se for este ponto, pra ficar uma coisa mais dinâmica, por quê? A gente não vai conseguir, puta, vamos desenhar tudinho. Não, não vai. Isso a gente vai conseguir para o piloto, etc., colocar esse negócio no ar e aí a gente vai acompanhando e mapeando e melhorando, tá? Esse é o processo mais comum. O que mais a gente, o que mais você conseguir, né, quando tiver a informação, melhora, tá? Mas não precisa ser tudo de uma única vez. A ideia é que a gente saia aqui com essa base e mesmo daqui, até mesmo a gente construir o piloto, a gente vai se falar muito ainda.
+
+43:29 - Palestrante Não Identificado
+Fique em paz.
+
+43:30 - Conference Room (Edson Candido) - Speaker 3
+Olha, a princípio, tá? E me corrija também se eu esqueci de alguma coisa. De início, o que que eles acham que vão querer entrar em contato para falar sobre, né? O Care Center, que é o Bantosa, acho que daria para a gente mudar esse nome de Bantosa para Care Center, para ele já alimentar ali o nome que a gente quer usar. Exames laboratoriais, então, aí entra a questão de coleta, né, Thay?
+
+43:55 - Conference Room (Edson Candido) - Speaker 1
+É, entre eles, pode entrar solicitando um orçamento para fazer um exame, ou ele pode entrar perguntando qual é o prazo do exame que ele fez.
+
+44:05 - Conference Room (Edson Candido) - Speaker 1
+São as duas vertentes de coisas que eles podem perguntar sobre eles.
+
+44:09 - Conference Room (Edson Candido) - Speaker 1
+Coleta. Então, a gente está falando sobre exames.
+
+44:12 - Thiago Bicalho | Btech.Cloud
+A gente pode enrolar na dúvida de exames.
+
+44:15 - Conference Room (Edson Candido) - Speaker 2
+Isso, exames.
+
+44:15 - Conference Room (Edson Candido) - Speaker 3
+Então, exame de sangue, ele vai poder entrar em contato para falar sobre prazo, Deixa eu cortar vocês.
+
+44:22 - Luis Niel Matt | Btech.Cloud
+Desculpa, gente. Não precisa detalhar os exames agora. Fala assim, ah, eu tenho exames. As variantes, se é coleta, se é agendamento, é um outro momento. Agora você vai falar, eu tenho... A pessoa vem na recepção, ela fala, eu quero falar, eu vou fazer um exame. Parou aí. Então você tem recepção, tem exames. Pontua só o início agora, tá?
+
+44:49 - Conference Room (Edson Candido) - Speaker 3
+Interexames, internação, consultas e vacinas e orçamentos e oncologia.
+
+44:55 - Conference Room (Edson Candido) - Speaker 1
+Acho que é isso, porque querendo ou não o orçamento e a parte do financeiro, a abordagem, mas acho que já entra outro, né?
+
+45:13 - Conference Room (Edson Candido) - Speaker 3
+E financeiro.
+
+45:16 - Thiago Bicalho | Btech.Cloud
+Tá. Beleza. Cheguei na recepção e mandei uma mensagem. Oi Débora, bom dia, tudo bem? E aí, o que que acontece? Aí seria o quê e como eu posso te ajudar?
+
+45:32 - Conference Room (Edson Candido) - Speaker 1
+Ah, eu queria arrendar um horário no Care Center. Aí eu entendo, porque você já é um cliente nosso, porque ele pode ser um cliente novo pode ser um cliente que já é nosso. Já possui cadastro conosco?
+
+45:49 - Conference Room (Edson Candido) - Speaker 3
+Eu acho que eu já possui cadastro conosco, é melhor.
+
+45:52 - Thiago Bicalho | Btech.Cloud
+E aí você entende por que a gente não vai conseguir mandar tudo? Porque em todo lugar você vai ter uma bifurcação. Você já é cliente? Sim. Sim ou não? Você já tem cadastro? Sim ou não? E aí vai ramificando, entendeu? Você veio de plano de saúde, atendimento particular, entendeu?
+
+46:10 - Conference Room (Edson Candido) - Speaker 3
+Então, mas essa questão do Care Center assim ou não, como vocês não conseguem puxar o simples VET, vai, porque aí vai ter que entrar um atendente mesmo, vai ter que entrar a rejeição.
+
+46:20 - Thiago Bicalho | Btech.Cloud
+Exato. Já tem cadastro? Sim, hoje, né? Agora. O que a gente vai fazer? Já tem cadastro? Sim.
+
+46:26 - Conference Room (Edson Candido) - Speaker 1
+Ah, tá bom, passa pra mim seus dados, a gente vai... Ah, não tem cadastro?
+
+46:30 - Thiago Bicalho | Btech.Cloud
+Então, tá bom, só um minutinho que eu vou, sei lá, vou transferir pro atendente, alguma coisa do tipo. Isso a gente vai trabalhar, tá só?
+
+46:37 - Conference Room (Edson Candido) - Speaker 2
+É, pelo que você me colocou, que eu tô vendo, isso vai ser uma ura, ele vai ser uma ura onde ele tá filtrando, não é isso, me preocupou agora, porque assim, se ele vai fazer todo esse filtro, ele vai cair numa pessoa, não vai adiantar, caiu com o telefone, já tá com um pouquinho. Porque o que deveria ser? Eu quero agendar um banho. Ele dá sequência e agenda aí.
+
+47:03 - Thiago Bicalho | Btech.Cloud
+Ela vai seguir exatamente o fluxo que vocês falaram Se o fluxo que vocês fazem hoje é perguntar se ele tem cadastro.
+
+47:11 - Thiago Bicalho | Btech.Cloud
+Não, ainda não me atende.
+
+47:12 - Conference Room (Edson Candido) - Speaker 2
+Aí a Ura já está fazendo isso. Porque na Ura eu já tenho lá. Ele quer fazer um cash center. Ok.
+
+47:19 - Conference Room (Edson Candido) - Speaker 1
+Ele cai, cai aqui, eu vou falar com ele. Mas e se a pergunta mudar? Tá, eu quero agendar um banho. Qual o horário você... Tipo, essa coisa de não ter cadastro, qual o horário que ele não pode?
+
+47:31 - Simone Sansi | Btech.Cloud
+Eu vou tirar essa questão do cadastro. Só lembrando... Só lembrando que... Esse agora, a gente precisa entregar para vocês o agendamento.
+
+47:38 - Conference Room (Edson Candido) - Speaker 1
+É para a gente responder, isso é um problema nosso. Porque ele não está sendo respondido.
+
+47:43 - Conference Room (Edson Candido) - Speaker 2
+Mas ele vai continuar, não, porque eu não tenho essa pessoa. Agora, nessa primeira etapa, se ele não conseguir concluir essa solicitação do Care Center, que eu quero agendar um banho hoje para as 11, se ele não conseguir fazer isso, ele não me atende. Porque é justamente isso que é a minha dificuldade agora, nesse momento.
+
+48:01 - Conference Room (Edson Candido) - Speaker 3
+Não, mas eu acho que eu entendi a eles querem entender mesmo que não tenha, não é que a gente quer, o que que é hoje?
+
+48:08 - Conference Room (Edson Candido) - Speaker 2
+Não, isso aí eu gostei, o problema é que a IA não vai conseguir voltar o atendimento, ele vai continuar sem atendimento, porque eu não tenho quem atenda esse cliente.
+
+48:16 - Conference Room (Edson Candido) - Speaker 1
+Mas só o fato dele não estar 24 horas sem ter uma resposta, isso pelo menos, mas pelo menos ele é atendido em algum momento. Porque ele vai ficar parado em algum ponto que a gente ainda não tem as pessoas, as pessoas sempre vão ser os problemas, a não ser que a gente consiga Mas isso ainda vai demandar tempo, a gente precisa de até o primeiro de setembro.
+
+48:36 - Conference Room (Edson Candido) - Speaker 2
+Não, não.
+
+48:37 - Conference Room (Edson Candido) - Speaker 3
+O primeiro de setembro é isso, porque o sistema não conversa com o simples veste.
+
+48:42 - Conference Room (Edson Candido) - Speaker 1
+Tudo são simples vestes. É isso que eu falei, como que ele vai me aplastar... Como que ele vai me aplastar?
+
+48:49 - Conference Room (Edson Candido) - Speaker 2
+Ele precisa ter alguma agenda fora do simples veste, depois é alimentado por alguma pessoa.
+
+48:54 - Luis Niel Matt | Btech.Cloud
+Não pode ser. Então, mas... Deixa eu colocar uns pontos aqui. Não vai ser uma URA. Como telefone, vai ser alguém conversando com uma pessoa que chegou pelo WhatsApp. E aí, a partir daí, vocês falam como que esse fluxo começa. A parte do agendamento vai ser resolvida quando o sistema for trocado e permitido, que isso já está previsto, tá? Neste início, a gente sugeriu fazer uma agenda, por exemplo, cria uma agenda do Care Center no universo Microsoft, onde você, em vez de ter pessoas que vão ficar ali tentando atender as pessoas, ela vai ficar cruzando as agendas. Aí, o que acontece? Eu peguei a agenda do... Não, não, mas a pessoa respondendo, o tutor vai alimentar essa planilha. Se o eu agendamento joguei todo para essa agenda do universo Microsoft, a IA vai fazer o quê? Ela vai já ver que tem o horário disponível, já vai marcar com a pessoa, esse processo já foi concluído. E ela já...
+
+50:02 - Conference Room (Edson Candido) - Speaker 1
+a primeira parte já foi.
+
+50:04 - Luis Niel Matt | Btech.Cloud
+Só que até que a gente tenha um sistema que vai integrar tudo isso, Alguém vai ter que ficar só alimentando as duas agendas. Aí o resto a IA faz, entendeu? Ela conclui esse entendimento.
+
+50:16 - Conference Room (Edson Candido) - Speaker 2
+Se eu tiver que a pessoa só fazer isso... Ela conclui. Mas se ela só entrar pra me jogar e jogar numa pessoa aqui, não vai atender.
+
+50:26 - Luis Niel Matt | Btech.Cloud
+Então, se a gente tiver alguém que cruza as agendas, a IA vai atender até o fim. Ela vai agendar, vai falar, olha, tá confirmado, ela vai vai sozinha na agenda, aquele apontamento, vai pôr os dados da pessoa naquela agenda, o dado do patch dela, tudo que foi informado, vai voltar a confirmação pra pessoa com quem ela tá conversando, fala ó, foi confirmado pro dia tal, etc e tal, e ela vai fazer o fluxo de acompanhamento, de confirmação, de chegar um dia antes ou uma hora antes do agendamento, fala olha, tá confirmado aqui, podemos receber no VET, sei lá, a forma como vocês querem tratar. Não é possível tudo isso.
+
+51:11 - Conference Room (Edson Candido) - Speaker 3
+Tem como nós pegarmos, filtrar a planilha de clientes, filtrar não, no caso puxar a planilha de clientes para essa IA. A IA vai perguntar se possui cadastro conosco, ele vai já ter um gap de quais informações que ele vai precisar para puxar o cliente e já me passar a informação correta nessa planilha, porque existe várias amoras. E se eu falar que não, aí vai ter o script de quais cadastros, de quais dados que a gente vai precisar. Tem como puxar esses clientes nossos?
+
+51:49 - Luis Niel Matt | Btech.Cloud
+Sim.
+
+51:49 - Thiago Bicalho | Btech.Cloud
+Imagina o seguinte...
+
+51:51 - Luis Niel Matt | Btech.Cloud
+Ele consegue exportar... Tudo que você quer é possível com a inteligência. O que a gente precisa é dar... Da fonte dos dados. Ah, eu tenho uma planilha com clientes. A gente pega essa planilha e cruza. A pessoa vai falar o nome dela, o nome do pet, ele vai na planilha e cruza o nome da pessoa com o nome do animal e já faz tudo.
+
+52:26 - Palestrante Não Identificado
+Entendeu?
+
+52:26 - Conference Room (Edson Candido) - Speaker 1
+Mas a questão, gente, a gente não vai trabalhar com o Lubo, né? Acho que em algum momento a gente vai ter que entrar com pessoas. A gente vai encontrar uma pessoa, não tem uma pessoa. Só que atualizando...
+
+52:41 - Conference Room (Edson Candido) - Speaker 2
+Se eu solicitar algumas solicitações da IAC, ele não conversa com o SimplesVetch, tutora no SimplesVetch. Se eu coloco essa agenda fora, tem um tutor agora lá em cima, agendando o mesmo horário que eu tô agendando pelo WhatsApp. A IAC pegou as 10 e eu tô lá em cima pegando as 10, Não tem como.
+
+53:00 - Palestrante Não Identificado
+É, a gente vai ter uma pessoa que vai ter um conflito.
+
+53:04 - Conference Room (Edson Candido) - Speaker 1
+Sempre vai ter que estar... As coisas vão ser dinâmicas. Vai ter um atendimento presencial WhatsApp, é que a gente não trabalha só com WhatsApp.
+
+53:11 - Conference Room (Edson Candido) - Speaker 2
+Isso, então.
+
+53:12 - Palestrante Não Identificado
+Só que as coisas estão acontecendo...
+
+53:14 - Conference Room (Edson Candido) - Speaker 3
+É, se ele me ligar, o cliente, e neste meio tempo a Iata falando com o outro, como que eu vou passar o mesmo horário?
+
+53:22 - Conference Room (Edson Candido) - Speaker 3
+Porque se é uma liga que vai ter...
+
+53:24 - Conference Room (Edson Candido) - Speaker 1
+Peraí, peraí, peraí.
+
+53:25 - Thiago Bicalho | Btech.Cloud
+Só que eu entendi Desculpa te cortar, Debora, mas aí eu preciso explicar isso aí, isso pode acontecer com ou sem e-mail. Por exemplo, você está me atendendo pelo WhatsApp. Estou falando com você, Debora. Você tem horário para o banho para as 15 horas de hoje? Ao mesmo tempo, pode ter um cliente aí na recepção e falar, eu queria marcar um banho para as 15 horas de hoje. Você vai ter uma resposta. As pessoas não vão fazer isso na mesma hora.
+
+53:49 - Conference Room (Edson Candido) - Speaker 2
+Por exemplo, isso aí pode acontecer no conflito, sim, mas isso a gente vai ter um tempo de corte. Por exemplo, porque essa pessoa humana não vai estar aqui online já alimentando essas informações automáticas. De repente ela tá fazendo internação, ela tá resolvendo outra coisa e o Care Center tá rodando.
+
+54:04 - Conference Room (Edson Candido) - Speaker 1
+Gente, mas o movimento, tipo, pra isso acontecer, eu acho que a gente tá ligando pra vocês todos, né? Porque o movimento não é nesse ponto, poxa, é tipo, é o azar... Mas hoje ela não faz nada.
+
+54:16 - Thiago Bicalho | Btech.Cloud
+Por exemplo, você exportar ele em cima, ela pode só exportar ele pra 8 horas da manhã, só que agora Não, mas a partir do momento que a gente, por exemplo, definimos que agora a gente ainda não tem o sistema com API e nós vamos usar um calendário do mundo Microsoft. Todo mundo aí dentro que tiver que fazer agendamento, por exemplo, na recepção, ela vai ter que usar este mesmo calendário Microsoft.
+
+54:46 - Luis Niel Matt | Btech.Cloud
+O pontual de você pegar esse calendário e alimentar ele é do calendário Microsoft para o Simpliset. O calendário que está ali com a IA é o que todo mundo tem que olhar o tempo todo para fazer todos os agendamentos. Alguém vai ter que pegar essas informações lá e passar para o Simpliset. Que aí a coisa começa, se todo mundo usar o mesmo calendário, começa a não ter conflitos. E a inteligência, como ela é mais rápida, ela ela vai apontuar, ela vai pegar aquele horário primeiro. Se alguém vai falar assim, deixa eu ver se eu tenho agenda, ela vai abrir o calendário e de repente apareceu lá um apontamento no mesmo horário.
+
+55:32 - Conference Room (Edson Candido) - Speaker 3
+Vamos dizer que, só a gente está comentando aqui, mas o EQ elétrico, se a gente colocar questão do especialista, a internação, agenda, ultrassom...
+
+55:42 - Conference Room (Edson Candido) - Speaker 1
+Mas aí a gente vai ter que trabalhar, isso é outro problema, Tipo, a gente tem dois sistemas, a IA ela não vai resolver todos os nossos problemas. As pessoas sempre vão ter, vão ter um conflito.
+
+55:56 - Conference Room (Edson Candido) - Speaker 3
+Eu sempre estou falando, varia super certo, mas a questão é as pessoas.
+
+56:01 - Conference Room (Edson Candido) - Speaker 1
+As pessoas precisam ter acesso, as pessoas elas saberem o que nós temos hoje.
+
+56:06 - Conference Room (Edson Candido) - Speaker 3
+A IA e as pessoas, a gente pode até... Aqui não vai estar alimentando, as pessoas não vão querer entrar em um segundo sistema. Para quando é coisa de marcas que está liberada Então é pessoas que a gente tem hoje Podemos arrumar uma I.A. Top que atenda tudo Mas a mesma coisa que se a I.A.
+
+56:27 - Conference Room (Edson Candido) - Speaker 2
+não é alimentada com dados corretos Ela não vai conseguir fazer o que é que a gente precisa Não está sendo top, não está sendo alimentado online Então quando a gente vai trabalhar com duas...
+
+56:40 - Conference Room (Edson Candido) - Speaker 3
+Uma dúvida, e se a gente esperar esse sistema iniciar? Porque não faz sentido correr também, sendo que não vai atender. É melhor ficar com as pessoas que tem agora, com esse gap mesmo, mais uns 10 dias, do que correr e não atender.
+
+56:55 - Conference Room (Edson Candido) - Speaker 1
+Mas qual é o prazo para esse novo sistema? Porque é só 2027, pelo que eu entendi. A gente não tem tempo para isso. A gente está tendo reclamações por conta de atendimento.
+
+57:06 - Luis Niel Matt | Btech.Cloud
+E se a gente fizer o seguinte? Em vez de a gente automatizar todo o processo, colocar IA para resolver o problema atual, que é não ter resposta e nem atendimento.
+
+57:19 - Conference Room (Edson Candido) - Speaker 2
+A gente pode fazer...
+
+57:21 - Luis Niel Matt | Btech.Cloud
+Se a gente se concentrar nisso, todo mundo que entrar lá vai ter uma resposta, vai ser encaminhada para alguém, alguém vai agendar manualmente e vai falar com o professor sobre esse agendamento.
+
+57:39 - Conference Room (Edson Candido) - Speaker 1
+Essa é a proposta.
+
+57:42 - Conference Room (Edson Candido) - Speaker 3
+Essa é a proposta que o Luis tá botando na mesa. Então, eu entendo, só que antigamente era menos, era uma pessoa no primeiro andar e uma aqui embaixo, agora tem uns três Você nunca vai responder toda sua vida? A gente respondia, atendia, não tinha comercial e não tem agora, mas não tinha comercial, era uma pessoa ou duas, que era líder mais uma pessoa da recepção e uma pessoa aqui embaixo. Não tinha líder de care center, era todo mundo assim, vamos responder, vamos responder. Agora a bagunça era em...
+
+58:30 - Conference Room (Edson Candido) - Speaker 1
+Temos pessoas, mas elas não estão direcionadas naquilo que elas têm que fazer. Talvez a Yala vai auxiliar, essa questão de 24 horas depois, você responde ela, a pessoa já tá muda da vida ou já resolveu o problema dela.
+
+58:47 - Conference Room (Edson Candido) - Speaker 3
+Ou divide, o Ailton responde só exames de imagem laboratorial.
+
+58:52 - Conference Room (Edson Candido) - Speaker 1
+E a Larissa vai responder só construtivo e vacina.
+
+58:57 - Conference Room (Edson Candido) - Speaker 3
+A Gabriela só Quercenter. O movimento do Quercenter antes era absurdo. Não tinha nem esporte, agora não temos, Não faz sentido aí alimentar, pegar todos os dados, nem que sejam os dados, pelo menos a informação de responder e passar para a Gabriela. Esse doutor aqui quer responder.
+
+59:15 - Conference Room (Edson Candido) - Speaker 1
+Aí ela só quer tentar.
+
+59:17 - Conference Room (Edson Candido) - Speaker 3
+Ou não, ele quer só confirmar o banho. Ela vai conseguir filtrar. Então a Gabriela vai ficar responsável só por isso. E aí ou as líderes, por enquanto, se não tiver alguém aqui embaixo, ajuda nessa questão do presencial, de levar o PET, de pegar o PET, de cobrança. Mas a questão do sabe, e do telefone daria para concentrar em uma pessoa mais.
+
+59:38 - Thiago Bicalho | Btech.Cloud
+Peraí, deixa eu fazer um parênteses aqui, gente.
+
+59:42 - Conference Room (Edson Candido) - Speaker 2
+Claro, eu não posso levar isso para a diretoria, é um negócio não atentivo.
+
+59:50 - Thiago Bicalho | Btech.Cloud
+Eu posso fazer um parênteses? Essa proposta que o Luis está colocando aqui na mesa, de não deixar ninguém sem resposta, ela é exatamente a proposta que a gente saiu daí na terça-feira, dizendo que era factível entregar nos próximos 10 dias. Nos próximos 10 dias, é impossível fazer um sistema de atendimento completo, com engendamento e etc. Então, essa proposta, o objetivo de entregar nos próximos 10 dias é um atendente que vai classificar o que a pessoa quer fazer aí dentro e direcionar para o setor correto. E assim, não entenda isso como só isso. Existe, como eu falei, um monte de variança aí dentro de cada caminho. A parte de agendamento... Ah, Edson, você vai me desculpar, eu vou discordar de você. Você não ter um sistema de agendamento assim porque a gente não consegue se comunicar com o SimplesVet, mas a gente tem outros meios de comunicação como, por exemplo, vamos Vamos entender o que o calendário do SimplesVet tem que a gente não poderia usar o calendário da Microsoft, por exemplo, até o sistema novo ficar pronto. Entendeu? E aí, ao invés de todo mundo usar o calendário do SimplesVet, vamos usar visualmente falando, para efeito de agendamento, vamos usar o calendário da Microsoft, porque todo mundo vai estar na mesma sintonia. Esse outro ponto de conflito de agenda, cara, eu concordo com você que pode acontecer e, inclusive, com atendimentos humanizados, com atendimentos humanos. Isso já aconteceu comigo, de eu estar conversando com a atendente do dentista no WhatsApp. Ah, tem um aparelho para as 15 horas? Tenho. Aí, eu demorei um pouquinho para responder. Eu falei, pode marcar lá, mas não tem mais outra pessoa marcando. Pode acontecer. A chance de isso acontecer, ela é baixa perante todo o universo, entendeu? E eu acho que podem validar o sistema.
+
+1:02:01 - Luis Niel Matt | Btech.Cloud
+E assim, se a gente se focar agora em não perder o atendimento dos clientes e você, por exemplo, que nem a Débora falou, cada um lá na recepção vai responder sobre um assunto. Aí a pega, atende e responde. A pessoa já se sentiu atendida e joga para a pessoa responsável que vai dar o retorno, vai ligar, vai falar no WhatsApp, seja lá o que for. Porque o importante, neste início, é parar de perder atendimento. Não é resolver tudo, como o Thiago falou. O resolver tudo é um processo de desenvolvimento, é entender todos os processos, todas as variantes, para quando chegar lá na frente, esse sistema esteja totalmente pronto e preparado para integração com o ERP novo.
+
+1:02:53 - Conference Room (Edson Candido) - Speaker 1
+Sim.
+
+1:02:55 - Luis Niel Matt | Btech.Cloud
+Se a gente pensar lá na frente, na solução final, realmente o sistema não vai atender vocês, porque hoje não é viável isso. Mas a gente resolver a primeira dor, que é estou perdendo clientes, estou perdendo porque ninguém responde, eu não sei quem está vindo, eu não sei quantos eu perdi. Se resolver isso agora, minimiza esse impacto que está tendo dos atendimentos, para que, no futuro, ele só melhore com o projeto todo. Então, se a gente foca no final agora, vai ser frustrante, gente. Porque você fala, eu quero resolver tudo, mas tem que ter etapas. Primeiro, eu tenho que parar de perder atendimento e passar para as pessoas esses leads que estão vindo, ou já clientes que estão ou reclamando ou querendo agendar, que não tem resposta.
+
+1:03:48 - Conference Room (Edson Candido) - Speaker 1
+Eu acho que pensando no principal demanda, A questão atual é essa. É a minha questão.
+
+1:03:54 - Conference Room (Edson Candido) - Speaker 2
+A gente não tá discutindo aqui, final. Não, eu tô tentando entender o que que ele vai nos atender agora, mas não tá claro pra mim.
+
+1:04:02 - Conference Room (Edson Candido) - Speaker 3
+É que a questão é que quando você entra lá, vem a URA, então ele vai colocar... Ele vai lá.
+
+1:04:09 - Conference Room (Edson Candido) - Speaker 2
+Até aqui onde a gente tá discutindo, eu tô entendendo como apenas uma URA.
+
+1:04:13 - Conference Room (Edson Candido) - Speaker 1
+Atualmente, o Olá, ele vai pro chatbot. Atualmente, ele tá resgatando uma pessoa, então não é pra acontecer isso. Ele tem que ser automático. Olá, como vai? Tudo bem? O que você quer? A gente chama um pouco. Mas atualmente, Edson, eles ficam parados. É 24 horas parados. Ninguém resgata esse tutor.
+
+1:04:31 - Conference Room (Edson Candido) - Speaker 3
+Se essa ia jogar, pelo menos pra fila, a recepção vai ter que... Ele não tem nenhuma pessoa ouvindo o que ele quer falar.
+
+1:04:39 - Conference Room (Edson Candido) - Speaker 1
+Ele fica ali ou lá. Tipo, 24 horas, até mais de uma semana. Esse é o problema com o pessoal.
+
+1:04:46 - Thiago Bicalho | Btech.Cloud
+Só um problema interno aqui, né? Escuta de novo, Simone. Por exemplo, você tá falando, Simone, de fila. Ó, a gente... A Yara respondeu, ó, é... Eu entendi que você precisa de uma humanitosa, uma pessoa daqui... Já vai te responder daqui dois minutinhos. A gente bota um timer lá dentro, daqui dois minutos se ninguém respondeu, a gente responde, o cara fala, ó, a gente tá meio lotado hoje, você aguarda só mais um pouquinho, por favor? Ou então já pede pra essa pessoa, ó, eu quero... Fala pra Yara, Yara, eu quero dizer o seguinte... Me solta os detalhes horários pra você, que eu vou pedir para a pessoa já verificar e te voltar com a resposta. E aí, quando a menina que vai fazer o agendamento tiver que falar, ela já vai ter a resposta na mão, entendeu? Pelo menos isso disso tá ótimo.
+
+1:05:34 - Simone Sansi | Btech.Cloud
+Agora pode, Simone, desculpa. Obrigada. Deixa eu só contextualizar aqui. Eu entendi que ainda não tá claro para o Edson. Edson, tem como a gente acompanhar, que que estavam comentando aí antes. Ah, então vamos fazer isso só quando entregar o ARP, que é para 2027. Lembra quando eu te apresentei a proposta por completo? A gente ia levar pelo menos três meses para fazer uma IA, sabendo que enquanto isso tudo estava sendo construído, outras demandas chegariam e novas consciências a gente ia ter que reagrupar. Então, assim, o que a gente tem que ter hoje é uma facilitação de atendimento para que a gente tenha, inicie a ter indicadores o suficiente para saber, temos recepcionista suficiente para dar continuidade ou não? A gente não tem esse número hoje. Quantos leads estão sendo, não estão sendo atendidos e estão indo para outros lugares? A gente não tem esse número hoje. Quantos leads já são clientes que estão tentando um contato de outra forma ou acabam chegando presencialmente por falta de atendimento eletrônico, digital, o que seja? A gente não tem número de nada hoje. E mais, isso me preocupa mais ainda porque existe o financeiro da empresa que está preocupado em colocar dinheiro para a Alessandra em campanhas que vai chegar muito mais gente. Se a gente não está dando conta antes disso tudo começar, que nem a campanha dela de setembro para outubro de tomografia vai começar, o que a gente vai fazer? A gente vai perder quanto ou perder visualização perante a marca quanto? Eu acho que é esse o ponto que a gente tinha conversado na terça-feira. A gente precisa de algo para diminuir o número de pessoas que estão ficando sem atendimento e estão começando a ter um olhar ruim do Nuvet, para com eles porque não atende, não dá retorno rápido, que nem a Thay estava falando. Aí vocês têm que ficar se desdobrando na unha para tentar pegar um, só que se ela um caso e aí existe um outro caso muito maior, o que ela vai fazer com dois super casos que é da demanda inteirinha de atenção com ela, com os médicos, entendeu? Então assim, hoje o que a gente falta demais é indicador, atendimento mínimo inicial e é esse o ponto que a gente vai te entregar em 10 dias, que a gente pretende dar o nosso melhor para poder te entregar em 10 dias, entendeu? Ah, sim. Então, é uma URA de um WhatsApp. Se ficar mais claro na sua cabeça, tá tudo bem você chamar assim. Só que não é só uma URA. Que nem o Thiago falou. A gente vai pegar todas as probabilidades e possibilidades para adiantar esse atendimento para quando chegar nesse humano, ele faça tipo três cliques e dê a finalização do atendimento de volta para IA. Para confirmação de baitosa, para confirmação de logística, de retirada de bichinhos, e qual que é o responsável, e tudo mais que a gente falou. Então, assim, eu entendo, só eu vou finalizar, Ti, eu entendo que não está claro para você, porque a gente agora está começando a falar de um monte de outras coisas com a cabeça das meninas, só que o principal é, a gente tem que começar em algum momento, entendeu? A gente tem que começar, a gente tem que dar início a isso para saber o quanto que isso vai de fluxo suficiente, e a gente vai precisar aprofundar cada um deles. Entendeu? Não, acho que eu entendi.
+
+1:09:06 - Conference Room (Edson Candido) - Speaker 2
+O governo tem que ficar claro aonde que ele vai nos atender. Isso aqui a gente vai subir pra diretoria e conselho. Então tem que ficar muito claro que é um investimento. Isso aqui a gente tem que ficar claro aonde ele vai nos atender. Porque se não atender o investimento não vai ser aprovado, gente. Tem que ficar um pouco claro pra gente entender até onde a gente vai conseguir atender.
+
+1:09:29 - Simone Sansi | Btech.Cloud
+Se não, não adianta.
+
+1:09:30 - Conference Room (Edson Candido) - Speaker 2
+Então, é porque você tá se... Você está se limitando no presente. Você está se limitando no módulo 1. Eu estou na minha situação atual. Eu preciso entender até onde isso vai me ajudar aqui, porque assim, é só agregar mais um... Aprovar um sistema que só vai me limitar só mais uma etapa do processo e não vai me concluir.
+
+1:09:57 - Simone Sansi | Btech.Cloud
+Só lembra que na terça-feira você trouxe a seguinte situação para nós. Existe uma contratação que está sendo feita de uma pessoa para que ela vai fazer confirmações de tudo que ela vai fazer. Então qual que é a necessidade de uma pessoa manual ao invés de uma inteligência artificial 24 por sete.
+
+1:10:19 - Conference Room (Edson Candido) - Speaker 2
+Nenhuma. Isso é perfeito mas deixa que ela funcione.
+
+1:10:22 - Conference Room (Edson Candido) - Speaker 2
+Eu preciso que isso aconteça realmente.
+
+1:10:24 - Simone Sansi | Btech.Cloud
+Exatamente.
+
+1:10:25 - Conference Room (Edson Candido) - Speaker 2
+E conclua até o final ali porque se tudo que ela for filtrar eu ainda vou ter que entrar alguém vai ter que entrar porque eu já não tenho esse alguém para entrar.
+
+1:10:36 - Conference Room (Edson Candido) - Speaker 3
+Mas não tem como fazer assim?
+
+1:10:39 - Conference Room (Edson Candido) - Speaker 2
+Não, eu entendi também, mas o problema aqui também é a questão do simples, do outro sistema que vai demorar muito para entrar, entendeu?
+
+1:10:48 - Conference Room (Edson Candido) - Speaker 3
+Quem tem que aprovar, tem que entender que tem tudo, tem um tempo, né? Tem um mês, eles precisam entender, ó, temos isso, queremos chegar até aqui, a previsão é três meses, mas vai vir um ano de ação.
+
+1:11:04 - Conference Room (Edson Candido) - Speaker 1
+Então nesse momento é para resolver isso, porque esse realmente está sendo o principal problema, pessoas paradas, e é o que o Simone falou. A gente não consegue ter métrica de nada, a gente não consegue ter dado de nada, a gente sabe que está perdendo, mas não sabe quanto. Talvez a gente tenha essa informação, ok, a gente está perdendo nesse ponto muita gente, então agora a estratégia é contratar mais gente para isso.
+
+1:11:23 - Simone Sansi | Btech.Cloud
+O que me preocupa muito, Thay, foi o que a gente estava conversando aí na terça, também com a Alessandra, vai chegar o momento em que o financeiro vai olhar para a Alê e vai falar mas para que que você quer dinheiro para a campanha?
+
+1:11:37 - Thiago Bicalho | Btech.Cloud
+Para trazer gente? Ou melhor, Alessandra, para que que você quer dinheiro para a campanha? Alessandra, para que que você quer dinheiro para a campanha de banitosa?
+
+1:11:50 - Simone Sansi | Btech.Cloud
+Fala aí, quantos leads chegaram ontem dessa campanha?
+
+1:11:54 - Luis Niel Matt | Btech.Cloud
+Deixa eu colocar uma forma meio bruta, desculpa, mas muito sincera. Se você dez dias que ele resolva seu problema você não vai ter isso. Ele tem que começar com os atendimentos. Parar de não atender as pessoas. Essa é a proposta dos dez dias.
+
+1:12:14 - Simone Sansi | Btech.Cloud
+Até porque você não treinaria ninguém dez dias para resolver tudo que você precisa também. Então é esse o que conseguiu fazer.
+
+1:12:23 - Conference Room (Edson Candido) - Speaker 1
+A gente não tem nenhum problema.
+
+1:12:25 - Luis Niel Matt | Btech.Cloud
+A gente não tem. Exato. Vai ter tudo. Você vai ter tudo o que você quer ao longo do tempo, ao longo do desenvolvimento, mas agora não vai ter. Agora o foco é não posso mais parar de responder os meus clientes. Eu preciso saber o que eles querem e eu preciso dar retorno para eles. Você não sabe o que eles querem porque não tem alguém respondendo eles nem atendendo eles. Então o foco é só isso.
+
+1:12:54 - Luis Niel Matt | Btech.Cloud
+Esse começo é apenas isso.
+
+1:12:56 - Luis Niel Matt | Btech.Cloud
+Partindo neste início, aí a coisa começa a tomar corpo e ao longo do tempo vai atingir o que você precisa que atender 100%, tá?
+
+1:13:06 - Thiago Bicalho | Btech.Cloud
+E além de não estar respondendo e não dar no retorno, Luis, e pessoal, né? Não tá metrificando, por exemplo, você não sabe quantas pessoas chegaram no WhatsApp hoje querendo banho em torno, você não sabe quantas fizeram consulta. A proposta inicial é justamente a gente pegar esse atendimento potencial, né, distribuir aí para quem é de direito, e alimentar um CRM, porque daqui amanhã a gente consegue olhar no CRM e falar, putz, ontem vieram, atendemos 200 leads, foram 30 que ele queriam agendar momentosa, mas somente 5 não agendaram. Por que esses outros 25 não agendaram? Ah, porque reclamaram que não tinha horário, ou porque, enfim, tem... Você vai começar a ter uma visão suas métricas, que hoje vocês estão completamente no escuro. Vocês não só estão deixando dinheiro na mesa, como vocês estão deixando de fato, estão perdendo de fato, hoje. E não é uma pessoa a mais que vai, que poderia evitar essa contratação até o dia 1º de setembro, ela não vai resolver isso. Ela só vai...
+
+1:14:13 - Luis Niel Matt | Btech.Cloud
+E o cliente que não foi atendido, foi para outro lugar, será que ele volta? Não volta mais. Hoje é tudo muito dinâmico, as pessoas são elas são imediatistas. Se ela não tem uma primeira resposta, ela procura o outro. Tem gente que deixa de comprar alguma coisa no mercado livre porque a entrega é daqui dois dias, ela quer receber amanhã. Ou quer, se for hoje então, ela até paga um pouco mais caro. É o ser humano, tá, do outro lado.
+
+1:14:40 - Palestrante Não Identificado
+E o que é, e o que é...
+
+1:14:42 - Conference Room (Edson Candido) - Speaker 2
+Não, tudo isso a gente não tem noção de tudo isso. O problema é que a gente precisa colocar isso para a gente poder entender. As informações que precisam ser construídas para a gente poder ver como isso vai funcionar de fato.
+
+1:14:56 - Conference Room (Edson Candido) - Speaker 1
+Tudo bem, qual as informações que precisa para a gente poder passar e ver isso de fato?
+
+1:15:01 - Conference Room (Edson Candido) - Speaker 2
+Porque tudo isso a gente sabe. Eu também, se eu ligar e ver, eu já logo desligo e procuro outro. A gente precisa ver de fato realmente o que precisa de informações para a gente poder iniciar a construção e poder ver como isso vai funcionar de fato.
+
+1:15:16 - Luis Niel Matt | Btech.Cloud
+Então, assim, Vou colocar na mesa agora quais as perguntas que você faz para o cliente que chega pelo WhatsApp, que não vai ser um chat robotizado, vai ser alguém conversando. O que você precisa saber quando o cara entra em contato? Essas perguntas vão dar o primeiro passo da IA para direcionar para alguém fazer um agendamento, ligar de volta para a pessoa, ou seja lá, qualquer ação que vocês queiram. A gente só precisa desse início. A pessoa entrou em contato. Ah, você vai ter uma planilha que vai cruzar os dados. Qual é o seu nome? Qual o nome do seu pet? Você já foi atendido por nós? Ela cruza na planilha, traz de volta. Ah, já identifiquei seu cadastro. Vamos prosseguir. O que você quer? Quero marcar um pet care pra mim em tal dia. Tá bom. Vou verificar os horários aqui e já te retorno. Aí ela manda ninguém, a pessoa já pega esse atendimento, já consulta lá no SimplesVet, já fala com ela, termina o atendimento, faz o agendamento. Já resolvemos a primeira etapa. Isso vai ser automatizado? Vai, mas é nesse primeiro momento, nesses dez dias, o entregável é não perder o atendimento inicial. E, lógico, disso tudo vão sair as métricas, vão sair informações relevantes, etc. Esse é o bônus do principal foco, que é parar de não atender as pessoas. Se a gente fizer essas perguntas agora, montar isso em 10 dias e vocês começarem a ver isso funcionando, com certeza vocês vão entender se aquele processo está ou não sendo útil para o fluxo de trabalho de vocês atualmente. Eu tenho certeza que vai ser satisfatório, só que assim, é difícil a eu posso extrair o que que o que que uma inteligência artificial tá fazendo se eu não tô vendo esse retorno? Então vamos construir isso pra vocês de fato verem eh que aquelas pessoas estão sendo respondidas e qual é o resultado disso? Aí fala e é isso tô gostando, é isso que eu quero, vamos continuar, vamos desenvolver, vamos pra frente, tá? O piloto vai servir pra isso, pra trazer essa satisfação pra vocês e Porque até a preocupação da diretoria justamente é essa preocupação, que não fique bobotizado.
+
+1:17:42 - Conference Room (Edson Candido) - Speaker 2
+É importante eles verem e sentir que realmente o que não é um bot. Então é difícil convencer eles, mas assim, é uma preocupação para a primeira coisa que perguntaram, a gente não quer um bobô.
+
+1:17:59 - Luis Niel Matt | Btech.Cloud
+Thiago, você não tem alguma coisa pronta dessas coisas?
+
+1:18:03 - Thiago Bicalho | Btech.Cloud
+Ele está ativando. Eu vou, eu vou, eu vou ativar e amanhã, amanhã eu disponibilizo esse número para vocês, e vocês podem testar.
+
+1:18:11 - Simone Sansi | Btech.Cloud
+Amanhã a gente vai ter essa conversa já com o Thiago Teixeira também, né? A gente vai fazer essa apresentação e...
+
+1:18:19 - Luis Niel Matt | Btech.Cloud
+A gente já apresenta esse, essa ativação do Thiago, já põe na apresentação, né, Simone?
+
+1:18:24 - Simone Sansi | Btech.Cloud
+Isso, e aí a gente, e outra, a gente já tendo hoje, se a gente puder, né, também aqui já concluir um pouco mais esse ponto do processo que a gente precisa aqui inicial. Para a gente poder também entregar amanhã na apresentação um pouco mais de profundidade de, olha, hoje os gargalos iniciais desse módulo que a gente vai entregar num tempo bem, bem incrível de curto, as principais dores é tirar ele daqui, passar para cá, vai ser desse jeito, assim, assim, entendeu? Para a gente poder começar a desenhar esse processo estar do seu lado e te ajudar nisso também. Tá bom?
+
+1:19:05 - Luis Niel Matt | Btech.Cloud
+Além de mostrar a solução, a gente vai mostrar uma em funcionamento. Isso vai ajudar bastante.
+
+1:19:12 - Conference Room (Edson Candido) - Speaker 2
+Aliás, vai ajudar muito, porque aí eu acho que vai até tirar um pouco do medo.
+
+1:19:18 - Luis Niel Matt | Btech.Cloud
+É normal, é normal. As pessoas precisam ter a confiança nessa promessa maravilhosa. A gente entende isso e a gente vai mostrar isso para Pode ficar tranquilo.
+
+1:19:30 - Conference Room (Edson Candido) - Speaker 1
+Vamos lá.
+
+1:19:31 - Simone Sansi | Btech.Cloud
+Ti, faça as perguntas, então, agora para a Deborahzita, de novo, para a gente poder pegar aqui, dentro da nossa inteligência artificial, o melhor fluxo de processos para a gente fazer a construção, tá bom?
+
+1:19:48 - Thiago Bicalho | Btech.Cloud
+Tá bom. Então, vamos lá.
+
+1:19:51 - Conference Room (Edson Candido) - Speaker 3
+Mateia, para mim quais são os setores. Tá. Care center, exames, internação, clínica, orçamentos e oncologia.
+
+1:20:04 - Thiago Bicalho | Btech.Cloud
+E recepção, né?
+
+1:20:06 - Palestrante Não Identificado
+E consultas.
+
+1:20:08 - Conference Room (Edson Candido) - Speaker 3
+É que a clínica...
+
+1:20:10 - Conference Room (Edson Candido) - Speaker 1
+É, consultas entre especialistas, né?
+
+1:20:13 - Thiago Bicalho | Btech.Cloud
+E consultas gerais, né? Isso.
+
+1:20:16 - Conference Room (Edson Candido) - Speaker 3
+Aí dentro de cada uma a gente destrincha depois. Loca, desculpa, é...
+
+1:20:22 - Conference Room (Edson Candido) - Speaker 1
+Especialização...
+
+1:20:23 - Palestrante Não Identificado
+Especialização.
+
+1:20:23 - Conference Room (Edson Candido) - Speaker 3
+E recepção, né?
+
+1:20:25 - Palestrante Não Identificado
+Como você comentou.
+
+1:20:27 - Conference Room (Edson Candido) - Speaker 3
+É que pra mim recepção já não... Não, não.
+
+1:20:32 - Thiago Bicalho | Btech.Cloud
+É que a gente vai ter um... É o assistencial.
+
+1:20:38 - Conference Room (Edson Candido) - Speaker 1
+Tá, aí dentro de recepção.
+
+1:20:41 - Thiago Bicalho | Btech.Cloud
+Vamos, vamos mapear quais são as três maiores, inicialmente, quais são as três maiores demandas?
+
+1:20:51 - Conference Room (Edson Candido) - Speaker 1
+Não, eu acho que as três maiores demandas é, tem uma solicitação de exame, e eu quero Agendamentos.
+
+1:21:04 - Conference Room (Edson Candido) - Speaker 1
+Ti, deixa eu só te cortar um minutinho.
+
+1:21:07 - Simone Sansi | Btech.Cloud
+Ti, vai colocando aqui no chat ao lado pra gente poder ver visualmente construir junto com você. Porque acho que fica mais fácil também para as meninas, entendeu?
+
+1:21:20 - Palestrante Não Identificado
+Aqui no chat, sabe?
+
+1:21:22 - Simone Sansi | Btech.Cloud
+Se você quiser eu vou escrevendo para você, não tem problema.
+
+1:21:27 - Thiago Bicalho | Btech.Cloud
+É, na verdade eu só tô rabiscando aqui o hábito.
+
+1:21:31 - Simone Sansi | Btech.Cloud
+Então, vamos voltar aqui um minutinho, gente. É porque visualmente, pra gente não ficar tentando lembrar na memória, entendeu? O que tá sendo construído.
+
+1:21:43 - Conference Room (Edson Candido) - Speaker 1
+O Lidia vai vir com uma carta de encaminhamento pra fazer algo. Ou uma solicitação de algo.
+
+1:21:52 - Conference Room (Edson Candido) - Speaker 2
+Acho que o Lidia vem dali. Vai ter uma consulta que é especializada?
+
+1:21:59 - Conference Room (Edson Candido) - Speaker 3
+Ele quer o orçamento.
+
+1:22:00 - Conference Room (Edson Candido) - Speaker 3
+Ele quer o orçamento, eu acho que a gente tem que ter uma caída. De consulta especializada.
+
+1:22:07 - Conference Room (Edson Candido) - Speaker 1
+Exatamente. E de vendista, porque o restante já não é mais lídia, é cliente. Então são as outras vertentes que é o que a gente tem que fechar.
+
+1:22:17 - Conference Room (Edson Candido) - Speaker 3
+Ele precisa até ser atendido, mas aí são outros clientes.
+
+1:22:21 - Conference Room (Edson Candido) - Speaker 3
+Eu acho que captou aí, né, os três?
+
+1:22:24 - Palestrante Não Identificado
+Hum.
+
+1:22:27 - Luis Niel Matt | Btech.Cloud
+Repete os três que eu me perdi aqui. Quais são os três principais? O agendamento e exame?
+
+1:22:39 - Conference Room (Edson Candido) - Speaker 2
+Orçamentos, agendamentos e consultas.
+
+1:22:42 - Conference Room (Edson Candido) - Speaker 1
+Dentro de consulta, o que eu pego bastante é... Espera aí.
+
+1:22:49 - Thiago Bicalho | Btech.Cloud
+Essas três aqui, que é orçamento, agendamento e consulta, consultas, elas estão, vamos dizer assim, elas são de um único módulo clínico, né? Tudo dentro de clínica.
+
+1:23:17 - Palestrante Não Identificado
+Então, beleza.
+
+1:23:19 - Thiago Bicalho | Btech.Cloud
+Então, o fluxo do usuário, ele chega, manda mensagem no WhatsApp, ou ele vai mandar uma mensagem já direcionada, enfim, aí a gente inicia o atendimento. A primeira coisa é verificar se o cliente tem cadastro e qual o plano, é isso?
+
+1:23:38 - Conference Room (Edson Candido) - Speaker 1
+Não necessariamente, porque o que a gente está querendo evitar é vender o plano de saúde. Então, o que eles orientam a equipe é, a gente vai fazer o seu, se você não comentou nada sobre plano de saúde, seguiram sendo um atendimento particular. Tá bom. Então é o que a direção orienta de que não é pra perguntar se ela quer fazer uma tomografia. Tem plano de saúde? Não, porque a gente não quer vender o plano. A gente não quer fazer o atendimento pelo plano. Então a gente segue o atendimento normalmente e aí o tutor fala, ah, mas vocês atendem pet love? Aí no pós, aí talvez nisso entre uma pessoa, porque tem que entrar na pet love, tem microchip, então isso já é o fim mesmo.
+
+1:24:18 - Conference Room (Edson Candido) - Speaker 3
+Não, mesmo se ela falar de plano aí ainda consegue solicitar, Ah, tudo bem. É só o passo a passo. Ainda já fica nisso.
+
+1:24:29 - Thiago Bicalho | Btech.Cloud
+Depois vem pra nós.
+
+1:24:31 - Thiago Bicalho | Btech.Cloud
+Tá bom. Ter cadastro ou não é um requisito?
+
+1:24:37 - Conference Room (Edson Candido) - Speaker 1
+Depende do agendamento, porque o cadastro ele vai ter que ser o final. Porque eles não podem fazer um cadastro sem saber se o que a gente vai agendar ou não, senão vira um cliente falso pra gente. Então, acho que quando concluir o agendamento, aí faz um cadastro. Se ele tiver um cadastro, acho que auxilia no sentido de já fazer o orçamento na ficha desse paciente e já deixar ele no sistema, pra equipe ver que aquele orçamento é daquele patch, o orçamento não se perder.
+
+1:25:10 - Conference Room (Edson Candido) - Speaker 3
+É, mas pode ser no final, tipo, depois de ter entendido o que o cliente quer, aí pergunta.
+
+1:25:15 - Conference Room (Edson Candido) - Speaker 2
+É, tipo, eu quero... Eu quero agendar uma consulta, aí iniciar o cadastro. Não iniciar o cadastro já que eu pedi.
+
+1:25:24 - Conference Room (Edson Candido) - Speaker 1
+É, exato.
+
+1:25:25 - Conference Room (Edson Candido) - Speaker 2
+Eu identifico se eu quero, aí a gente inicia o processo de cadastro.
+
+1:25:30 - Conference Room (Edson Candido) - Speaker 1
+Depois. Se falar só o sim ou não de ter cadastro com a gente, depois a gente rastreia.
+
+1:25:38 - Simone Sansi | Btech.Cloud
+Eu ia pedir para, antes da gente construir a melhor versão, construir como acontece hoje. Hoje.
+
+1:25:45 - Conference Room (Edson Candido) - Speaker 3
+Então, hoje a gente pede o cadastro.
+
+1:25:52 - Thiago Bicalho | Btech.Cloud
+Então, hoje você pede o cadastro, no início.
+
+1:25:59 - Palestrante Não Identificado
+Isso.
+
+1:26:00 - Luis Niel Matt | Btech.Cloud
+Mas, até onde eu entendi, é possível pedir o agente...
+
+1:26:09 - Palestrante Não Identificado
+Desculpa, Luis.
+
+1:26:10 - Luis Niel Matt | Btech.Cloud
+Até onde eu dessa conversa, é possível a gente entender o que a pessoa quer e fazer o agendamento e depois ir para o cadastro. Também concordo. Não tem porque a gente seguir o que está hoje se não está satisfatório. Então vamos começar certo. Não faz sentido você cadastrar alguém que não tem certeza que vai fazer um serviço.
+
+1:26:31 - Conference Room (Edson Candido) - Speaker 1
+A gente não vai falar, então, o que está acontecendo, porque o que está acontecendo não está dando certo. Pode ser? A gente vai seguir o que a gente gostaria de ser feito. A ideia é melhorar, não é?
+
+1:26:43 - Luis Niel Matt | Btech.Cloud
+Não é porque atualmente é isso que está certo.
+
+1:26:46 - Conference Room (Edson Candido) - Speaker 1
+Pelo contrário. É o que a gente quer mudar, mas são pessoas. Então, a gente segue uma linha de raciocínio que a gente acha que é o ideal.
+
+1:26:56 - Luis Niel Matt | Btech.Cloud
+Isso.
+
+1:26:56 - Conference Room (Edson Candido) - Speaker 1
+A ideia é melhorar. Vamos embora. Isso. Exato. Então... Não faça cadastro. Isso. No máximo, acho que talvez vocês acham que faz sentido ter cadastro sim ou não, se isso já é um direcionamento para só deixar isso É legal só para...
+
+1:27:11 - Thiago Bicalho | Btech.Cloud
+Isso é legal para... Não, para a gente, a partir do momento que tem o cadastro, puta, beleza, o quadro, fala, sei lá, seu CPF, sei lá, qual é a chave. Aí a gente já passa a tratar daquele vídeo pelo nome, pelo nome do patch, pelas informações dele, entendeu?
+
+1:27:30 - Conference Room (Edson Candido) - Speaker 2
+Pelo nome, nome do patch, de forma geral, a gente consegue... A gente consegue fazer isso? Alguma informação que eu passe, e ela já identifica se tem cadastro ou não e inicia, ao invés de perguntar se tem cadastro ou não.
+
+1:27:45 - Thiago Bicalho | Btech.Cloud
+Pode ser, depende. Depende, depende. Por exemplo, se dentro do cadastro do cliente tem o número do telefone dele cadastrado, a gente consegue identificar ele pelo número, tá? Mas pode acontecer de que eu hoje estou usando o celular da minha esposa. O máximo que vai acontecer é se minha esposa tiver cadastro, vai me chamar de Cíntia. Mas tudo bem, eu só vou corrigir falando é o marido dela, beleza, mas nada.
+
+1:28:09 - Luis Niel Matt | Btech.Cloud
+É, você pode, cruzou, a pessoa entrou em contato, você identificou o telefone, foi lá no cadastro, viu o nome da pessoa. Ó, identifiquei aqui que no nosso cadastro. Você é a Cíntia? Não, eu sou o marido dela. Ah, ok. Aí começa a tratar como marido dela. Isso. Entendeu?
+
+1:28:30 - Conference Room (Edson Candido) - Speaker 3
+Ai, prefiro ter um momento de telefone.
+
+1:28:33 - Conference Room (Edson Candido) - Speaker 2
+Eu também.
+
+1:28:34 - Luis Niel Matt | Btech.Cloud
+Já é um filtro muito rápido.
+
+1:28:37 - Conference Room (Edson Candido) - Speaker 2
+Esse filtro fica muito rápido.
+
+1:28:40 - Conference Room (Edson Candido) - Speaker 3
+Manualmente eu já fazia isso. Em minha conversa eu já puxava pelo número.
+
+1:28:46 - Conference Room (Edson Candido) - Speaker 1
+Porque muitas vezes o cadastro dos dois pode estar no cadastro da esposa.
+
+1:28:52 - Conference Room (Edson Candido) - Speaker 2
+Mas eles colocam o número da outra pessoa no cadastro. Então, Débora. Eu, Débora. E isso aí não. Aí ele já identificou periclusão e falou E você ainda não é nosso cliente. Podemos ceder cadastro? E aí me siga, sabe? Boa.
+
+1:29:10 - Luis Niel Matt | Btech.Cloud
+E o Débora?
+
+1:29:11 - Conference Room (Edson Candido) - Speaker 1
+Onde é a Débora?
+
+1:29:12 - Palestrante Não Identificado
+Ah, tá.
+
+1:29:13 - Luis Niel Matt | Btech.Cloud
+Porque, assim, essa experiência que a Débora mencionou aqui pra gente, que vocês têm que trazer. Como é que você fazia pra resolver o problema? Ah, eu já via aqui, já consultava o telefone se a pessoa já tava lá. Então, essa experiência que vocês que vocês adquiriram e começaram a montar alguns facilitadores para o trabalho de vocês, que vocês têm que nos informar, Porque é exatamente assim que a gente resolve.
+
+1:29:43 - Palestrante Não Identificado
+Sim.
+
+1:29:43 - Luis Niel Matt | Btech.Cloud
+E é o jeito de vocês de tratar as coisas da melhor forma possível.
+
+1:29:49 - Conference Room (Edson Candido) - Speaker 1
+Não tragam isso.
+
+1:29:51 - Conference Room (Edson Candido) - Speaker 2
+Porque se ele conseguiu já fazer esse rastreio, puta, já era meio que nada.
+
+1:29:57 - Palestrante Não Identificado
+Sim.
+
+1:29:57 - Thiago Bicalho | Btech.Cloud
+Tá, beleza. Então identificamos ali que estamos tratando ele pelo...
+
+1:30:01 - Palestrante Não Identificado
+né?
+
+1:30:02 - Thiago Bicalho | Btech.Cloud
+Estamos trazendo, aconchegando mais esse lixo. Beleza. Próximo passo, identificação do serviço. Normalmente, se vocês quiserem já diferente, ok. Mas identificou o Lídia, agora a gente vai identificar o serviço. Ô, Thiago, tudo bem? Boa tarde. Nossa, eu vi aqui que a última consulta que você trouxe o Tobi foi tal, tal, sei lá, alguma coisa desse tipo. Ah, quem você está procurando hoje?
+
+1:30:34 - Conference Room (Edson Candido) - Speaker 1
+Então, são duas possibilidades. Então, você falou que a pessoa, ou a gente aborda a pessoa, ou de uma maneira baseada no último atendimento, ou pergunta o que ela quer. Eu acho que talvez perguntar o que ela quer. Porque pode ser que ela fez um atendimento de um exame, mas ela queira outra coisa. Parece que perdeu o tempo para perguntar o que ela quer.
+
+1:31:01 - Conference Room (Edson Candido) - Speaker 2
+Tem que ser ágil.
+
+1:31:02 - Conference Room (Edson Candido) - Speaker 1
+Exato.
+
+1:31:03 - Thiago Bicalho | Btech.Cloud
+Talvez a gente não possa perder muito tempo enrolando ela e já ir direto ao ponto. Fechou. Então, identificou cliente.
+
+1:31:15 - Conference Room (Edson Candido) - Speaker 1
+Próximo passo, identificação direta do serviço.
+
+1:31:18 - Thiago Bicalho | Btech.Cloud
+Isso. Isso. Identificamos o serviço, aí sim a gente entra nos setores, né? Então, C, Care Center. Né? A gente precisa somente perguntar nada desejado, por exemplo.
+
+1:31:32 - Conference Room (Edson Candido) - Speaker 1
+Isso, qual o horário, se ela quer um banho, qual o horário que ela quer.
+
+1:31:37 - Thiago Bicalho | Btech.Cloud
+Ou dentro do Care Center, por exemplo, existem subserviços?
+
+1:31:40 - Conference Room (Edson Candido) - Speaker 2
+Existem, mas eles vão ser vendidos aqui pessoalmente. Então, assim, hoje a nova dinâmica do Care Center vai ser feita da seguinte forma, ele vai entrar e vai só agendar banho de banho para cachorro, banho de gato e tosa. Vai ser só isso. Aí, dentro de um desses três serviços, ele vai colocar o banho do gato. A gente vai agendar. A venda dos adicionais vai ser feita presencialmente aqui com a análise do grupo.
+
+1:32:08 - Conference Room (Edson Candido) - Speaker 1
+Pensando no Care Center, aí realmente faz sentido perguntar. Podemos... Vi que o seu agendamento anterior era banho, xixi com máscara e desidratação. Não, não pode.
+
+1:32:17 - Conference Room (Edson Candido) - Speaker 2
+Não pode mais? Não pode, porque a gente não vai ter mais. Como reformulou, não vai ter esses serviços. Criar um tipo de serviço e pacotes.
+
+1:32:27 - Thiago Bicalho | Btech.Cloud
+Então, dentro do Care Center, nós, nós que eu tô dizendo, o atendente, ela vai ter a informação de três serviços, banho para cachorro, banho para gato e tosa, certo?
+
+1:32:40 - Conference Room (Edson Candido) - Speaker 2
+Isso, exato. Qualquer serviço adicional vai ser oferecido pelo grume pessoalmente aqui.
+
+1:32:46 - Thiago Bicalho | Btech.Cloud
+Se a pessoa já sabe que vocês têm serviços adicionais, ela vai falar eu queria fazer uma hidratação, tal, tal, tal.
+
+1:32:55 - Conference Room (Edson Candido) - Speaker 2
+Vai ser cobrado como adicional, é, porque antigamente...
+
+1:32:57 - Thiago Bicalho | Btech.Cloud
+A pessoa já tem essa informação, ela só vai ficar registrada, a gente só vai registrar essa informação... A gente já pode vender isso? Não, vender não é nem a preocupação, a preocupação é a gente já registrar essa informação, para na hora que a pessoa que for fazer o agendamento, ela já tenha aquela informação e ela não precise perguntar para o cliente de novo, ah, que serviço você quer fazer?
+
+1:33:17 - Conference Room (Edson Candido) - Speaker 2
+Ah, sim, sim, ela pode, por exemplo, ah, eu gostaria de colocar uma escovação de dente, gostaria de colocar... Sim, sim, pode, qualquer tipo, só que não existe pacote.
+
+1:33:29 - Thiago Bicalho | Btech.Cloud
+Ela só não oferta. Ela não oferta, mas ela pode fazer... Beleza. Então, o Care Center, a gente tem três serviços. Beleza. Identificamos o serviço. Próxima etapa, na minha cabeça. Ah, você tem alguma preferência de data e horário? Certo? Sim. Cliente tem duas possibilidades de resposta. Sim, tenho e vai passar ou não. Qual é o horário mais próximo?
+
+1:33:57 - Conference Room (Edson Candido) - Speaker 2
+O que pode acontecer e pode cortar é que como tem tutoras aqui que vêm sempre, eles gostam que seja atendido pelo... É, tem essa questão, mas acho que é depois que a agenda. Mas se ele falava lá na hora, eu gostaria de ser atendido pelo...
+
+1:34:17 - Conference Room (Edson Candido) - Speaker 1
+É, acho que dá para fazer isso.
+
+1:34:21 - Conference Room (Edson Candido) - Speaker 2
+Aí é a interrompe que joga para o procedente ou vai conseguir?
+
+1:34:27 - Conference Room (Edson Candido) - Speaker 3
+Calma, desculpa. A gente tem a troca de plantão, é só jogar dentro da IA também.
+
+1:34:36 - Thiago Bicalho | Btech.Cloud
+Hoje, tá? A gente vai desenhar, tudo isso a gente vai coletar informação, tá? E a única ação que a gente vai fazer hoje, literalmente dentro desses próximos 10 dias aí, é informar isso para a pessoa que está recebendo. Olha, ele quer um banho mitosa com hidratação, ele quer que seja com o profissional no ar, e a preferência de horário dele é segunda-feira, 14 horas. A título de informação para quem está recebendo. Então, tudo imagina, na hora que a gente for, isso de fato for executado ponta a ponta, Aí essas informações são super relevantes. Porque aí, por exemplo, aí dentro do Banho e Toda a gente tem três funcionários que dão Banho e Toda. A gente tem três agendas. Cada um tem a sua agenda própria. Ah, então o pessoal... Ah, eu queria agendar às 14 horas com o Bob. Ah, beleza. Eu não tenho horário às 14 horas com o Bob, mas eu tenho com o Fernando. Pode ser?
+
+1:35:37 - Palestrante Não Identificado
+Entendeu?
+
+1:35:38 - Palestrante Não Identificado
+Tipo isso.
+
+1:35:38 - Conference Room (Edson Candido) - Speaker 1
+Então, no mesmo atendimento, eu falava, você tem um dia caro e preferência. Tipo, dar para a gente, no mesmo funcionamento, já falar esses três, que aí isso já segmenta e ele já direciona.
+
+1:35:51 - Thiago Bicalho | Btech.Cloud
+Isso, beleza. Beleza, então ele passou essas duas informações, se tem ou não preferência. Tecnicamente, neste momento, encerramos a atuação dele, certo? Encerramos como cliente, o nosso produto cliente. Ah, eu vou consultar aqui suas informações rapidinho e já te retorno, beleza? Lançamos essa informação lá no Rd, lá no CRM. Ó, ali o cliente tal, tal, banitosa, aí tem, não sei se vocês conhecem do CRM, mas a gente tem gatilhos lá. Essa tarefa vence daqui a cinco minutos. Se daqui a cinco minutos o card dele continua do mesmo jeito, significa que o atendente ainda não respondeu. O que que ele vai fazer? Ele vai mandar mais uma mensagem pro cliente e falar ó, eu tô verificando aqui ainda, só que eu tô te dando um retorno pra você não ficar sem resposta. Você espera mesmo um pouquinho. Entendeu? Aí, quando a pessoa entrar, vai verificar todas as informações e vai responder pra ele. Encerrou o atendimento do agente.
+
+1:36:50 - Palestrante Não Identificado
+Certo?
+
+1:36:50 - Conference Room (Edson Candido) - Speaker 1
+Certo.
+
+1:36:51 - Conference Room (Edson Candido) - Speaker 1
+Tá dentro?
+
+1:36:52 - Palestrante Não Identificado
+Sim.
+
+1:36:52 - Conference Room (Edson Candido) - Speaker 1
+É o principal. É a sequência dali, agora... Mas ele tá ciente de que ele tá sendo atendido e que tá em andamento.
+
+1:37:05 - Thiago Bicalho | Btech.Cloud
+Exatamente. Ciclo vai se... A gente pode, ou não, ir deixando esse ciclo repetitivo até que alguém atenda, de fato, para também não deixar o cara... Ô, e aí? Vocês vão me responder ou não vão? Então, beleza. Matamos o care center. Aí a gente vai para a solicitação de exame. Chegamos. Ah, eu quero fazer a solicitação de exame.
+
+1:37:31 - Palestrante Não Identificado
+E aí?
+
+1:37:31 - Conference Room (Edson Candido) - Speaker 1
+Você tem carte de encaminhamento? E sua carta de encaminhamento para esse exame. Você vai enviar um anexo. E ele vai enviar um pedido. Isso, ele vai enviar um anexo.
+
+1:37:42 - Thiago Bicalho | Btech.Cloud
+O que vocês fazem com esse pedido hoje?
+
+1:37:45 - Conference Room (Edson Candido) - Speaker 1
+Atualmente a gente olha o pedido e aí a gente faz um orçamento desse pedido. E aí com esse orçamento, se a pessoa autorizar sim, concordo, aí parte para o agendamento. Então ela não dá para agendar sem ela saber qual é o valor que ela vai pagar.
+
+1:38:01 - Luis Niel Matt | Btech.Cloud
+Então no exame o atendimento inicial é a exame me caminha o negócio e já mandar para alguém. Nesse primeiro momento porque lá na frente a gente pode automatizar até o orçamento e já vira automático. Eu vou ficar puxando o foco para esses 10 dias só para a gente entender que agora é mais simples que ele filtra e passa para alguém.
+
+1:38:29 - Thiago Bicalho | Btech.Cloud
+Porque depois a construção disso é, ele vai verificar a validade, ou enfim, as informações dentro desse pedido. Se a gente já tiver todas as informações de preços dentro da base, cálculo, etc., ele já vai fazer tudo e adia na agenda e etc. Tá? Então, mas hoje, para os próximos 10 dias, encaminhe o pedido para mim. Encaminhou o pedido, a gente pode até botar uma verificação de que se veio de fato pedido, tá? Enquanto o pedido não for recebido, a gente fica também naquela mesma pegada. Eu tento fazer na Toma. O CRM da Toma fazia isso.
+
+1:39:06 - Conference Room (Edson Candido) - Speaker 1
+Quando ele vinha, ele mandava automático. Você tem um pedido? Se ele não... Ah, eu vou ver com o meu veterinário. Enquanto ele não mandava, o próprio CRM ficava mandando. Olá, você já tem um pedido? Para ficar lembrando esse cliente para trazer. Esses exames, eles podem ser tanto necessidade de anestesia ou não, que aí, por exemplo, tem exame simples, mas acho que isso já seria segmentado demais, talvez todo orçamento, toda solicitação de exame já caíra em uma pessoa, porque se a gente puder perguntar qual tipo de exame, tipo, se é exame laboratorial ou de imagem ou algum procedimento cirúrgico, talvez isso vai para algum caminho de diferença.
+
+1:39:49 - Conference Room (Edson Candido) - Speaker 3
+Exame de imagem é algo de alta complexidade Mas a pessoa não vai saber o que é um exame de margem de autocomplexidade.
+
+1:39:55 - Conference Room (Edson Candido) - Speaker 1
+Por exemplo, vou te dar um exemplo de nós humanos.
+
+1:39:57 - Thiago Bicalho | Btech.Cloud
+Por exemplo, tá?
+
+1:39:59 - Thiago Bicalho | Btech.Cloud
+Você ligou no laboratório com uma batelada de exames. Dentro desses exames, você tem exame de sangue. A pessoa não precisa de alimentos, você pode vir em qualquer dia a partir das seis da manhã.
+
+1:40:14 - Conference Room (Edson Candido) - Speaker 1
+Funciona assim também?
+
+1:40:15 - Conference Room (Edson Candido) - Speaker 1
+Não, que tem que ser agendado, por causa da colética.
+
+1:40:18 - Thiago Bicalho | Btech.Cloud
+Então, tudo é agendado. Então, nenhum tipo de exame segue um caminho diferente. Eles vão todos para o mesmo caminho.
+
+1:40:25 - Palestrante Não Identificado
+Desculpa.
+
+1:40:25 - Conference Room (Edson Candido) - Speaker 1
+Não entendi, desculpa.
+
+1:40:26 - Thiago Bicalho | Btech.Cloud
+Nenhum tipo de exame segue em caminhos diferentes. Todos eles vão para o mesmo caminho, ou seja, o fluxo é olhar o pedido, passar tem que fazer o agendamento?
+
+1:40:36 - Conference Room (Edson Candido) - Speaker 1
+Isso, basicamente é isso. Ele olha o pedido, faz um orçamento, por exemplo, se for algum... Como que funciona atualmente? Pensando em exames que precisam de anestesia, que é principalmente a tomografia. Tem um pedido de tomografia. Aí, a recepção, a parte comercial, perguntava, você já tem os exames pré-anestésicos? Que aí, se ele não tivesse, o orçamento já seria com esses exames. Então, é um orçamento, além já completo, com todas as exames.
+
+1:41:04 - Thiago Bicalho | Btech.Cloud
+Isso a gente também pode colocar nesse momento, se precisa de pré-anestésicos, quais os exames que precisam de pré-anestésicos, recebemos uma sugestão desse exame. Ah, você já tem os exames pré-anestésicos? Sim. Beleza.
+
+1:41:18 - Conference Room (Edson Candido) - Speaker 1
+Não? Aí ele manda. Se ele tem os exames, ele manda atualmente, ele manda esses exames, e aí esses exames são validados pela anestesista, mas enquanto ele já tem, se ele já tem esses exames, ele já pode receber um orçamento do procedimento, né? Acho que não teria problema todo esse tempo para uma análise de um exame, que acaba demorando.
+
+1:41:41 - Thiago Bicalho | Btech.Cloud
+Sim. Se ele não tem os pré-anestésicos?
+
+1:41:43 - Conference Room (Edson Candido) - Speaker 1
+Aí, se ele não tem os pré-anestésicos, então a gente faz um orçamento já com esses pré-anestésicos. Tá bom, fechou. Além do exame da tomografia que ele solicitou, por exemplo. Que aí é um orçamento completo, para ele avaliar se ele vai Tá bom, fechou.
+
+1:41:59 - Thiago Bicalho | Btech.Cloud
+Então, matamos solicitação de zero.
+
+1:42:01 - Palestrante Não Identificado
+Próximo.
+
+1:42:02 - Thiago Bicalho | Btech.Cloud
+Consultas? Consultas. Era consultas.
+
+1:42:04 - Conference Room (Edson Candido) - Speaker 1
+Ele pode entrar em contato perguntando que ele quer agendar uma consulta com especialista. Só um parênteses. A consulta básica, a grosso modo, ela segue o mesmo fluxo do Care Center, certo?
+
+1:42:20 - Thiago Bicalho | Btech.Cloud
+Porque aí você tem o especialista, Porque depende de uma agenda.
+
+1:42:25 - Palestrante Não Identificado
+Sim, depende de uma agenda.
+
+1:42:27 - Conference Room (Edson Candido) - Speaker 1
+Sim, basicamente sim, seguiria a mesma linha de raciocínio do Care Center.
+
+1:42:32 - Conference Room (Edson Candido) - Speaker 3
+A preferência do veterinário que também os doutores têm, né?
+
+1:42:36 - Thiago Bicalho | Btech.Cloud
+Tá. Aí o que eu vou precisar de informação além do Care Center, né? O que a gente vai precisar de informação, não precisa ser agora, mas o que a gente vai precisar para consultas.
+
+1:42:50 - Thiago Bicalho | Btech.Cloud
+Os nomes dos profissionais.
+
+1:42:52 - Thiago Bicalho | Btech.Cloud
+A agenda no sentido de dias que eles atendem, dias e horas que eles atendem.
+
+1:42:59 - Conference Room (Edson Candido) - Speaker 3
+Temos um aplicativo, eu acho que o Luis conhece, que é o Pega Plantão, ele consegue, vocês conseguem puxar os dados?
+
+1:43:09 - Luis Niel Matt | Btech.Cloud
+A gente tem o acesso administrativo à plataforma, e aí a gente consegue extrair isso de lá.
+
+1:43:17 - Thiago Bicalho | Btech.Cloud
+Então a gente puxa Ah, esquece que eu te falei que você precisa passar.
+
+1:43:22 - Conference Room (Edson Candido) - Speaker 1
+Porque a consulta, acho que talvez a primeira abordagem deles, ele quer uma consulta com o clínico geral ou consulta com o especialista, porque aí nisso a gente consegue direcionar. Com o clínico geral é muito mais fácil, que é o nosso Agenda Simples Vete Padrão, né, que a gente tem ali para olhar o horário. Com o especialista já é um pouquinho mais diferenciada porque, além deles terem as escalas, né, pode ser que a gente poderia passar o que disponível de escala naquele momento, e se o tutor não conseguir nenhuma delas, aí realmente um atendente mesmo humano, ah, então eu vou verificar uma data que te atenda com esse especialista. Então a gente já tem um padrão e fora desse padrão já é um atendente humano.
+
+1:44:06 - Conference Room (Edson Candido) - Speaker 3
+E a preferência também, que aí entra a questão de preferência de horário, dia e horário do especialista, caso não atendê-lo.
+
+1:44:14 - Thiago Bicalho | Btech.Cloud
+Tá bom, então e mandei mensagem. Olha, eu queria agendar uma consulta para o meu cachorro. Ah, tá bom. Você prefere, você quer agendar uma consulta com o clínico ou com o especialista? Ela vai me perguntar. Eu vou responder. Eu não sei. Eu vou responder. Eu não sei. O que você recomenda que a gente vai responder?
+
+1:44:33 - Conference Room (Edson Candido) - Speaker 1
+Aí eu perguntaria qual que seria a queixa, né? Direcionaria para entender a queixa. E aí, só que aí, nesse momento atual que a gente tem, fugiria um pouco E aí ele tá, sei lá, tossindo, porque tem muitas questões que o próprio clínico geral pode atender em um primeiro momento. Só que tem pessoas que já querem direcionar para um especialista.
+
+1:44:52 - Conference Room (Edson Candido) - Speaker 3
+Quem tossindo pode ser clínico ou pneumologista?
+
+1:44:54 - Conference Room (Edson Candido) - Speaker 1
+Sim. Se ela quiser pagar mais por um especialista, ela paga, mas, ah, não, quero fazer uma triagem com o clínico geral e ele vai direcionar, porque vai que é tossindo, mas não é um pneu, é um cardíaco. E é uma triagem inicial daquilo para ele depois e depois direcionar.
+
+1:45:09 - Thiago Bicalho | Btech.Cloud
+Tá bom. Então, depois, um pouquinho mais para frente, a gente destrincha melhor essa comunidade, essa situação.
+
+1:45:16 - Conference Room (Edson Candido) - Speaker 1
+Eu acho que talvez nessa sugestão que você deu, ah, eu não sei o que você me sugere, acho que cai para o clínico. O clínico ele é geral, ele vai fazer um check-up e no clínico geral ele vai...
+
+1:45:30 - Thiago Bicalho | Btech.Cloud
+Ou melhor, tá? Indo um pouquinho mais fundo. Ah, você não sabe. Ah, seu cachorrinho tratamento com algum especialista aqui na clínica ou em outro lugar? Ah, ele estava tratando com um pneumologista, sei lá.
+
+1:45:44 - Conference Room (Edson Candido) - Speaker 1
+Já dá uma luz, é.
+
+1:45:47 - Thiago Bicalho | Btech.Cloud
+Então, a gente vai encaminhar para um aqui também, sei lá, mas tudo bem, a gente pode estrechar isso um pouquinho mais para frente.
+
+1:45:57 - Palestrante Não Identificado
+Sim.
+
+1:45:57 - Thiago Bicalho | Btech.Cloud
+Então, beleza. Então, consulta, fechou.
+
+1:45:59 - Conference Room (Edson Candido) - Speaker 1
+Se ele não der uma sugestão, acho que talvez clínico geral seria o é o caminho, né? Então, ah, não sei com quem eu quero passar. Ah, então se você passa com um clínico geral que ele vai te fazer uma triagem e te direcionar para o melhor tratamento. E a partir disso, ele entrou pelo menos, ele já entrou e fez o atendimento.
+
+1:46:23 - Thiago Bicalho | Btech.Cloud
+O pós aí é realmente o restante da jornada dele. Tá bom. Então, beleza. Fechamos consulta.
+
+1:46:28 - Thiago Bicalho | Btech.Cloud
+Aí a gente tem, depois de consulta, orçamentos, é isso?
+
+1:46:32 - Conference Room (Edson Candido) - Speaker 1
+Não. Orçamentos do setor?
+
+1:46:33 - Conference Room (Edson Candido) - Speaker 3
+É, que o orçamento é quase igual ao agendamento, né?
+
+1:46:37 - Thiago Bicalho | Btech.Cloud
+Então, espera aí. Orçamento, ele é um setor interno, né?
+
+1:46:40 - Conference Room (Edson Candido) - Speaker 1
+É, que na verdade o orçamento seria um setor interno.
+
+1:46:44 - Thiago Bicalho | Btech.Cloud
+Não existe uma pessoa de orçamento que fala com o cliente. Por exemplo, eu vou mandar uma mensagem querendo fazer um exame. Vou mandar pra vocês, pra Débora. Débora, eu quero fazer um exame com o meu cachorro. A Débora vai encaminhar essa mensagem para o setor interno de orçamentos, o setor vai fazer o orçamento e é ela quem vai me responder isso, não é isso?
+
+1:47:09 - Conference Room (Edson Candido) - Speaker 1
+Atualmente não temos.
+
+1:47:10 - Conference Room (Edson Candido) - Speaker 3
+Eu acho que a gente quer ter uma pessoa, então criar para isso, para empanhar para uma pessoa específica.
+
+1:47:18 - Thiago Bicalho | Btech.Cloud
+Vocês não vão precisar de pessoas específicas. Vocês vão ter um agente específico. Vamos dizer, esse é o fluxo que aconteceria hoje, se essa pessoa existisse. O setor somente entrega, Esse setor interno não se comunica com o cliente?
+
+1:47:33 - Conference Room (Edson Candido) - Speaker 1
+Isso, seria o... Do orçamento, você disse. Isso. É, o que eu... É que não existe mais esse setor. O que existia antes realmente tinha esse setor, e esse setor dava continuidade com o cliente. Ele se comunicava totalmente com esse cliente para passar as orientações. Ele não era só receber o encaminhamento, orçamento e passa para o próximo. Ele recebia o orçamento, Ele sabia o orçamento e dava continuidade para os clientes, eles não repassavam. Fazia agendamento, tudo. Ele realmente era um setor que só dava continuidade nisso. Não que ele só executava o orçamento. Ah, já fiz um orçamento, faço o próximo.
+
+1:48:16 - Thiago Bicalho | Btech.Cloud
+Ele era um comercial, né, para isso. Tá. Então, a pessoa do orçamento, ela dá a continuidade pelo atendimento.
+
+1:48:25 - Palestrante Não Identificado
+Isso.
+
+1:48:26 - Conference Room (Edson Candido) - Speaker 2
+Tá.
+
+1:48:26 - Thiago Bicalho | Btech.Cloud
+E aí, este setor de orçamento, ele é um setor que atende a clínica inteira, ele faz orçamento de tudo que é necessário fazer orçamento, tá?
+
+1:48:38 - Conference Room (Edson Candido) - Speaker 1
+Sim.
+
+1:48:39 - Palestrante Não Identificado
+Tá bom.
+
+1:48:40 - Thiago Bicalho | Btech.Cloud
+Então, hoje, o que que a gente vai ter nesses próximos 10 dias? A gente não vai ter este cara de orçamento, tudo que é orçamento vai ser direcionado para alguém, tá? Beleza, então, orçamento matamos e foi, né?
+
+1:48:59 - Conference Room (Edson Candido) - Speaker 1
+Foi consulta, escolhi o Care Center. Tá.
+
+1:49:03 - Palestrante Não Identificado
+Quer falar, Sônia?
+
+1:49:04 - Conference Room (Edson Candido) - Speaker 1
+Não, não, é que a questão do, da parte do orçamento, ele vai cair um tempo na parte do, da carta de encaminhamento, né? Esses exames, gente, desses exames, ele entra em contato para solicitar algum exame, é que ele já vira um orçamento. Isso. Então não faz sentido ter os exames e a pessoa do orçamento.
+
+1:49:35 - Thiago Bicalho | Btech.Cloud
+Basicamente é a mesma pessoa, é o mesmo liado. É um subsetor do exame, né?
+
+1:49:42 - Conference Room (Edson Candido) - Speaker 1
+Exatamente. Orçamentos complexos, porque essa pessoa era responsável por orçamentos complexos, que cirurgia, entram porque a tem parte cirurgias de que cirurgia. Precisam de mais, não é somente o agendamento, existe um envolvimento de outros especialistas para executar aquela cirurgia. Então ela fazia essa captação de todas as informações, fazia o orçamento, mas ao mesmo tempo conversava com todas essas pessoas que estavam envolvidas esse procedimento para agendar, para casar a agenda, para casar com a agenda do tutor, e por isso que ela dava essa continuidade até o final. Porque aí ela passava a agenda do, ah, olha, o anestesista, o cirurgião e sei lá quem que vai fazer, vai acompanhar a cirurgia, consegue tal dia. Você consegue? Consigo. Aí agenda. Ah, não consigo. Aí ela volta, olha, qual é a sua preferência? O tutor pretende fazer a cirurgia tal dia e tal horário. Vocês conseguem? Aí ela faz esse alinhamento com a pessoa, pessoal envolvido. Aí depois retorna pro tutor, olha, agora todo mundo realmente consegue nessa data. Podemos agendar? Sim, perfeito. Aí ela agenda. Aí ela conclui.
+
+1:50:45 - Conference Room (Edson Candido) - Speaker 3
+Tem a questão também de exame, se dá alguma alteração, se ficou faltando algum, se precisa realizar algum adicional, ela também seguia esse fluxo com todo mundo, né?
+
+1:50:56 - Thiago Bicalho | Btech.Cloud
+Tá bom. Então, teoricamente não. Na prática, o cara de agendamento, ele trabalha dentro setor de exames.
+
+1:51:03 - Conference Room (Edson Candido) - Speaker 1
+Sim, porque ele vai captar as informações do que esse doutor precisa, que podem ser aqueles de exames ou cirurgias, procedimentos mais complexos, então tá tudo dentro de um mesmo setor.
+
+1:51:19 - Thiago Bicalho | Btech.Cloud
+Tá bom, fechou. Então, tá. Então, assim, de inicial, né, partes iniciais que a gente conseguiu aqui, eu acho que já bastante coisa, bem... A gente vai conseguir alimentar bastante informações e tratar dos fluxos. O que provavelmente eu vou precisar é ter um canal, ou com vocês duas, pode ser até viatins mesmo. Ah, o Débora tá aí, eu preciso de alguma informação aqui, me ajuda aqui, por favor.
+
+1:51:56 - Conference Room (Edson Candido) - Speaker 1
+Tá?
+
+1:51:57 - Thiago Bicalho | Btech.Cloud
+E aí...
+
+1:51:58 - Thiago Bicalho | Btech.Cloud
+e daí fica mais gráfico. Só para dúvidas mais pontuais durante essa parte aí desses 10 dias, tá? Dúvida. Hoje, tá? Hoje. Baseado no que acontece hoje. Vocês têm, eu não sei, tem o WhatsApp lá do Nubed, né? Que é por onde todos os leads chegam. Como é que acontecem essas transferências para os outros setores? Dentro do próprio RD? Vocês têm os agentes do URD lá. Cada agente tem o seu atendente lá no URD, né?
+
+1:52:34 - Conference Room (Edson Candido) - Speaker 3
+Dividido por grupo, né?
+
+1:52:36 - Thiago Bicalho | Btech.Cloud
+Show, beleza, maravilha. Então, isso não vai mudar, a gente vai manter da mesma forma. Tá bom? Bom, da minha parte de informações iniciais, era isso.
+
+1:52:48 - Palestrante Não Identificado
+Perfeito.
+
+1:52:48 - Conference Room (Edson Candido) - Speaker 1
+É um começo, né? Acho que talvez a gente, vendo isso, a gente se está atendendo ou não. E a gente ainda é em expectativa para saber se a longo prazo vai atender ou não, mas realmente o principal demanda e o que eu mais tenho de reclamação é demora de atendimento. A pessoa fica parada na esteira pela demanda dela e a demora nesse início. Ou até mesmo, poxa, ninguém não tem esse retorno. Olha, já estou resolvendo. Olha, já estou resolvendo. Porque parece que se você fala a conversa mesmo você resolvendo, ela acha que ficou parada ali.
+
+1:53:23 - Thiago Bicalho | Btech.Cloud
+O que que eu vou precisar de vocês, e aí vocês com total liberdade, vocês vão falar para mim agora, se vocês fazem isso ou se vocês preferem esperar a gente dar alguma carinha nisso para desenvolver. E o importante, a gente precisa, eu preciso que vocês definam uma coisa, com relação ao pipeline de CRM. Vamos ter um único pipeline que vai alimentar ou nós vamos ter um pipeline para cada setor.
+
+1:53:54 - Conference Room (Edson Candido) - Speaker 1
+O que você acha, Edson?
+
+1:53:56 - Palestrante Não Identificado
+Uma coisa só, né?
+
+1:53:58 - Conference Room (Edson Candido) - Speaker 1
+É, porque a partir disso, todo mundo consegue ter acesso de todo mundo, né? Acho que é melhor. Então, eu preciso só conversar com você sobre isso, né? Porque pode ser que um LEED tenha outras coisas, como a gente é um prédio com vários serviços envolvidos, talvez acho que um único para uma informação ser concentrada naquilo, né?
+
+1:54:21 - Conference Room (Edson Candido) - Speaker 2
+Exatamente. Até porque o CRM, o pessoal lá de cima não vai ter acesso.
+
+1:54:26 - Conference Room (Edson Candido) - Speaker 1
+Porque se um não alimenta, comprometeu aquele setor. Pelo menos se tá todos os setores alimentando, a gente tem uma informação mais rica, mesmo se algum setor ali tem algum problema para alimentar.
+
+1:54:39 - Conference Room (Edson Candido) - Speaker 2
+Porque tudo não está concentrado aqui, né? Teoricamente, sim. É claro, porque tudo vai estar concentrado aqui. O veterinário acesso. Sim. Né? Então acho que é isso mesmo.
+
+1:54:49 - Conference Room (Edson Candido) - Speaker 1
+É, eles terem operacionais, eles não são para alimentar CRM, realmente, a parte administrativa.
+
+1:54:54 - Conference Room (Edson Candido) - Speaker 2
+A gente vai ter aqui o suporte, o assistente comercial e o suporte de atendimento ao cliente que vai estar dando essas tratativas. Então eu entendo que é essa posição que vai estar fazendo isso. Que vai, né, vai estar tendo esse controle. Então, acho que o único.
+
+1:55:09 - Conference Room (Edson Candido) - Speaker 1
+Não, acho que o único, pra mim, acho que faz mais. Eu acho que, pra começar, é o único, né?
+
+1:55:15 - Conference Room (Edson Candido) - Speaker 2
+A gente vai ter que ajustar isso muito até estar uma solução completamente limitada.
+
+1:55:23 - Thiago Bicalho | Btech.Cloud
+Não, isso aí pode ficar em paz. Isso é ajuste constante, né? Isso não é uma coisa que a gente instala e ela fica lá funcionando super bem pro resto da vida. Isso é ajuste constante. Então, eu preciso que vocês pensem, baseado em tudo isso que a gente falou, em algumas etapas desse Pipeline, e não precisa, de novo, vamos ajustando e etc. Mas o que é importante? Que esse Pipeline esteja apto a receber quem já é cliente, quem chegou direto do WhatsApp e quem está chegando de campanha. Então, por exemplo, com certeza a gente tem que ter ali um card, sei lá, li de novo. Uma coluna, né? É, uma coluna, li de novo. Outra coluna, sei lá, último serviço realizado. Tô chutando, tá só, enfim. De novo, não precisa correr para fazer isso, mas é importante a gente ter isso, alguma coisa, qualquer que seja, até o começo da semana. Todas essas informações que a gente vai coletar desse cliente, a gente vai colocar lá no CRM.
+
+1:56:45 - Simone Sansi | Btech.Cloud
+A gente precisa do fluxo de atendimento dele, entendeu? Ah, ele chegou, ele tá onde? Ele tá em consultas, ele tá tal, tal, pra gente poder situar ele...
+
+1:56:56 - Conference Room (Edson Candido) - Speaker 1
+Isso nesse momento, vocês querem que seja alimentado pra vocês conseguirem dar continuidade ou não entender?
+
+1:57:02 - Thiago Bicalho | Btech.Cloud
+É assim, ó, tudo isso que a gente conversou do fluxo do atendimento, interrompeu o atendimento do humano, do cliente, e agora foi para o humano. Por exemplo, a parte do Care Center. No Care Center, ela vai gravar a hora que ela tiver a informação da preferência do horário, etc, etc. E o serviço, pá. O que eu vou fazer? De posse dessas informações, eu vou lançar essas informações lá no CRM, tá? No card do cliente lá no CRM, na coluna Care Center. Tem uma coluna lá de serviços que é assim.
+
+1:57:39 - Palestrante Não Identificado
+Sim.
+
+1:57:39 - Thiago Bicalho | Btech.Cloud
+E escrito lá, pendente de agendamento. A pessoa que tá olhando aquele CRM, ela sabe que aquele cliente tá pendente de agendar.
+
+1:57:50 - Conference Room (Edson Candido) - Speaker 1
+É igual a esteira que já tem, aparece esfriando a tal, sei lá, a dois minutos.
+
+1:57:58 - Conference Room (Edson Candido) - Speaker 2
+Você já tem uma esteira lá?
+
+1:58:01 - Palestrante Não Identificado
+Sim.
+
+1:58:03 - Thiago Bicalho | Btech.Cloud
+Você já tem uma esteira lá?
+
+1:58:05 - Conference Room (Edson Candido) - Speaker 1
+A gente tem o RD Station, só que ele ficou parado muito tempo porque não tinha alguém para dar continuidade a essas demandas, que era essa pessoa do comercial no passado. Então, existem as esteiras ali de consultas, de tomografia, cirurgias.
+
+1:58:21 - Simone Sansi | Btech.Cloud
+Elas já são pré-estabelecidas. Você tira uma foto?
+
+1:58:24 - Thiago Bicalho | Btech.Cloud
+Não, não. A gente tem essas informações de casa. A gente tem, não precisa preocupar.
+
+1:58:31 - Conference Room (Edson Candido) - Speaker 1
+que era o que eu fazia antes para essa pessoa. Então, na verdade, eu mexia nas oportunidades. Então, eu via... Ah, ele fez uma consulta. E aí, esse cliente foi orientado a fazer exame de sangue, mas ele não agendou. Aí, eu alimentava esse CRM em consultas e identificava. Entrar em contato com o cliente e agendar tal exame. Aí, eu colocava o número da pessoa. Se ele fosse já um cliente, quando você coloca o contato, ele já identifica, já clica ali. Ou se é um lead novo, aí você tem que cadastrar ele rapidinho, colocar o contato, e aí você salva e ele já vai para a esteira. Aí, conforme você vai atualizando, aí essa pessoa ia passando de esteira em esteira. Então, realizado o primeiro contato, tutor não respondeu. Realizado o segundo contato. Aí, no segundo contato, se tinha ou não um terceiro ou então encerrado, não resolvido. Ou então resolvido, então você conseguia caminhar ele na esteira. Isso era o que a gente fazia passado, quando tinha essa pessoa.
+
+1:59:29 - Thiago Bicalho | Btech.Cloud
+Então, eu vou dar uma olhada no que já existe e a gente vai seguir.
+
+1:59:35 - Conference Room (Edson Candido) - Speaker 1
+Tá. Tá bom? Porque aí, dependente da gente conseguir alimentar esse... O por que enquanto, a né? Gente tem, E orientando ali a equipe como a gente vai fazer essa alimentação. É simples, eu fui aprendendo ali, mas é o básico que a gente conseguiu fazer e depois a gente aumenta um pouquinho mais, né?
+
+1:59:55 - Conference Room (Edson Candido) - Speaker 2
+Isso. Se ela já puder já preencher tudo, o que ela tá fazendo já preencher, pra gente já é ótimo.
+
+2:00:03 - Conference Room (Edson Candido) - Speaker 1
+Exatamente. É como se, da mesma maneira que ela a gente preenche um agendamento, um cadastro, ela está preenchendo um CLM também.
+
+2:00:19 - Conference Room (Edson Candido) - Speaker 2
+Exatamente. Seria ótimo.
+
+2:00:22 - Conference Room (Edson Candido) - Speaker 1
+Vai ter que fazer duas coisas, né?
+
+2:00:28 - Thiago Bicalho | Btech.Cloud
+E aí, em 2027, Eu vou dar uma olhadinha no que a gente tem lá dentro do RD, quais são os outros que tem lá, e daí a gente vai se falando. Então, de minha parte, Por enquanto, estamos finalizados.
+
+2:00:59 - Conference Room (Edson Candido) - Speaker 2
+E dentro do EBD, só para deixar claro, o EBD, ou seja, ele tem informação lá do patálogo que foi utilizado em algum momento, né? Só que ele parou.
+
+2:01:11 - Conference Room (Edson Candido) - Speaker 2
+Então, tem alguns tutores que ele vai conseguir buscar alguma informação.
+
+2:01:15 - Conference Room (Edson Candido) - Speaker 2
+É, são muito poucos, não acredito.
+
+2:01:18 - Conference Room (Edson Candido) - Speaker 1
+É, muito poucos, né?
+
+2:01:19 - Conference Room (Edson Candido) - Speaker 1
+Tem alguma coisa lá?
+
+2:01:21 - Conference Room (Edson Candido) - Speaker 2
+Tem. Tem, tem, tem. Ele mexeu e tinha alguma coisa, mas isso parou. Sim. Então, pode ser que ele tenha alguma informação que ele não conseguiu obter.
+
+2:01:31 - Conference Room (Edson Candido) - Speaker 1
+Algum tipo de informação ele tem, somente porque a tomografia era automatizada. Então, quando ele entrava em contato por alguma campanha, o próprio bot já conversava com ele.
+
+2:01:40 - Conference Room (Edson Candido) - Speaker 2
+Então, temos o estoque de toda uma coisa.
+
+2:01:43 - Thiago Bicalho | Btech.Cloud
+Você fala em termos de cadastro de cliente, é isso? Isso, isso. O que a gente pode fazer? E aí, definimos em qual etapa. O que a gente pode fazer? Uma planilha de cadastro, certo? De cadastro de clientes. O seguinte que a gente pode fazer. A gente puxa todos os cadastros que estão no RD, pega a sua planilha, a gente cruza esses cadastros com a sua planilha. Quem já está no RD e está na planilha, a gente exclui e joga e volta para o RD com todos os outros cadastros. E já cadastra todos esses clientes para o RD.
+
+2:02:15 - Conference Room (Edson Candido) - Speaker 1
+Você não atualiza a planilha todos os dias? Então, as minhas são os clientes que... Eles vieram hoje em maio dia pelo RD. Então, dá para saber o que foi realmente um lead que deu certo e o que não. Acho que dá para fazer, sim. E até para exportar, porque eu tenho isso desde fevereiro. Então, tem como a gente... Sei lá, se a gente conseguir pegar um banco de dados com o RD, acho que tem desde o ano passado, né? Pega o RD, eu tenho as minhas informações desde fevereiro, e aí exporta todas essas pessoas.
+
+2:02:49 - Conference Room (Edson Candido) - Speaker 3
+Entre dezembro e tal. Tem um VPN sem nada nos três meses aí.
+
+2:02:53 - Conference Room (Edson Candido) - Speaker 1
+Que aí eu identificava até o que que era, qual setor, né? Eu identifico até qual que é o setor, então talvez a gente consiga saber qual é a demanda que esse cliente teve. E até mesmo se ele voltou, o que eu acabo acompanhando também, se ele voltou com outro patch.
+
+2:03:11 - Conference Room (Edson Candido) - Speaker 3
+E você é bom pra caramba, né? Na unha. Muito manual.
+
+2:03:15 - Conference Room (Edson Candido) - Speaker 1
+Na unha, mas pelo menos a gente tem um pouco de... Informação.
+
+2:03:19 - Thiago Bicalho | Btech.Cloud
+Alguém quer complementar mais alguma coisa aí, Luis?
+
+2:03:27 - Luis Niel Matt | Btech.Cloud
+Não, cara, eu acho que...
+
+2:03:31 - Conference Room (Edson Candido) - Speaker 2
+Luis, o Edson tava falando só.
+
+2:03:37 - Luis Niel Matt | Btech.Cloud
+Acho que a gente tá no ponto de partida.
+
+2:03:46 - Conference Room (Edson Candido) - Speaker 2
+Já falou, já.
+
+2:03:47 - Conference Room (Edson Candido) - Speaker 3
+Eu pedi a ajuda do Thiago, então tem para amanhã das 10 das 11 para fazer a previsão.
+
+2:03:57 - Conference Room (Edson Candido) - Speaker 2
+Você já pediu. Ela colocou lá, ela vai dar o invite. Eu só coloquei, aproveitar e colocar na apresentação, deixar ela bem dinâmica e com esses esclarecimentos que ontem ele me questionou isso, ele até falou, será que é tempo para a gente? Então, quanto mais estiver claro para ele, melhor a gente conseguir dar andamento.
+
+2:04:25 - Simone Sansi | Btech.Cloud
+Pode deixar. Obrigada de novo pelas informações.
+
+2:04:27 - Luis Niel Matt | Btech.Cloud
+A gente faz a presentação e inclui ela em funcionamento para eles visualizarem.
+
+2:04:32 - Conference Room (Edson Candido) - Speaker 2
+Isso, se tiver isso, acho que é até fundamental, porque se ele conseguir visualizar como a dinamite artística, ele consegue rápido para a gente conseguir dar um aumento disso aí.
+
+2:04:46 - Simone Sansi | Btech.Cloud
+Tá bom. Combinado. Tá bom. Gente, obrigado pelo tempo de vocês. Obrigada por todas as informações. Eu vou contactar aqui o Teams, tá? Com todo mundo. E aí eu vou, a gente vai se falando por lá. Tá bom, perfeito. Beijo, obrigada.
+
+2:05:05 - Thiago Bicalho | Btech.Cloud
+Tchau, tchau, gente. Obrigada. Tchau. Fica aí, Simone.
+
+2:05:08 - Luis Niel Matt | Btech.Cloud
+Não, porque aqui a reunião, acho que a gente tem que chamar de novo.
+
+2:05:12 - Thiago Bicalho | Btech.Cloud
+Tá bom, vai chamar lá.

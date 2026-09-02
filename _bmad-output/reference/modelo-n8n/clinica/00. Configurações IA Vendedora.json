@@ -1,0 +1,687 @@
+{
+  "name": "00. Configurações IA Vendedora",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        512,
+        1840
+      ],
+      "id": "f8dffbf1-23ed-4912-ab2e-73ae105b2439",
+      "name": "Gatilho"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- Tabela de histórico de mensagens (memória do agente)\nCREATE TABLE IF NOT EXISTS n8n_historico_mensagens (\n    id SERIAL PRIMARY KEY,\n    session_id VARCHAR(40) NOT NULL,\n    message JSONB NOT NULL,\n    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP\n);\nCREATE INDEX IF NOT EXISTS idx_historico_session\n    ON n8n_historico_mensagens(session_id);\n\n-- Fila de mensagens (debounce)\nCREATE TABLE IF NOT EXISTS n8n_fila_mensagens (\n    id BIGSERIAL PRIMARY KEY,\n    id_mensagem VARCHAR(40) NOT NULL,\n    telefone VARCHAR(40) NOT NULL,\n    mensagem TEXT NOT NULL,\n    \"timestamp\" TIMESTAMP WITHOUT TIME ZONE NOT NULL\n);\nCREATE INDEX IF NOT EXISTS idx_fila_telefone\n    ON n8n_fila_mensagens(telefone);\n\n-- Status de atendimento (lock de concorrência)\nCREATE TABLE IF NOT EXISTS n8n_status_atendimento (\n    id SERIAL PRIMARY KEY,\n    session_id VARCHAR(40) UNIQUE NOT NULL,\n    lock_conversa BOOLEAN DEFAULT FALSE,\n    updated_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP\n);\nCREATE INDEX IF NOT EXISTS idx_status_session\n    ON n8n_status_atendimento(session_id);",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        976,
+        1520
+      ],
+      "id": "417f506f-29d9-445f-bf29-58f0964013fe",
+      "name": "Configurar tabelas",
+      "credentials": {
+        "postgres": {
+          "id": "hvkzoru976d3gWkp",
+          "name": "PostgreSQL - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "505da86d-3578-43ff-a446-5569a2328142",
+              "name": "etiquetas",
+              "value": "=[\n  {\n    \"etiqueta\": \"testando-agente\",\n    \"cor\": \"#6BBF8A\",\n    \"descricao\": \"Habilita agente IA em modo teste\"\n  },\n  {\n    \"etiqueta\": \"agente-off\",\n    \"cor\": \"#E8735A\",\n    \"descricao\": \"Desabilita agente IA\"\n  }\n]",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        976,
+        1760
+      ],
+      "id": "0c16b709-bc2a-482e-aa74-dfba9d92c3f7",
+      "name": "Etiquetas"
+    },
+    {
+      "parameters": {
+        "resource": "label",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Selecionar conta').item.json.id }}",
+          "mode": "id"
+        },
+        "title": "={{ $json.etiqueta.etiqueta }}",
+        "additionalFields": {
+          "color": "={{ $json.etiqueta.cor }}",
+          "description": "={{ $json.etiqueta.descricao }}",
+          "show_on_sidebar": true
+        }
+      },
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
+      "position": [
+        1376,
+        1760
+      ],
+      "id": "744151a4-2fce-4bc5-a6bf-72ab1b09ad0c",
+      "name": "Criar etiqueta",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot - Secretaria Teste"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "etiquetas",
+        "options": {
+          "destinationFieldName": "etiqueta"
+        }
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1184,
+        1760
+      ],
+      "id": "b881aef4-fc2d-450b-8c15-f679912cda50",
+      "name": "Split"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "atributos",
+        "options": {
+          "destinationFieldName": "atributo"
+        }
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1184,
+        1968
+      ],
+      "id": "c775e1a1-dd80-4dd2-94f9-af603bf26d64",
+      "name": "Split1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "505da86d-3578-43ff-a446-5569a2328142",
+              "name": "atributos",
+              "value": "=[\n  {\n    \"chave\": \"data_ultima_consulta\",\n    \"nome_display\": \"Data da última consulta\",\n    \"tipo\": \"text\",\n    \"modelo\": \"contato\",\n    \"descricao\": \"Data da última vez que o paciente visitou a clínica (ex: 2026-02-07)\"\n  }\n]",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        976,
+        1968
+      ],
+      "id": "86700831-9eda-4fb5-b17b-18206a4de7e5",
+      "name": "Atributos customizados"
+    },
+    {
+      "parameters": {
+        "resource": "customAttribute",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Selecionar conta').item.json.id }}",
+          "mode": "id"
+        },
+        "attributeModel": "={{ $json.atributo.modelo === 'conversa' ? 'conversation_attribute' : 'contact_attribute' }}",
+        "attributeDisplayName": "={{ $json.atributo.nome_display }}",
+        "attributeType": "={{ $json.atributo.tipo }}",
+        "additionalFields": {
+          "attributeDescription": "={{ $json.atributo.descricao }}",
+          "attributeKey": "={{ $json.atributo.chave }}",
+          "attributeValues": "={{ $json.atributo.valores?.toJsonString() }}"
+        }
+      },
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
+      "position": [
+        1376,
+        1968
+      ],
+      "id": "bc3acbc8-5b30-4d7b-bb8f-dd0f3fc6712d",
+      "name": "Criar atributo",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot - Secretaria Teste"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "kanbanBoard",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "name": "Clínica de Odontologia",
+        "automations": {
+          "settings": {
+            "auto_resolve_conversation_on_task_end": false,
+            "sync_task_and_conversation_agents": false
+          }
+        }
+      },
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
+      "position": [
+        976,
+        2224
+      ],
+      "id": "5be0c259-d1c2-4053-ad4d-f93b82e087df",
+      "name": "Criar funil",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot - Secretaria Teste"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1184,
+        2416
+      ],
+      "id": "4444dcb6-f763-4a85-8e61-bd8ba0f01f1c",
+      "name": "Funil já criado"
+    },
+    {
+      "parameters": {
+        "resource": "kanbanStep",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Selecionar conta').item.json.id }}",
+          "mode": "id"
+        },
+        "kanbanBoardId": {
+          "__rl": true,
+          "value": "={{ $('Etapas').item.json.id_funil }}",
+          "mode": "id"
+        },
+        "name": "={{ $json.etapa.etapa }}",
+        "additionalFields": {
+          "color": "={{ $json.etapa.cor }}",
+          "description": "={{ $json.etapa.descricao }}"
+        }
+      },
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
+      "position": [
+        1568,
+        2224
+      ],
+      "id": "273c78e9-d358-4b0e-b132-afa3b62f4624",
+      "name": "Criar etapa",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot - Secretaria Teste"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "etapas",
+        "options": {
+          "destinationFieldName": "etapa"
+        }
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1376,
+        2224
+      ],
+      "id": "de7e61a6-fe4b-4df4-a337-66516b8127f4",
+      "name": "Split2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "87e19aff-212f-4068-92d6-bd3d6d45de78",
+              "name": "id_funil",
+              "value": "={{ $('Criar funil').item.json.id }}",
+              "type": "number"
+            },
+            {
+              "id": "505da86d-3578-43ff-a446-5569a2328142",
+              "name": "etapas",
+              "value": "=[\n  { \"etapa\": \"Novo Lead\", \"cor\": \"#5B9BD5\", \"descricao\": \"Primeiro contato\" },\n  {\n    \"etapa\": \"Qualificado\",\n    \"cor\": \"#F4C542\",\n    \"descricao\": \"IA coletando informações\"\n  },\n  {\n    \"etapa\": \"Agendado\",\n    \"cor\": \"#6BBF8A\",\n    \"descricao\": \"Agendado, pendente confirmação\"\n  },\n  {\n    \"etapa\": \"Confirmado\",\n    \"cor\": \"#9B7ED8\",\n    \"descricao\": \"Paciente confirmou presença\"\n  },\n  {\n    \"etapa\": \"Compareceu\",\n    \"cor\": \"#3A8F5C\",\n    \"descricao\": \"Paciente compareceu à consulta\"\n  },\n  {\n    \"etapa\": \"No-show\",\n    \"cor\": \"#E8735A\",\n    \"descricao\": \"Paciente não compareceu\"\n  },\n  {\n    \"etapa\": \"Perdido (reativar)\",\n    \"cor\": \"#A0A0A0\",\n    \"descricao\": \"Paciente cancelou/não respondeu\",\n    \"perdida\": true\n  },\n  {\n    \"etapa\": \"Pós-venda\",\n    \"cor\": \"#5CC0C7\",\n    \"descricao\": \"Follow-up pós-consulta\"\n  }\n]",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1184,
+        2224
+      ],
+      "id": "1b1199f0-9f07-4b62-badf-69af53235433",
+      "name": "Etapas"
+    },
+    {
+      "parameters": {
+        "content": "## Após criar o funil\n\n- [ ] Associar agentes\n- [ ] Associar caixas de entrada",
+        "width": 272,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1408,
+        2400
+      ],
+      "id": "17bbc72a-f7f4-4096-aa80-5117cee0a8a2",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "99581fa6-0cfa-450c-a5e1-eb9eaa252055",
+              "leftValue": "={{ $('Split2').item.json.etapa.perdida }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1776,
+        2224
+      ],
+      "id": "a24358ab-a9e2-4926-b92e-f24962248572",
+      "name": "Perdida?"
+    },
+    {
+      "parameters": {
+        "content": "## Quer entender como funciona?\n\n\n### Assista o vídeo, deixe um like, e se inscreva no canal para ter acesso a mais workflows como esse!\n\n[![Vídeo YouTube Secretária v3](https://i1.ytimg.com/vi_webp/vYtaGw3vRII/maxresdefault.webp)](https://www.youtube.com/watch?v=vYtaGw3vRII)",
+        "height": 440,
+        "width": 500,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        496,
+        944
+      ],
+      "id": "fa56b2cb-270b-4970-b80a-b907375436e3",
+      "name": "Sticky Note13"
+    },
+    {
+      "parameters": {
+        "content": "## [Clique aqui e entre agora para tirar suas dúvidas](https://lucasmoreira.fazer.ai)\n[![Banner comunidade](https://framerusercontent.com/images/KIXMxk9eKCoCsNeVm1oaz5HnaQ.png)](https://lucasmoreira.fazer.ai)",
+        "height": 440,
+        "width": 1380,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1008,
+        944
+      ],
+      "id": "34c34f8d-1945-4496-9d98-95f63c022349",
+      "name": "Sticky Note36"
+    },
+    {
+      "parameters": {
+        "content": "[![fazer.ai](https://framerusercontent.com/images/HqY9djLTzyutSKnuLLqBr92KbM.png?scale-down-to=256)](https://fazer.ai?utm_source=n8n&utm_campaign=sec-v3)\n\n## Esse é um template faça você mesmo do canal\n## Lucas Moreira\n\n### Inscreva-se no nosso canal no YouTube\n[![YouTube Lucas Moreira](https://img.shields.io/youtube/channel/subscribers/UCtmp6SxzLscu0GRTbgM8FTw?style=flat-square&logo=youtube&label=Inscreva-se&color=f00)](https://youtube.com/@eulucassmoreira?si=0lH7hwX9pukjhmPQ)\n[![Instagram](https://img.shields.io/badge/instagram-black?logo=instagram&style=for-the-badge)](https://instagram.com/eulucassmoreira)\n[![GitHub fazer.ai](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white&label)](https://github.com/fazer-ai)\n",
+        "height": 440,
+        "width": 550,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        944
+      ],
+      "id": "3ccbdfc3-4e44-4f61-9856-fa79c1c8a1e3",
+      "name": "Sticky Note12"
+    },
+    {
+      "parameters": {
+        "content": "## Criar tabelas Postgres",
+        "height": 236,
+        "width": 288,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        912,
+        1440
+      ],
+      "id": "7f71b840-b535-4102-b37f-c9a4e8b1f32a",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Criar etiquetas e atributos",
+        "height": 448,
+        "width": 672,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        912,
+        1696
+      ],
+      "id": "cb10a899-a1a4-49ad-be3e-09fbd6e690d4",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Criar funil Kanban",
+        "height": 408,
+        "width": 1312
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        912,
+        2160
+      ],
+      "id": "ee2b1ddf-ce9a-42f9-a882-a89509855c5a",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "# Checklist\n- [ ] Instalar community node Chatwoot\n- [ ] Credenciais: Postgres + Chatwoot\n- [ ] Executar workflow",
+        "height": 148,
+        "width": 336,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        1520
+      ],
+      "id": "9e9e6bd5-97fc-4974-8a63-db198040d108",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "resource": "kanbanStep",
+        "operation": "update",
+        "accountId": {
+          "__rl": true,
+          "value": "={{ $('Selecionar conta').item.json.id }}",
+          "mode": "id"
+        },
+        "kanbanBoardId": {
+          "__rl": true,
+          "value": "={{ $('Criar funil').item.json.id }}",
+          "mode": "id"
+        },
+        "kanbanStepId": {
+          "__rl": true,
+          "value": "={{ $('Criar etapa').item.json.id }}",
+          "mode": "id"
+        },
+        "updateStepFields": {
+          "cancelled": true
+        }
+      },
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
+      "position": [
+        2000,
+        2224
+      ],
+      "id": "83748e74-c2ef-4f27-899a-b33015639153",
+      "name": "Atualizar etapa perdida",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "account",
+        "accountId": {
+          "__rl": true,
+          "value": "1",
+          "mode": "list",
+          "cachedResultName": "#1 - Unique ADS",
+          "cachedResultUrl": "https://messages.uniqueads.com.br/app/accounts/1/dashboard"
+        }
+      },
+      "type": "@fazer-ai/n8n-nodes-chatwoot.chatwoot",
+      "typeVersion": 1,
+      "position": [
+        752,
+        1856
+      ],
+      "id": "94f874d3-6897-4c92-9ef3-89c09a160c9a",
+      "name": "Selecionar conta",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot - Secretaria Teste"
+        }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gatilho": {
+      "main": [
+        [
+          {
+            "node": "Configurar tabelas",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Selecionar conta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Etiquetas": {
+      "main": [
+        [
+          {
+            "node": "Split",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split": {
+      "main": [
+        [
+          {
+            "node": "Criar etiqueta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split1": {
+      "main": [
+        [
+          {
+            "node": "Criar atributo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atributos customizados": {
+      "main": [
+        [
+          {
+            "node": "Split1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar funil": {
+      "main": [
+        [
+          {
+            "node": "Etapas",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Funil já criado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split2": {
+      "main": [
+        [
+          {
+            "node": "Criar etapa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Etapas": {
+      "main": [
+        [
+          {
+            "node": "Split2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar etapa": {
+      "main": [
+        [
+          {
+            "node": "Perdida?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Perdida?": {
+      "main": [
+        [
+          {
+            "node": "Atualizar etapa perdida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Selecionar conta": {
+      "main": [
+        [
+          {
+            "node": "Etiquetas",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Atributos customizados",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Criar funil",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "19853f83-f23e-4782-8b7d-34a30c6337be",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "715a68c7cbc350774eb1fc64655865ae67c7d2b3860e8e8de01712db5856e1ab"
+  },
+  "id": "hQtD4wYp84NRIEOn",
+  "tags": []
+}

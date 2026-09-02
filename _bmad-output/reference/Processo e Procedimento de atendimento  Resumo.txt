@@ -1,0 +1,184 @@
+Processo e Procedimento de atendimento 
+qui., 20 de ago. de 2026
+
+Resumo:
+
+A reunião definiu o escopo inicial de um agente de IA para reduzir atrasos no atendimento do Nuvet.
+• Piloto inicial focado em primeira resposta e triagem
+• Entrega prevista para 1º de setembro
+• Prioridades: orçamentos, agendamentos e consultas
+• Care Center, exames e consultas terão fluxos iniciais
+• CRM será a base operacional sem integração ao SimplesVet
+• Agendamento completo permanece como etapa futura
+• Atendimento humano assumirá solicitações clínicas ou complexas
+• Indicadores registrarão leads, demandas e perdas de atendimento
+
+
+Tarefas:
+
+* Simone Sansi: Verificar o retorno da secretária de Thiago para ajustar as agendas
+* Participante da sala de conferência: Incluir na apresentação que a solução já foi aplicada em outras empresas e que o agente do Nuvet será personalizado
+* Equipe do Nuvet: Mapear todos os pontos do processo de atendimento, desde a chegada do lead até o encaminhamento humano
+* Equipe da Btech.Cloud: Estudar a viabilidade de consultar a agenda do SimplesVet ou compor uma solução alternativa para os agendamentos
+* Equipe do Nuvet: Definir os critérios clínicos e sinais de alerta que determinam o encaminhamento ao veterinário
+* Equipe do Nuvet: Informar à Btech.Cloud novos cenários e formas de tratamento para padronizar as respostas da inteligência artificial
+* Equipe da Btech.Cloud: Estruturar o acompanhamento automatizado de clientes após consultas, exames solicitados e altas de internação
+* Participante da sala de conferência: Fornecer a planilha de altas, internações e prazos de retorno para avaliar a alimentação da inteligência artificial
+* Equipe da Btech.Cloud: Avalie a sincronização de dados das planilhas com o CRM para organizar os disparos automatizados
+* Thiago Bicalho: Construa o agente inicial com base no fluxo mapeado da recepção
+* Equipe da empresa: Atualize e documente no Word os processos atuais de atendimento, considerando as mudanças recentes do Care Center e de banho e tosa
+* Equipe da Btech.Cloud: Entregue o primeiro módulo de recepção até 1º de setembro
+* Participantes da reunião: Liste todos os setores e tipos de atendimento existentes antes de detalhar os fluxos individuais
+* Débora: Descreva o processo completo da recepção, desde a chegada do cliente até os encaminhamentos para outros setores
+* Equipe da Btech.Cloud: Defina uma forma de concluir ou encaminhar agendamentos sem depender exclusivamente do acesso ao SimplesVet
+* Equipe de atendimento: Utilizar o calendário Microsoft compartilhado como referência única para os agendamentos enquanto não houver integração com o SimplesVet.
+* Equipe responsável pelos agendamentos: Transferir do calendário Microsoft para o SimplesVet as informações dos agendamentos realizados.
+* Luis Niel Matt: Estruturar a primeira etapa do atendente automático para responder os contatos, classificar as demandas e encaminhá-las aos setores responsáveis em até dez dias.
+* Equipe de atendimento: Definir a distribuição dos contatos por assunto e direcionar cada demanda ao responsável correspondente.
+* Equipe de atendimento: Configurar uma fila com temporizador para informar ao cliente o prazo de retorno quando nenhum atendente responder imediatamente.
+* Equipe responsável pela solução: Disponibilizar indicadores sobre leads não atendidos, contatos perdidos e origem das demandas.
+* Equipe Btech.Cloud: Esclarecer o escopo, as limitações e os benefícios da primeira etapa para apresentação à diretoria e ao conselho.
+* Equipe: Defina as perguntas iniciais para identificar o cliente, o animal e o serviço solicitado.
+* Thiago Bicalho: Ative o número de atendimento e disponibilize-o para testes no dia seguinte.
+* Simone Sansi: Inclua a demonstração da ativação na apresentação prevista para o dia seguinte.
+* Thiago Bicalho: Registre visualmente no chat o mapeamento de setores, demandas e fluxo inicial.
+* Equipe: Modele o fluxo priorizando orçamentos, agendamentos e consultas.
+* Equipe: Estruture o cadastro após a identificação da necessidade e, quando aplicável, a conclusão do agendamento.
+* Thiago Bicalho: Registrar no RD/CRM as preferências de serviço, profissional, data e horário coletadas pelo agente.
+* Thiago Bicalho: Implementar o lembrete automático ao cliente após cinco minutos sem resposta do atendente.
+* Equipe da clínica: Encaminhar as solicitações de exames recebidas para uma pessoa responsável pelo orçamento e pela continuidade do atendimento.
+* Thiago Bicalho: Configurar a verificação de recebimento do pedido de exame e os lembretes enquanto o documento não for enviado.
+* Btech.Cloud: Extrair do Pega Plantão os nomes, dias e horários de atendimento dos profissionais.
+* Equipe da clínica: Definir o critério de direcionamento de clientes que não souberem escolher entre clínico geral e especialista.
+* Equipe da clínica: Confirmar a adoção de um único pipeline de CRM para concentrar as informações dos setores.
+* Btech.Cloud e equipe da clínica: Manter ajustes contínuos no fluxo e na configuração do CRM após a implementação inicial.
+* Equipe: Definir as etapas e os campos necessários para o pipeline até o começo da semana.
+* Equipe de atendimento: Registrar no CRM as informações coletadas durante o atendimento, incluindo preferência de horário, serviço e status de agendamento.
+* Thiago Bicalho: Verificar as esteiras e os cadastros existentes no RD Station.
+* Equipe: Cruzar os cadastros do RD Station com a planilha de clientes e eliminar os registros duplicados.
+* Equipe: Exportar e analisar os dados históricos disponíveis desde fevereiro.
+* Equipe: Preparar uma apresentação dinâmica com a demonstração do fluxo em funcionamento.
+* Simone Sansi: Contatar todos os participantes pelo Teams para dar continuidade à comunicação.
+* Equipe: Convocar uma nova reunião para dar continuidade ao alinhamento.
+
+
+Principais Pontos de Discussão:
+
+Participantes e contexto do projeto
+A reunião começou com ajustes de agenda, confirmação de participantes e questões técnicas de entrada. Na sequência, foi apresentada a dúvida sobre a existência prévia do projeto e sobre sua aplicação exclusiva ao Nuvet.
+
+Personalização e referências de agentes de inteligência artificial
+Simone explicou que a Btech.Cloud já desenvolveu agentes para outras empresas, mas que cada solução é adaptada ao negócio, às funcionalidades e ao tom de voz do cliente. Foram apresentados exemplos de uso em um escritório de advocacia, incluindo classificação de documentos, distribuição de tarefas, acompanhamento de prazos e alertas.
+
+Problemas atuais de atendimento e objetivo inicial
+A equipe do Nuvet descreveu atrasos no WhatsApp, filas de atendimento, falta de pessoas e perda de solicitações durante a rotina. O objetivo prioritário identificado foi reduzir o tempo de resposta e automatizar demandas básicas para evitar insatisfação e perda de leads.
+
+Primeiro módulo, agendamentos e limite de atuação
+A discussão concentrou-se no mapeamento dos pontos do processo, incluindo chegada do lead, dúvidas, convênios e agendamentos. Também foi abordada a limitação do SimplesVet e a necessidade de estudar uma solução para consulta de agenda, além da definição do ponto em que o atendimento deve ser transferido para um humano.
+
+Triagem clínica e sinais de alerta
+Os participantes discutiram como a inteligência artificial poderia fazer perguntas sobre sintomas, distinguir situações simples de sinais de alerta e encaminhar casos ao veterinário. Thiago sugeriu uma classificação pós-cirúrgica por níveis de gravidade, enquanto Simone reforçou a necessidade de acolher tutores que desejem atendimento mesmo em situações menos graves.
+
+Convênios, padronização e acompanhamento pós-atendimento
+Foram mencionados fluxos para dúvidas sobre convênios e a necessidade de que novas situações sejam comunicadas para atualização dos processos. A equipe também propôs automatizar lembretes de exames, contatos após consultas e acompanhamentos pós-alta para reduzir falhas de troca de plantão e recuperar demandas pendentes.
+
+Alimentação da IA e continuidade do desenho do processo
+A discussão final abordou a possibilidade de usar uma planilha de altas, internações e prazos de retorno para alimentar a inteligência artificial. A automação deverá tratar o contato recorrente e encaminhar ao profissional os casos com sintomas, dúvidas clínicas, necessidade de fotos ou outras demandas específicas; o levantamento ainda estava em andamento.
+
+Atendimento digital personalizado
+O grupo discutiu a criação de agentes de IA com funções específicas, treinados conforme os processos de cada setor. Também foram definidos princípios de atendimento, como personalização, acolhimento, identificação clara do atendente virtual e transferência para uma pessoa quando solicitada pelo cliente.
+
+Fonte de dados e automações
+Thiago explicou que o banco de dados do SimplesVet seria a fonte ideal, mas que o CRM deverá centralizar as informações inicialmente por falta de acesso ao sistema. Foram discutidos lançamentos automáticos a partir de planilhas e disparos programados, incluindo controles para evitar contatos repetidos após uma interação já realizada.
+
+Mapeamento de setores e fluxo da recepção
+A equipe reforçou que o problema dos clientes não é necessariamente falar com robôs, mas enfrentar processos engessados e repetir informações. Em seguida, Thiago propôs mapear todos os setores e começar pela recepção, que será usada como piloto para desenhar o fluxo inicial e aprimorá-lo progressivamente.
+
+Escopo do primeiro módulo
+Simone destacou a necessidade de reunir informações operacionais atualizadas, especialmente com apoio de Débora, para qualificar corretamente os leads e evitar conflitos de processo. O primeiro módulo terá foco em receber contatos, fazer perguntas iniciais, encaminhar as demandas e reduzir ligações causadas pela ausência de resposta no WhatsApp, com previsão de entrega até 1º de setembro.
+
+Lista inicial de atendimentos
+Luis orientou que os participantes listassem todos os tipos de atendimento antes de detalhar os fluxos. Foram mencionados Care Center, exames, internação, consultas, vacinas, orçamentos, oncologia e financeiro, enquanto o detalhamento específico de cada serviço ficou para momentos posteriores.
+
+Limites do fluxo de agendamento
+O grupo simulou o início de uma conversa de recepção e discutiu bifurcações como cliente cadastrado, plano de saúde e atendimento particular. Surgiu a preocupação de que um fluxo de triagem semelhante a uma URA apenas transferisse o cliente para uma pessoa sem resolver o agendamento, especialmente pela falta de integração com o SimplesVet e de disponibilidade de atendentes.
+
+Automação conversacional e agendamento provisório
+A equipe diferenciou o atendimento via WhatsApp de uma URA telefônica e descreveu um fluxo em que a IA conversa com o cliente, coleta informações e pode realizar confirmações. Como solução temporária para o agendamento, foram discutidos o uso de planilhas e de um calendário Microsoft compartilhado até que o sistema atual seja substituído ou integrado.
+
+Integração de dados e conflitos de agenda
+Os participantes avaliaram o uso de planilhas de clientes para identificar tutores e animais cadastrados e solicitar informações complementares quando necessário. Também foram levantados conflitos entre agendamentos feitos pela IA, pela recepção, por telefone e presencialmente, além da necessidade de manter os dados atualizados em sistemas paralelos.
+
+Priorização do atendimento inicial
+A equipe questionou se valeria a pena aguardar o novo sistema, especialmente diante da previsão de uma entrega mais distante e das reclamações atuais. Luis e Thiago propuseram concentrar a primeira etapa em responder todos os contatos, classificar suas demandas e encaminhá-los para os responsáveis, deixando a automação completa para fases posteriores.
+
+Organização interna e distribuição das demandas
+Os participantes discutiram que o problema não era apenas a quantidade de pessoas, mas a falta de direcionamento claro das responsabilidades. Foram consideradas divisões por tipo de atendimento, como exames, vacinas, Care Center e confirmações, além do apoio das líderes em atividades presenciais e da concentração dos contatos telefônicos em uma pessoa.
+
+Escopo da entrega em dez dias
+Thiago esclareceu que a proposta de não deixar ninguém sem resposta correspondia à entrega considerada factível em até dez dias. O escopo incluiria classificação, encaminhamento, fila, temporizador e coleta antecipada de dados, mas não um sistema completo de agendamento integrado ao SimplesVet.
+
+Indicadores, campanhas e aprovação do investimento
+Simone destacou a necessidade de iniciar uma facilitação de atendimento para gerar indicadores sobre leads, capacidade da recepção e perdas decorrentes da falta de resposta. A discussão também abordou o risco de campanhas futuras ampliarem a demanda sem capacidade operacional e a necessidade de explicar à diretoria e ao conselho até onde a primeira etapa atenderá a operação.
+
+Objetivo do piloto e recuperação dos atendimentos
+A equipe discutiu que o piloto de dez dias deve priorizar o início dos atendimentos e impedir que clientes fiquem sem resposta. O desenvolvimento completo ocorrerá progressivamente, começando pela captura da demanda e pelo encaminhamento adequado.
+
+Métricas, CRM e valor do atendimento inicial
+Thiago destacou que, além de responder aos clientes, será necessário medir os contatos recebidos, os atendimentos e os agendamentos. O CRM deverá transformar esses dados em visibilidade sobre gargalos e oportunidades perdidas.
+
+Demonstração da solução e preparação do piloto
+Luis explicou que o fluxo inicial deverá fazer perguntas, identificar a necessidade e encaminhar o cliente para agendamento, retorno ou outra ação. Thiago informou que ativaria um número para testes e que a solução seria demonstrada em funcionamento, ajudando a reduzir a preocupação da diretoria com um atendimento robotizado.
+
+Mapeamento de setores e demandas prioritárias
+A equipe começou a levantar os setores envolvidos no atendimento, incluindo care center, exames, internação, clínica, orçamentos, oncologia, recepção e consultas. As prioridades foram consolidadas em orçamentos, agendamentos e consultas, agrupadas inicialmente no módulo clínico.
+
+Definição do fluxo ideal de atendimento
+Thiago estruturou o fluxo a partir da chegada do cliente pelo WhatsApp, enquanto os participantes discutiram quando verificar o cadastro e como tratar atendimentos particulares ou relacionados a planos. A equipe decidiu desenhar o processo desejado, e não simplesmente reproduzir o fluxo atual, considerado insatisfatório.
+
+Identificação por telefone e cadastro do cliente
+Foi avaliado o uso do telefone, do nome e dos dados do animal para localizar cadastros existentes. A identificação automática pode agilizar o atendimento, mas deve permitir ajustes quando o número estiver vinculado a outra pessoa.
+
+Identificação direta do serviço solicitado
+Após identificar o cliente, a equipe discutiu se deveria usar o histórico do último atendimento ou perguntar diretamente a nova necessidade. A orientação predominante foi perguntar o que o cliente deseja e encaminhá-lo rapidamente para o serviço correspondente.
+
+Fluxo do Care Center e coleta de preferências
+A equipe definiu que o Care Center trabalhará com três serviços principais: banho para cachorro, banho para gato e tosa. Serviços adicionais poderão ser registrados a pedido do cliente, mas serão tratados presencialmente. O fluxo também deverá coletar preferências de data, horário e profissional para apoiar o agendamento humano.
+
+Registro no CRM e acompanhamento do cliente
+Após coletar as preferências, o agente encerrará sua atuação direta, registrará os dados no RD/CRM e informará ao cliente que a solicitação está em andamento. Caso não haja resposta em cinco minutos, o CRM enviará uma mensagem automática de acompanhamento, mantendo o cliente informado até que um atendente conclua o atendimento.
+
+Solicitação de exames e orçamentos
+O fluxo de exames começará com o recebimento da carta ou pedido de encaminhamento e o direcionamento do documento para uma pessoa responsável. Essa pessoa analisará o pedido, elaborará o orçamento e aguardará a autorização do cliente antes do agendamento. A automação completa de preços e agenda ficou como possibilidade futura.
+
+Exames pré-anestésicos e critérios de orçamento
+A equipe avaliou se os exames deveriam seguir caminhos diferentes, mas concluiu que, inicialmente, todos seguirão o mesmo fluxo. Para exames que exigem anestesia, especialmente tomografias, será necessário verificar a existência de exames pré-anestésicos e incluí-los no orçamento quando ausentes.
+
+Agendamento de consultas e direcionamento clínico
+As consultas seguirão uma lógica semelhante à do Care Center, considerando profissionais, escalas, datas, horários e preferências do tutor. O Pega Plantão poderá fornecer os dados de agenda. Quando o cliente não souber escolher entre clínico geral e especialista, a orientação inicial será priorizar o clínico geral para triagem.
+
+Papel do setor de orçamento em procedimentos complexos
+A reunião esclareceu que a função histórica de orçamento envolvia mais do que calcular valores: incluía comunicação com o cliente, coordenação entre profissionais e agendamento de cirurgias e outros procedimentos complexos. No desenho inicial, os orçamentos serão direcionados a uma pessoa responsável, permanecendo integrados ao setor de exames e procedimentos.
+
+Operação atual, pipeline e melhoria contínua
+A estrutura atual de transferência entre agentes e grupos no RD/CRM será mantida durante a implementação inicial. A principal necessidade operacional identificada foi reduzir a demora e melhorar os retornos ao cliente. A equipe discutiu começar com um único pipeline compartilhado e ajustar continuamente a solução.
+
+Estrutura do pipeline e registro no CRM
+Thiago Bicalho reforçou que o pipeline deverá ser ajustado continuamente e atender diferentes origens de clientes, incluindo base existente, WhatsApp e campanhas. A equipe discutiu o registro de dados do atendimento no CRM, incluindo preferência de horário, serviço solicitado e status de agendamento.
+
+Esteiras existentes e continuidade do atendimento
+Os participantes revisaram as esteiras já existentes no RD Station para consultas, tomografias e cirurgias. Também detalharam o processo anterior de acompanhamento, com registros de contatos, pendências e movimentação dos clientes até a resolução ou encerramento.
+
+Verificação e alimentação operacional do RD Station
+Thiago Bicalho se comprometeu a analisar o que já existe no RD Station. A equipe concordou que o processo pode começar com o preenchimento básico das informações durante o atendimento, evoluindo posteriormente para uma operação mais completa.
+
+Dados históricos e consolidação cadastral
+A equipe avaliou o aproveitamento de dados antigos armazenados no EBD e no RD Station, especialmente registros associados a campanhas automatizadas de tomografia. Thiago propôs cruzar a base do RD Station com uma planilha de clientes para remover duplicidades e cadastrar os contatos restantes.
+
+Análise da base e preparação da apresentação
+Os participantes discutiram a exportação de dados históricos desde fevereiro para identificar origem dos leads, setor procurado e retornos de clientes. Ao final, alinharam uma apresentação mais dinâmica, com demonstração do fluxo em funcionamento, além de comunicação posterior pelo Teams e possível convocação de nova reunião.
+
+
+Bloco de Notas:
+
+* Sem anotações

@@ -1,0 +1,115 @@
+{
+  "scanner": "prompt-metrics-prepass",
+  "script": "prepass-prompt-metrics.py",
+  "version": "2.0.0",
+  "skill_path": ".claude/skills/n8n-agent-patterns",
+  "timestamp": "2026-09-01T19:09:50.251899+00:00",
+  "budgets": {
+    "skill_md_tokens": [
+      1500,
+      2500
+    ],
+    "multi_branch_reference_tokens": 4500,
+    "single_purpose_reference_tokens": 9000
+  },
+  "skill_md": {
+    "tokens": 1389,
+    "token_method": "tiktoken",
+    "section_count": 4,
+    "frontmatter": {
+      "name": "n8n-agent-patterns",
+      "description": "Reference for n8n agent architecture patterns used by the Atendimento Nouvet Piloto (config-in-Postgres, LangChain agent + tool-subworkflows, message debounce/concurrency lock). Use when the user says \"n8n\", \"fluxo do agente\", \"workflow do Nouvet\", or is designing/reviewing the n8n architecture for the AI attendant.",
+      "description_chars": 317,
+      "description_has_angle_brackets": false,
+      "keys": [
+        "description",
+        "name"
+      ]
+    }
+  },
+  "aggregate": {
+    "total_files_scanned": 2,
+    "total_tokens": 2397,
+    "total_waste_patterns": 0,
+    "total_back_references": 0,
+    "files_with_numbered_prefix": 0
+  },
+  "reference_sizes": {
+    "agente-e-subfluxos.md": {
+      "tokens": 1382,
+      "token_method": "tiktoken",
+      "numbered_prefix_filename": false
+    },
+    "config-postgres.md": {
+      "tokens": 1795,
+      "token_method": "tiktoken",
+      "numbered_prefix_filename": false
+    }
+  },
+  "files": [
+    {
+      "file": "SKILL.md",
+      "tokens": 1389,
+      "token_method": "tiktoken",
+      "sections": [
+        {
+          "level": 2,
+          "title": "Resolution rules"
+        },
+        {
+          "level": 2,
+          "title": "Dois exemplos reais, dois est\u00e1gios de maturidade"
+        },
+        {
+          "level": 2,
+          "title": "Roteamento"
+        },
+        {
+          "level": 2,
+          "title": "Gotchas que n\u00e3o saltam aos olhos lendo os JSONs"
+        }
+      ],
+      "table_count": 0,
+      "table_rows": 0,
+      "fenced_block_count": 0,
+      "allcaps_directive_count": 0,
+      "numbered_prefix_filename": false,
+      "waste_patterns": [],
+      "back_references": [],
+      "frontmatter": {
+        "name": "n8n-agent-patterns",
+        "description": "Reference for n8n agent architecture patterns used by the Atendimento Nouvet Piloto (config-in-Postgres, LangChain agent + tool-subworkflows, message debounce/concurrency lock). Use when the user says \"n8n\", \"fluxo do agente\", \"workflow do Nouvet\", or is designing/reviewing the n8n architecture for the AI attendant.",
+        "description_chars": 317,
+        "description_has_angle_brackets": false,
+        "keys": [
+          "description",
+          "name"
+        ]
+      },
+      "is_skill_md": true
+    },
+    {
+      "file": ".memlog.md",
+      "tokens": 1008,
+      "token_method": "tiktoken",
+      "sections": [],
+      "table_count": 0,
+      "table_rows": 0,
+      "fenced_block_count": 0,
+      "allcaps_directive_count": 0,
+      "numbered_prefix_filename": false,
+      "waste_patterns": [],
+      "back_references": [],
+      "frontmatter": {
+        "name": "",
+        "description": "",
+        "description_chars": 0,
+        "description_has_angle_brackets": false,
+        "keys": [
+          "updated"
+        ]
+      },
+      "is_skill_md": false
+    }
+  ]
+}

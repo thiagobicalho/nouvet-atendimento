@@ -1,0 +1,1400 @@
+{
+  "name": "06 - Integração Asaas",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "cobranca_valor"
+            },
+            {
+              "name": "cobranca_vencimento"
+            },
+            {
+              "name": "telefone"
+            },
+            {
+              "name": "nome"
+            },
+            {
+              "name": "cpf"
+            },
+            {
+              "name": "id_conta"
+            },
+            {
+              "name": "id_contato"
+            },
+            {
+              "name": "asaas_id_cliente"
+            },
+            {
+              "name": "asaas_id_cobranca"
+            },
+            {
+              "name": "url_chatwoot"
+            },
+            {
+              "name": "url_asaas"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        2928,
+        10832
+      ],
+      "id": "b31caab8-ab15-45ed-913f-f130658a81b2",
+      "name": "Gatilho"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "732205dd-9ea0-4095-9069-48c30b056787",
+              "leftValue": "={{ $('Gatilho').item.json.asaas_id_cobranca }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3104,
+        10832
+      ],
+      "id": "0d13520a-7bb3-4713-aa8b-c2853178c5cc",
+      "name": "Cobrança já existe?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "732205dd-9ea0-4095-9069-48c30b056787",
+              "leftValue": "={{ $('Gatilho').item.json.asaas_id_cliente }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3312,
+        10832
+      ],
+      "id": "4a834647-a72a-4b4a-9b2b-6df928b9f505",
+      "name": "Cliente já existe?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Gatilho').item.json.url_asaas }}/v3/customers",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $('Gatilho').item.json.nome }}"
+            },
+            {
+              "name": "cpfCnpj",
+              "value": "={{ $('Gatilho').item.json.cpf }}"
+            },
+            {
+              "name": "mobilePhone",
+              "value": "={{ $('Gatilho').item.json.telefone.replace(/^\\+55/, '') }}"
+            },
+            {
+              "name": "externalReference",
+              "value": "={{ $('Gatilho').item.json.id_contato }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3568,
+        10960
+      ],
+      "id": "ce7b478d-540e-42bc-a1ee-db8441bda34e",
+      "name": "Criar cliente",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "xzIm3UlA0rS3Gjn2",
+          "name": "Asaas Token - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Gatilho').item.json.url_asaas }}/v3/payments",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "customer",
+              "value": "={{ $('Gatilho').item.json.asaas_id_cliente || $json.payload.custom_attributes.asaas_id_cliente }}"
+            },
+            {
+              "name": "billingType",
+              "value": "=PIX"
+            },
+            {
+              "name": "value",
+              "value": "={{ $('Gatilho').item.json.cobranca_valor }}"
+            },
+            {
+              "name": "dueDate",
+              "value": "={{ $('Gatilho').item.json.cobranca_vencimento }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4240,
+        10832
+      ],
+      "id": "51b1d6fc-292e-4f77-9fed-0dc68ca56864",
+      "name": "Criar cobrança",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "xzIm3UlA0rS3Gjn2",
+          "name": "Asaas Token - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cd18e79e-4784-4aa3-9c8a-6e43241f712c",
+              "name": "resultado",
+              "value": "=Cobrança criada.",
+              "type": "string"
+            },
+            {
+              "id": "ad5ed334-a247-4533-b1a3-4c9366840048",
+              "name": "valor",
+              "value": "={{ $('Criar cobrança').item.json.value }}",
+              "type": "string"
+            },
+            {
+              "id": "e5a4770c-6799-48ac-b779-d95f5462ba83",
+              "name": "vencimento",
+              "value": "={{ $('Criar cobrança').item.json.dueDate }}",
+              "type": "string"
+            },
+            {
+              "id": "6c866d58-967b-41c8-bb70-1517ee8f6f83",
+              "name": "link",
+              "value": "={{ $('Criar cobrança').item.json.invoiceUrl }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4592,
+        10832
+      ],
+      "id": "ed28bd92-aebb-42fe-8ebf-14eddbf87bdc",
+      "name": "Resultado"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Gatilho').item.json.url_asaas }}/v3/payments/{{ $('Gatilho').item.json.asaas_id_cobranca }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3344,
+        10624
+      ],
+      "id": "3aebd14f-fda8-487c-b993-ea93d339932d",
+      "name": "Buscar cobrança",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "xzIm3UlA0rS3Gjn2",
+          "name": "Asaas Token - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cd18e79e-4784-4aa3-9c8a-6e43241f712c",
+              "name": "resultado",
+              "value": "=Cliente já possui cobrança criada.",
+              "type": "string"
+            },
+            {
+              "id": "ad5ed334-a247-4533-b1a3-4c9366840048",
+              "name": "valor",
+              "value": "={{ $('Buscar cobrança').item.json.value }}",
+              "type": "string"
+            },
+            {
+              "id": "e5a4770c-6799-48ac-b779-d95f5462ba83",
+              "name": "vencimento",
+              "value": "={{ $('Buscar cobrança').item.json.dueDate }}",
+              "type": "string"
+            },
+            {
+              "id": "6c866d58-967b-41c8-bb70-1517ee8f6f83",
+              "name": "link",
+              "value": "={{ $('Buscar cobrança').item.json.invoiceUrl }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3520,
+        10624
+      ],
+      "id": "ecc58283-aac1-4680-a253-afa02fb7cf8b",
+      "name": "Cliente já tem cobrança"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "a3f8c2e1-9b7d-4a5e-8f3c-1d2e6b9a4c7f",
+        "authentication": "headerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        2544,
+        11248
+      ],
+      "id": "047480a7-d5d7-42d7-9ae0-b83e328af8f2",
+      "name": "Cobrança atualizada",
+      "webhookId": "e0985bf020cf5f3734af88e7023971de",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "xzIm3UlA0rS3Gjn2_WEBHOOK",
+          "name": "Asaas Webhook"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT url_chatwoot, chatwoot_account_id as id_conta, url_asaas, nome_secretaria, nome_empresa, endereco FROM secretaria_config WHERE id = 1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        2896,
+        11248
+      ],
+      "id": "cdb83c33-c6c2-40e4-9ae7-3a460e6b777b",
+      "name": "Buscar Config",
+      "credentials": {
+        "postgres": {
+          "id": "hvkzoru976d3gWkp",
+          "name": "PostgreSQL - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"PENDING\": \"Pendente\",\n  \"RECEIVED\": \"Cobrança recebida\",\n  \"CONFIRMED\": \"Cobrança confirmada\",\n  \"OVERDUE\": \"Cobrança vencida\",\n  \"REFUNDED\": \"Cobrança estornada\",\n  \"RECEIVED_IN_CASH\": \"Cobrança recebida em dinheiro\",\n  \"REFUND_REQUESTED\": \"Solicitação de estorno\",\n  \"REFUND_IN_PROGRESS\": \"Estorno em andamento\",\n  \"CHARGEBACK_REQUESTED\": \"Recebido chargeback\",\n  \"CHARGEBACK_DISPUTE\": \"Em disputa de chargeback\",\n  \"AWAITING_CHARGEBACK_REVERSAL\": \"Disputa vencida\",\n  \"DUNNING_REQUESTED\": \"Requisição de negativação\",\n  \"DUNNING_RECEIVED\": \"Recebimento de negativação\",\n  \"AWAITING_RISK_ANALYSIS\": \"Aguardando análise de risco\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3584,
+        11248
+      ],
+      "id": "8dcfe83d-712c-4124-8289-e5a0951d803d",
+      "name": "Mapeamento status"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $('Buscar Config').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Buscar Config').item.json.id_conta }}/contacts/{{ $('Buscar contato Chatwoot').item.json.payload.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "chatwootApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"custom_attributes\": {\n    \"asaas_status_cobranca\": \"{{ $('Mapeamento status').item.json[$('Info').item.json.status_cobranca] }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3968,
+        11248
+      ],
+      "id": "363d712c-bb91-4d8e-bdab-8fa39f8b82a7",
+      "name": "Atualizar status cobrança",
+      "credentials": {
+        "chatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2191c687-2639-42a2-aaf6-b1e6bf064539",
+              "leftValue": "={{ \n[\n  \"PAYMENT_CONFIRMED\",\n  \"PAYMENT_REFUNDED\",\n  \"PAYMENT_CHARGEBACK_REQUESTED\",\n  \"PAYMENT_AWAITING_CHARGEBACK_REVERSAL\",\n  \"PAYMENT_DUNNING_REQUESTED\",\n  \"PAYMENT_AWAITING_RISK_ANALYSIS\",\n  \"PAYMENT_RECEIVED\",\n  \"PAYMENT_OVERDUE\",\n  \"PAYMENT_REFUND_IN_PROGRESS\",\n  \"PAYMENT_CHARGEBACK_DISPUTE\",\n  \"PAYMENT_DUNNING_RECEIVED\"\n]\n}}",
+              "rightValue": "={{ $('Cobrança atualizada').item.json.body.event }}",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2720,
+        11248
+      ],
+      "id": "68f43804-de8d-4589-ac43-9f59ecc339c8",
+      "name": "Cobrança atualizada?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2960,
+        11440
+      ],
+      "id": "740178e0-b59b-4510-bc47-8f5240c2791f",
+      "name": "Evento ignorado"
+    },
+    {
+      "parameters": {
+        "errorMessage": "=Cobrança recebida de usuário não cadastrado.\n\nNome: {{ $('Buscar cliente Asaas').item.json.name }}\nTelefone: {{ $('Buscar cliente Asaas').item.json.mobilePhone }}\nCPF: {{ $('Buscar cliente Asaas').item.json.cpfCnpj }}"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        3584,
+        11424
+      ],
+      "id": "ec3d347e-302d-40cd-86da-8cf6c6a532f0",
+      "name": "Usuário não cadastrado"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ea586fb4-8b58-410a-9e03-73fe95ab131d",
+              "leftValue": "={{ $json.externalReference }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3376,
+        11248
+      ],
+      "id": "b1030722-dc20-4374-9c1b-9bebfa3aacd9",
+      "name": "Usuário cadastrado?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ae08e067-77ae-4dda-8836-06582b652d5b",
+              "name": "url_chatwoot",
+              "value": "={{ $('Buscar Config').item.json.url_chatwoot }}",
+              "type": "string"
+            },
+            {
+              "id": "f7de1f05-e3ec-43a4-8c35-393e1d1c9e13",
+              "name": "id_conta",
+              "value": "={{ $('Buscar Config').item.json.id_conta }}",
+              "type": "string"
+            },
+            {
+              "id": "c6782838-973c-4da6-881c-0e3056ac2e47",
+              "name": "url_asaas",
+              "value": "={{ $('Buscar Config').item.json.url_asaas }}",
+              "type": "string"
+            },
+            {
+              "id": "3540d6b2-13bf-4531-8c01-305e84f64989",
+              "name": "payment_id",
+              "value": "={{ $('Cobrança atualizada').item.json.body.payment.id }}",
+              "type": "string"
+            },
+            {
+              "id": "ae8fd23e-7d35-400a-85ed-e2e02cc4f1a7",
+              "name": "customer_id",
+              "value": "={{ $('Cobrança atualizada').item.json.body.payment.customer }}",
+              "type": "string"
+            },
+            {
+              "id": "26494914-8ae8-4b7a-8e32-70e039d8e824",
+              "name": "status_cobranca",
+              "value": "={{ $('Cobrança atualizada').item.json.body.payment.status }}",
+              "type": "string"
+            },
+            {
+              "id": "config-nome-secretaria",
+              "name": "nome_secretaria",
+              "value": "={{ $('Buscar Config').item.json.nome_secretaria }}",
+              "type": "string"
+            },
+            {
+              "id": "config-nome-empresa",
+              "name": "nome_empresa",
+              "value": "={{ $('Buscar Config').item.json.nome_empresa }}",
+              "type": "string"
+            },
+            {
+              "id": "config-endereco",
+              "name": "endereco",
+              "value": "={{ $('Buscar Config').item.json.endereco }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3072,
+        11248
+      ],
+      "id": "e4756777-e753-4bf8-9c5c-8c8b3bbdc917",
+      "name": "Info"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "522ff72f-ffea-4bb8-9ddd-55710495a5fb",
+              "leftValue": "={{ $('Info').item.json.status_cobranca }}",
+              "rightValue": "RECEIVED",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "8ab4cad7-8abe-436f-8647-5acea4e562e9",
+              "leftValue": "={{ $('Info').item.json.status_cobranca }}",
+              "rightValue": "CONFIRMED",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4176,
+        11248
+      ],
+      "id": "9b1a7118-e0b1-4468-92c3-1e86dfad4c71",
+      "name": "Pagamento recebido?"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Buscar Config').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Buscar Config').item.json.id_conta }}/contacts/{{ $('Buscar cliente Asaas').item.json.externalReference }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "chatwootApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3776,
+        11248
+      ],
+      "id": "0c7413e7-f9ec-4d20-a26e-d3ebb61a8db5",
+      "name": "Buscar contato Chatwoot",
+      "credentials": {
+        "chatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Info').item.json.url_asaas }}/v3/customers/{{ $('Info').item.json.customer_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3232,
+        11248
+      ],
+      "id": "29dcf953-3cd9-417e-a8e4-ecda623db8dd",
+      "name": "Buscar cliente Asaas",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "xzIm3UlA0rS3Gjn2",
+          "name": "Asaas Token - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Buscar Config').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Buscar Config').item.json.id_conta }}/contacts/{{ $('Buscar contato Chatwoot').item.json.payload.id }}/conversations",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "chatwootApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4720,
+        11248
+      ],
+      "id": "22e209a8-71b2-410c-84d6-54c3946cbe1a",
+      "name": "Listar conversas Chatwoot",
+      "credentials": {
+        "chatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Buscar Config').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Buscar Config').item.json.id_conta }}/conversations/{{ $('Listar conversas Chatwoot').item.json.payload.last().id }}/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "chatwootApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "content",
+              "value": "={{ $('Agente de notificação de pagamento').item.json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4912,
+        11248
+      ],
+      "id": "9d88f6b8-3cdf-4faa-9090-458ea6e06a4e",
+      "name": "Enviar notificação",
+      "credentials": {
+        "chatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=<confirmação de pagamento recebida no valor de R$ {{ $('Cobrança atualizada').item.json.body.payment.value }}>",
+        "options": {
+          "systemMessage": "=# PAPEL\n\n<papel>\n  Você é a {{ $('Info').item.json.nome_secretaria }}, secretária virtual da {{ $('Info').item.json.nome_empresa }}, responsável por notificar pacientes sobre confirmações de pagamento via WhatsApp. Sua única função é enviar uma mensagem cordial confirmando o recebimento do pagamento e relembrando os detalhes da consulta agendada.\n</papel>\n\n# PERSONALIDADE E TOM DE VOZ\n\n<personalidade>\n  * **Cordial e profissional**: Mantenha tom positivo e acolhedor\n  * **Objetiva**: Seja direta na confirmação sem ser fria\n  * **Tranquilizadora**: Transmita segurança sobre o processo\n  * **Atenciosa**: Relembre informações importantes da consulta\n</personalidade>\n\n# CONTEXTO DA TAREFA\n\n<contexto>\n  O sistema acaba de receber confirmação automática de pagamento de uma consulta. Você deve:\n  1. Confirmar o recebimento do pagamento\n  2. Relembrar data, horário e profissional da consulta\n  3. Fornecer informações básicas de comparecimento\n\n  **IMPORTANTE**: Esta é uma mensagem proativa - o paciente não enviou mensagem solicitando informação.\n</contexto>\n\n# SOP - PROCEDIMENTO OPERACIONAL PADRÃO\n\n## 1. IDENTIFICAÇÃO DO CONTEXTO\n\n<identificacao-contexto>\n  ### 1.1 Análise da Conversa\n\n  1. Revise o histórico para identificar o agendamento relacionado\n  2. Identifique o profissional e agenda utilizados\n  3. Localize informações relevantes do paciente\n\n  ### 1.2 Validação de Dados\n\n  * Confirme que existe agendamento ativo\n</identificacao-contexto>\n\n## 2. BUSCA DE INFORMAÇÕES DO AGENDAMENTO\n\n<busca-agendamento>\n  ### 2.1 Execução da Busca\n\n  1. Use \"Buscar_agendamentos_do_contato\" com o ID da agenda identificado\n  2. Recupere:\n    * Data e horário da consulta\n    * Nome do profissional\n    * Especialidade\n\n  ### 2.2 Tratamento de Falhas\n\n  Se a busca falhar ou não encontrar agendamento:\n  * Prossiga com confirmação genérica\n  * Não mencione erro ao paciente\n  * Mantenha tom positivo\n</busca-agendamento>\n\n## 3. COMPOSIÇÃO DA MENSAGEM\n\n<composicao-mensagem>\n  ### 3.1 Estrutura da Mensagem\n\n  ```\n  SAUDAÇÃO\n  ↓\n  CONFIRMAÇÃO DO PAGAMENTO\n  ↓\n  DETALHES DA CONSULTA (se disponíveis)\n  ↓\n  ORIENTAÇÕES BÁSICAS\n  ↓\n  ENCERRAMENTO CORDIAL\n  ```\n\n  ### 3.2 Elementos Obrigatórios\n\n  * Saudação apropriada ao horário atual\n  * Confirmação explícita do recebimento\n  * Valor recebido: R$ {{ $('Cobrança atualizada').item.json.body.payment.value }}\n  * Agradecimento pela confiança\n\n  ### 3.3 Elementos Condicionais\n\n  Se os dados da consulta estiverem disponíveis:\n  * Data e horário exatos\n  * Nome do profissional\n  * Endereço da clínica\n  * Recomendação de chegar com antecedência\n</composicao-mensagem>\n\n# FERRAMENTAS DISPONÍVEIS\n\n<ferramentas>\n  ## Buscar_agendamentos_do_contato\n\n  <ferramenta id=\"Buscar_agendamentos_do_contato\">\n    **Uso**: Recuperar detalhes do agendamento ativo\n    **Quando**: Sempre, no início do processo\n    **Parâmetros**: ID da agenda (não chamar ferramenta caso não seja identificado o ID da agenda no histórico da conversa)\n    **Tratamento de erro**: Prosseguir com mensagem genérica\n  </ferramenta>\n</ferramentas>\n\n# VALIDAÇÕES E REGRAS\n\n<validacoes>\n  ## Regras Críticas\n\n  1. **Proibições Absolutas**\n    * NUNCA solicitar informações adicionais ao paciente\n    * NUNCA mencionar erros técnicos ou falhas\n    * NUNCA questionar o valor ou forma de pagamento\n    * NUNCA agendar ou remarcar consultas\n\n  2. **Obrigações**\n    * SEMPRE iniciar com saudação (mensagem proativa)\n    * SEMPRE confirmar o recebimento do pagamento\n    * SEMPRE manter tom positivo e profissional\n    * SEMPRE ser breve e objetiva\n\n  3. **Limitações**\n    * Uma única mensagem de resposta\n    * Máximo de 5-7 linhas de texto\n    * Foco exclusivo na notificação\n</validacoes>\n\n# EXEMPLOS DE MENSAGENS\n\n<exemplos>\n  **ATENÇÃO**: Estes são exemplos ilustrativos. Sempre siga o SOP e adapte conforme necessário. Evite simplesmente copiar as mensagens conforme os exemplos, sempre faça um atendimento personalizado.\n\n  ## Exemplo 1: Com Dados Completos da Consulta\n\n  ```\n  Bom dia, Sr. João Carlos!\n\n  Confirmo o recebimento do pagamento de R$ 500,00 referente à sua consulta.\n\n  Lembrando que sua consulta está marcada para quinta-feira, dia 12/12 às 09:00 com o Dr. Roberto Almeida.\n\n  Nosso endereço é {{ $('Info').item.json.endereco }}. Recomendamos chegar com 15 minutos de antecedência.\n\n  Agradecemos a confiança!\n  {{ $('Info').item.json.nome_empresa }}\n  ```\n  \n  ## Exemplo 2: Sem Dados da Consulta (Falha na Busca)\n\n  ```\n  Boa tarde!\n\n  Confirmamos o recebimento do seu pagamento de R$ 500,00.\n\n  Aguardamos você no dia e horário da sua consulta agendada.\n\n  Qualquer dúvida, estamos à disposição.\n\n  Obrigada pela confiança!\n  {{ $('Info').item.json.nome_empresa }}\n  ```\n</exemplos>\n\n# OBSERVAÇÕES FINAIS\n\n<observacoes-finais>\n  ## LEMBRE-SE SEMPRE\n\n  * ⚠️ Você está enviando uma mensagem PROATIVA - inicie com saudação\n  * ⚠️ Seja BREVE - paciente não solicitou informações\n  * ⚠️ NUNCA exponha problemas técnicos ao paciente\n  * ⚠️ NUNCA peça informações ou ações adicionais\n  * ⚠️ Mantenha o foco EXCLUSIVO na confirmação do pagamento\n\n  ## VERIFICAÇÕES IMPORTANTES\n\n  * O valor do pagamento foi de: R$ {{ $('Cobrança atualizada').item.json.body.payment.value }}\n  * A mensagem é uma notificação automática do sistema\n  * O paciente já tem todas as informações necessárias\n\n  ## ASSINATURA\n\n  * Sempre assine como \"{{ $('Info').item.json.nome_empresa }}\" ao final\n  * Não use o nome da secretária na assinatura desta mensagem automática\n</observacoes-finais>\n\n# INFORMAÇÕES DO SISTEMA\n\n<informacoes-sistema>\n  **Data e Hora Atual**: {{ $now.format('FFFF') }}\n  **Valor Recebido**: R$ {{ $('Cobrança atualizada').item.json.body.payment.value }}\n</informacoes-sistema>\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        4416,
+        11248
+      ],
+      "id": "880e214d-7ee9-4d59-9e1f-785640377332",
+      "name": "Agente de notificação de pagamento",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        4352,
+        11456
+      ],
+      "id": "4dfb1759-893e-4131-9b45-2c6c7c7defd8",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "j6AiZEwsvMWr7Lx7",
+          "name": "OpenAI - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Buscar contato Chatwoot').item.json.payload.phone_number }}",
+        "tableName": "n8n_historico_mensagens",
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        4464,
+        11456
+      ],
+      "id": "433f0cf6-69b9-4088-85e0-6f0173d05fbb",
+      "name": "Memory",
+      "credentials": {
+        "postgres": {
+          "id": "hvkzoru976d3gWkp",
+          "name": "PostgreSQL - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Gatilho').item.json.url_asaas }}/v3/customers/{{ $('Gatilho').item.json.asaas_id_cliente }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3568,
+        10784
+      ],
+      "id": "f7911a16-20e0-4b67-90d9-8afd63f69ba1",
+      "name": "Buscar cliente",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "xzIm3UlA0rS3Gjn2",
+          "name": "Asaas Token - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $('Gatilho').item.json.url_asaas }}/v3/customers/{{ $('Gatilho').item.json.asaas_id_cliente }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "cpfCnpj",
+              "value": "={{ $('Gatilho').item.json.cpf }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3968,
+        10704
+      ],
+      "id": "ec0075eb-126b-4202-82a6-be2574827f0e",
+      "name": "Atualizar cliente",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "xzIm3UlA0rS3Gjn2",
+          "name": "Asaas Token - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "65e678fe-8719-4e6c-b9d9-22a82d0c252d",
+              "leftValue": "={{ $('Buscar cliente').item.json.cpfCnpj }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3776,
+        10784
+      ],
+      "id": "835cffff-054c-4e67-8bc9-96c8f6878937",
+      "name": "Cadastro CPF pendente?"
+    },
+    {
+      "parameters": {
+        "description": "Use essa ferramenta para refletir sobre algo."
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        4576,
+        11456
+      ],
+      "id": "b00f6ba9-67c7-420f-a33b-cbf186b24ff5",
+      "name": "Refletir"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $fromAI('Calendar', '', 'string') }}",
+          "__regex": "(^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*)"
+        },
+        "returnAll": true,
+        "timeMax": "=",
+        "options": {
+          "query": "={{ $('Buscar contato Chatwoot').item.json.payload.phone_number }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        4688,
+        11456
+      ],
+      "id": "8ce0bfb0-e006-4c2f-931b-47501527a565",
+      "name": "Buscar agendamentos do contato",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "YGxt6ClFXRt6vigo",
+          "name": "Google Calendar - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## 06. Integração Asaas",
+        "height": 80,
+        "width": 288,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2880,
+        10448
+      ],
+      "id": "a8ee46f4-3b12-494c-9779-e16bff6c4796",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "content": "## Criar ou buscar cobrança",
+        "height": 544,
+        "width": 1904,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2880,
+        10560
+      ],
+      "typeVersion": 1,
+      "id": "59201b67-bf13-4ffd-b095-011551ad23cf",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Atualizar status da cobrança",
+        "height": 480,
+        "width": 1616,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2480,
+        11120
+      ],
+      "typeVersion": 1,
+      "id": "c447a7e1-aef2-4e6d-bf67-c6ef87a6f395",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Enviar notificação de pagamento",
+        "height": 480,
+        "width": 992,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4112,
+        11120
+      ],
+      "typeVersion": 1,
+      "id": "3ecacadf-41fe-46c6-a8b8-01e9cdb2a9af",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "# Checklist\n- [ ] Abrir nodes do Asaas para selecionar credencial\n- [ ] Abrir nodes do Chatwoot para selecionar credencial\n- [ ] Abrir nodes OpenAI, Postgres, Google Calendar para selecionar credenciais\n- [ ] Configurar webhook no Asaas (pós-deploy)",
+        "height": 176,
+        "width": 480,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2496,
+        11632
+      ],
+      "id": "67402e53-2b1a-4689-89e3-76b673e8694a",
+      "name": "Sticky Note14"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $('Gatilho').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Gatilho').item.json.id_conta }}/contacts/{{ $('Gatilho').item.json.id_contato }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "fazerAiChatwootApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"custom_attributes\": {\n    \"asaas_id_cliente\": \"{{ $('Criar cliente').item.json.id }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        3792,
+        10960
+      ],
+      "id": "a1f1ac4c-4a2c-4c15-8986-a4a7bdfc081a",
+      "name": "Atualizar ID cliente",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $('Gatilho').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Gatilho').item.json.id_conta }}/contacts/{{ $('Gatilho').item.json.id_contato }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "fazerAiChatwootApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"custom_attributes\": {\n    \"asaas_id_cobranca\": \"{{ $('Criar cobrança').item.json.id }}\",\n    \"asaas_status_cobranca\": \"{{ $('Criar cobrança').item.json.status }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        4416,
+        10832
+      ],
+      "id": "545c33d4-c133-42ee-9a56-0366c3323a69",
+      "name": "Atualizar cobrança",
+      "credentials": {
+        "fazerAiChatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot - Secretaria Teste"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Gatilho": [
+      {
+        "json": {
+          "cobranca_valor": "350",
+          "cobranca_vencimento": "2026-05-08",
+          "telefone": "+5511989892343",
+          "nome": "Thiago Bicalho",
+          "cpf": "31089237812",
+          "id_conta": "1",
+          "id_contato": "15",
+          "url_chatwoot": "https://messages.uniqueads.com.br",
+          "url_asaas": "https://api-sandbox.asaas.com"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Gatilho": {
+      "main": [
+        [
+          {
+            "node": "Cobrança já existe?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cobrança já existe?": {
+      "main": [
+        [
+          {
+            "node": "Buscar cobrança",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Cliente já existe?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cliente já existe?": {
+      "main": [
+        [
+          {
+            "node": "Buscar cliente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Criar cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar cliente": {
+      "main": [
+        [
+          {
+            "node": "Atualizar ID cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar cobrança": {
+      "main": [
+        [
+          {
+            "node": "Atualizar cobrança",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar cobrança": {
+      "main": [
+        [
+          {
+            "node": "Cliente já tem cobrança",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cobrança atualizada": {
+      "main": [
+        [
+          {
+            "node": "Cobrança atualizada?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Config": {
+      "main": [
+        [
+          {
+            "node": "Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mapeamento status": {
+      "main": [
+        [
+          {
+            "node": "Buscar contato Chatwoot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualizar status cobrança": {
+      "main": [
+        [
+          {
+            "node": "Pagamento recebido?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cobrança atualizada?": {
+      "main": [
+        [
+          {
+            "node": "Buscar Config",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Evento ignorado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Usuário cadastrado?": {
+      "main": [
+        [
+          {
+            "node": "Mapeamento status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Usuário não cadastrado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Info": {
+      "main": [
+        [
+          {
+            "node": "Buscar cliente Asaas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pagamento recebido?": {
+      "main": [
+        [
+          {
+            "node": "Agente de notificação de pagamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar contato Chatwoot": {
+      "main": [
+        [
+          {
+            "node": "Atualizar status cobrança",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar cliente Asaas": {
+      "main": [
+        [
+          {
+            "node": "Usuário cadastrado?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Listar conversas Chatwoot": {
+      "main": [
+        [
+          {
+            "node": "Enviar notificação",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente de notificação de pagamento": {
+      "main": [
+        [
+          {
+            "node": "Listar conversas Chatwoot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente de notificação de pagamento",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agente de notificação de pagamento",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar cliente": {
+      "main": [
+        [
+          {
+            "node": "Cadastro CPF pendente?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualizar cliente": {
+      "main": [
+        [
+          {
+            "node": "Criar cobrança",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cadastro CPF pendente?": {
+      "main": [
+        [
+          {
+            "node": "Atualizar cliente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Criar cobrança",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Refletir": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente de notificação de pagamento",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar agendamentos do contato": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente de notificação de pagamento",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualizar ID cliente": {
+      "main": [
+        [
+          {
+            "node": "Criar cobrança",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualizar cobrança": {
+      "main": [
+        [
+          {
+            "node": "Resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "6d987c25-400c-4b42-bba4-1181df880b50",
+  "meta": {
+    "instanceId": "715a68c7cbc350774eb1fc64655865ae67c7d2b3860e8e8de01712db5856e1ab"
+  },
+  "id": "s3pAEhnjDeMFawiS",
+  "tags": []
+}

@@ -1,0 +1,137 @@
+{
+  "name": "04.1 - Atualizar Agendamento",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "id_agenda"
+            },
+            {
+              "name": "id_evento"
+            },
+            {
+              "name": "titulo"
+            },
+            {
+              "name": "descricao"
+            }
+          ]
+        }
+      },
+      "id": "776be75d-f986-4abe-8553-0caed4f190e6",
+      "typeVersion": 1.1,
+      "name": "Gatilho",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        6272,
+        13568
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "={{ $('Gatilho').item.json.id_agenda }}",
+          "mode": "id"
+        },
+        "eventId": "={{ $('Gatilho').item.json.id_evento }}",
+        "updateFields": {
+          "description": "={{ $('Gatilho').item.json.descricao }}",
+          "summary": "={{ $('Gatilho').item.json.titulo }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        6512,
+        13568
+      ],
+      "id": "2e96f2a1-01f3-47b7-95e3-cf520249d74d",
+      "name": "Atualizar agendamento",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "YGxt6ClFXRt6vigo",
+          "name": "Google Calendar - Secretaria Teste"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Importante!\n\nDevido a um bug no n8n, a ferramenta de atualização de eventos no Google Calendar não está funcionando corretamente.\n\nAté que a ferramenta seja corrigida, disponibilizamos esse subworkflow para que a Secretária v3 ainda tenha acesso à essa funcionalidade.",
+        "height": 272,
+        "width": 368,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5856,
+        13456
+      ],
+      "id": "e983bc7b-0388-4904-877e-c3e6a20c8e6f",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "## 04.1 [EXTRA] Atualizar agendamento",
+        "height": 80,
+        "width": 512,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        6224,
+        13344
+      ],
+      "id": "6dd592d4-67ff-43a5-a7dc-2e04373a1259",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "content": "# Checklist\n- [ ] Abrir node do Google Calendar e selecionar credencial",
+        "height": 112,
+        "width": 448,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        6272,
+        13728
+      ],
+      "id": "8882e39b-c596-4359-b66b-076df43c8c13",
+      "name": "Sticky Note8"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gatilho": {
+      "main": [
+        [
+          {
+            "node": "Atualizar agendamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "c84e75d2-c0ed-4f4f-8dfb-02912184fcf2",
+  "meta": {
+    "instanceId": "715a68c7cbc350774eb1fc64655865ae67c7d2b3860e8e8de01712db5856e1ab"
+  },
+  "id": "pDezHfLoc8ZE3FhD",
+  "tags": []
+}

@@ -1,0 +1,633 @@
+{
+  "name": "10 - Buscar/Criar Contato",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Gatilho').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Gatilho').item.json.id_conta }}/inboxes/{{ $('Gatilho').item.json.id_inbox }}/on_whatsapp",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "chatwootApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone_number",
+              "value": "={{ $('Gatilho').item.json.telefone.startsWith('+55') ? $('Gatilho').item.json.telefone : `+55${$('Gatilho').item.json.telefone}` }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -192,
+        6432
+      ],
+      "id": "d8630b89-06cf-451a-a7ab-841bef0bd9a9",
+      "name": "Verificar WhatsApp",
+      "credentials": {
+        "chatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Gatilho').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Gatilho').item.json.id_conta }}/contacts",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "chatwootApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phone_number",
+              "value": "=+{{ $('Verificar WhatsApp').item.json.jid.split('@').first() }}"
+            },
+            {
+              "name": "name",
+              "value": "={{ $('Verificar WhatsApp').item.json.jid.split('@').first() }}"
+            },
+            {
+              "name": "identifier",
+              "value": "={{ $('Verificar WhatsApp').item.json.lid }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        192,
+        6368
+      ],
+      "id": "2ef5035a-f777-4b3e-bd4d-c1acdf40440c",
+      "name": "Criar contato",
+      "credentials": {
+        "chatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Gatilho').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Gatilho').item.json.id_conta }}/conversations",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "chatwootApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "inbox_id",
+              "value": "={{ $('Gatilho').item.json.id_inbox }}"
+            },
+            {
+              "name": "contact_id",
+              "value": "={{ $('Criar contato').isExecuted ? $('Criar contato').item.json.payload.contact.id : $('ID Contato').item.json.id_contato }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        368,
+        6368
+      ],
+      "id": "1cacf9f4-215e-4a91-9d2a-a140c3355800",
+      "name": "Criar conversa",
+      "credentials": {
+        "chatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Gatilho').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Gatilho').item.json.id_conta }}/contacts/search",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "chatwootApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $('Gatilho').item.json.telefone.replace(/(\\+55)?(\\d\\d)9(\\d{8})/, '$1$2$3') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1024,
+        6096
+      ],
+      "id": "1f671ab1-c75d-41d6-b308-d6ec0235dbd6",
+      "name": "Buscar contato (sem 9)",
+      "credentials": {
+        "chatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Gatilho').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Gatilho').item.json.id_conta }}/contacts/search",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "chatwootApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $('Gatilho').item.json.telefone }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -832,
+        6096
+      ],
+      "id": "fb0d8f46-f519-46c7-92c7-dc697a3ee002",
+      "name": "Buscar contato",
+      "credentials": {
+        "chatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a9b08522-ff71-421e-a35a-0c3a21472441",
+              "leftValue": "={{ $json.id_contato }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -464,
+        6096
+      ],
+      "id": "4134b347-aa06-4474-aacb-aad66bdd51ba",
+      "name": "Contato existe?",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Gatilho').item.json.url_chatwoot }}/api/v1/accounts/{{ $('Gatilho').item.json.id_conta }}/contacts/{{ $json.id_contato }}/conversations",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "chatwootApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -64,
+        6080
+      ],
+      "id": "8e80caba-d3e1-4109-a53f-25d0485d19a2",
+      "name": "Listar conversas",
+      "credentials": {
+        "chatwootApi": {
+          "id": "Zao5r5L0ysGX8NV0",
+          "name": "Chatwoot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "378a7912-d074-4d13-ad27-9c3f04ccf443",
+              "leftValue": "={{ $('Verificar WhatsApp').item.json.exists }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -16,
+        6432
+      ],
+      "id": "3bed75bc-33f0-4a73-8841-9f9f374a1391",
+      "name": "Número no WhatsApp?"
+    },
+    {
+      "parameters": {
+        "content": "## Criar novo contato",
+        "height": 368,
+        "width": 800,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -272,
+        6304
+      ],
+      "id": "700d141f-748d-4ddf-b971-8acc7433c4c8",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "telefone"
+            },
+            {
+              "name": "id_conta"
+            },
+            {
+              "name": "id_inbox"
+            },
+            {
+              "name": "url_chatwoot"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1216,
+        6096
+      ],
+      "id": "edb22b7a-928c-4235-ad3a-80ad7ee2fe10",
+      "name": "Gatilho"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1f998039-0ebe-4a5c-b487-7f039f648042",
+              "name": "contato",
+              "value": "={{ $('Buscar contato (sem 9)').item.json.payload.first() || $('Buscar contato').item.json.payload.first() || $('Criar contato').item.json.payload.contact }}",
+              "type": "object"
+            },
+            {
+              "id": "b2807407-2a85-422c-b25a-6ef564d9fe6f",
+              "name": "conversa",
+              "value": "={{ $json.payload?.first() || $json }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        656,
+        6096
+      ],
+      "id": "5b98c334-c7fd-4c80-a348-2107a821425e",
+      "name": "Resultado"
+    },
+    {
+      "parameters": {
+        "content": "## Usar contato já existente",
+        "height": 272,
+        "width": 800,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -272,
+        6000
+      ],
+      "id": "95b543d8-88ca-4937-a28b-4d09a8523ab8",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Buscar contato",
+        "height": 272,
+        "width": 992,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1280,
+        6000
+      ],
+      "id": "b6939c6d-ad42-4100-8824-a8c06371a812",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "# Checklist\n- [ ] Abrir nodes do Chatwoot para selecionar credenciais",
+        "height": 128,
+        "width": 512,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -928,
+        6304
+      ],
+      "id": "13c0c6a1-4010-478b-a306-226a1cb119f1",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "## 10. Buscar ou criar contato + conversa",
+        "height": 80,
+        "width": 512,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1280,
+        5840
+      ],
+      "id": "262c0dbf-5d74-4e82-b57a-2eab195abe20",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "errorMessage": "=Telefone não está no WhatsApp: {{ $('Verificar WhatsApp').item.json.toJsonString() }}"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        192,
+        6512
+      ],
+      "id": "817bee5f-20fe-42f6-a12b-723a181a0155",
+      "name": "Telefone não está no WhatsApp"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b5d65d24-f2f5-4ce5-9811-039fa02e06e1",
+              "name": "id_contato",
+              "value": "={{ $('Buscar contato (sem 9)').item.json.payload.first()?.id || $('Buscar contato').item.json.payload.first()?.id }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -640,
+        6096
+      ],
+      "id": "4da32350-d6e5-4aa3-a938-6729437aea4b",
+      "name": "ID Contato"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0b28e2b5-8d42-41c0-b297-27be561ee0ec",
+              "leftValue": "={{ $json.payload }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        144,
+        6080
+      ],
+      "id": "3e398494-1174-4e8c-bc94-60312693bd0e",
+      "name": "Contato com conversa criada?"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Verificar WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Número no WhatsApp?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar contato": {
+      "main": [
+        [
+          {
+            "node": "Criar conversa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criar conversa": {
+      "main": [
+        [
+          {
+            "node": "Resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar contato (sem 9)": {
+      "main": [
+        [
+          {
+            "node": "Buscar contato",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar contato": {
+      "main": [
+        [
+          {
+            "node": "ID Contato",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contato existe?": {
+      "main": [
+        [
+          {
+            "node": "Listar conversas",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Verificar WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Listar conversas": {
+      "main": [
+        [
+          {
+            "node": "Contato com conversa criada?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Número no WhatsApp?": {
+      "main": [
+        [
+          {
+            "node": "Criar contato",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telefone não está no WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gatilho": {
+      "main": [
+        [
+          {
+            "node": "Buscar contato (sem 9)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ID Contato": {
+      "main": [
+        [
+          {
+            "node": "Contato existe?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contato com conversa criada?": {
+      "main": [
+        [
+          {
+            "node": "Resultado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Criar conversa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "2a540759-1348-4326-96b7-fea25960a3ed",
+  "meta": {
+    "instanceId": "715a68c7cbc350774eb1fc64655865ae67c7d2b3860e8e8de01712db5856e1ab"
+  },
+  "id": "an3aELMnw5jwhLxX",
+  "tags": []
+}
