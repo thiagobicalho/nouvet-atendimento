@@ -85,3 +85,51 @@ source_spec: `1-infra-e-persistencia-base.md`
 severity: low
 reason: A tabela é editada manualmente (config de personalização, AD-1) e nenhuma AC desta story exige validação de valor, só existência/grants das tabelas; a lógica que lê e usa esses valores em runtime (debounce/lock, follow-up) ainda não existe, então a decisão de faixa válida fica melhor colocada quando essa lógica de leitura for implementada, junto com o resto da validação de secretaria_config.
 status: open
+
+### DW-12: Nenhuma barreira de privilégio garante que secretaria_config só é lida via secretaria_config_ler — app_role já tem SELECT direto na tabela (concedido na Story 1), então a "porta única" é uma convenção
+origin: spec-deferred 5b4cbe26b4b0
+location: n8n/migrations/0002_schema_operacional.sql (GRANT SELECT ... TO app_role); n8n/migrations/0004_config_leitura_seletiva.sql
+source_spec: `2-config-as-data.md`
+severity: medium
+reason: Revogar SELECT direto de app_role e permitir leitura só via função exigiria SECURITY DEFINER ou um esquema de papéis adicional — mudança estrutural maior, fora do escopo desta story; achado do review adversarial (blind hunter).
+status: open
+
+### DW-13: Não existe fonte única que fixe os nomes exatos de setor usados como chave de filtro (p_setor) — glossary.md lista 5 setores distintos, mas o PRD §4.4 descreve Consultas e Vacinas como um único agente
+origin: spec-deferred 6fddd07a1c28
+location: n8n/migrations/0004_config_leitura_seletiva.sql; glossary.md
+source_spec: `2-config-as-data.md`
+severity: medium
+reason: A Story 5/6 precisa decidir se passa p_setor distintos para Consultas e Vacinas ou unifica — comparação por string exata sem lista canônica é risco de resultado vazio silencioso; achado do review adversarial (blind hunter).
+status: open
+
+### DW-14: secretaria_config_ler não fixa SET search_path.
+origin: spec-deferred 4de0e45a48d7
+location: n8n/migrations/0004_config_leitura_seletiva.sql
+source_spec: `2-config-as-data.md`
+severity: low
+reason: Hardening geral de função Postgres; risco baixo aqui porque a função não é SECURITY DEFINER e roda com privilégio do chamador (app_role), mas é uma boa prática ausente; achado do review adversarial (blind hunter).
+status: open
+
+### DW-15: secretaria_config_ler não trata explicitamente o caso da linha singleton (id=1) ainda não existir (seed não aplicado) — retorna NULL silenciosamente.
+origin: spec-deferred deb99be419e2
+location: n8n/migrations/0004_config_leitura_seletiva.sql
+source_spec: `2-config-as-data.md`
+severity: low
+reason: Comportamento coerente com o caso já documentado de fase inválida (NULL, nunca dump), mas sem guard/erro explícito para esse cenário operacional específico; achado do review adversarial (edge-case hunter).
+status: open
+
+### DW-16: Nenhuma barreira de privilégio garante que secretaria_config só é acessada via secretaria_config_ler — app_role já tem SELECT, INSERT, UPDATE e DELETE diretos na tabela (concedido na Story 1), então a
+origin: spec-deferred bb852ce94033
+location: n8n/migrations/0002_schema_operacional.sql (GRANT SELECT, INSERT, UPDATE, DELETE ... TO app_role); n8n/migrations/0004_config_leitura_seletiva.sql
+source_spec: `2-config-as-data.md`
+severity: medium
+reason: Revogar acesso direto de app_role e permitir leitura só via função exigiria SECURITY DEFINER ou um esquema de papéis adicional — mudança estrutural maior, fora do escopo desta story; achado do review adversarial (blind hunter), com a abrangência real do GRANT (SELECT/INSERT/UPDATE/DELETE, não só SELECT) confirmada no follow-up review.
+status: open
+
+### DW-17: Não existe fonte única que fixe os nomes exatos de setor usados como chave de filtro (p_setor) — glossary.md lista 8 setores distintos (Care Center, Exames, Consultas, Vacinas, Orçamentos, Internação,
+origin: spec-deferred 00082dcc8fc9
+location: n8n/migrations/0004_config_leitura_seletiva.sql; glossary.md
+source_spec: `2-config-as-data.md`
+severity: medium
+reason: A Story 5/6 precisa decidir se passa p_setor distintos para Consultas e Vacinas ou unifica — comparação por string exata sem lista canônica é risco de resultado vazio silencioso; achado do review adversarial (blind hunter).
+status: open

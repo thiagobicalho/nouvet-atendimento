@@ -13,3 +13,7 @@ Aplicar sempre em ordem, mesmo processo em dev e produção. Reflete a direção
 corte dev→produção já registrada na spine: export/import nativo de workflows+credenciais
 do n8n + migrations versionadas do schema — não dump/restore bruto do Postgres (processo
 exato do corte segue Deferred).
+
+A partir da `0004`, o diretório passa a incluir também função/`GRANT` armazenados (não só
+DDL de tabela) — `secretaria_config_ler`, a porta única de leitura seletiva de
+`secretaria_config` (AD-1).
