@@ -148,6 +148,20 @@ O agente único só fala com `Ingress`, `Cfg` e `Tools` — nunca diretamente co
 
 ## Structural Seed
 
+### Repo layout `[DECISÃO 02/set/2026]`
+
+```
+n8n/
+  workflows/    # exports .json dos workflows (convenção numérica: 00 - Configurações,
+                # 01 - Agente, 02+ sub-workflows), ver n8n/workflows/README.md
+  migrations/   # SQL versionado e numerado do schema do banco dedicado da aplicação (AD-3)
+  seed/         # dados iniciais de secretaria_config (AD-1)
+docker-compose.yml  # stack pinada (AD-10), criado na Story 1 (Infra e persistência base)
+```
+
+Tudo na raiz do repo — sem monorepo, sem separação por ambiente (dev/produção usam o
+mesmo layout, só o `.env` muda). Credenciais nunca entram neste repo (AD-2).
+
 ### Envelope de deployment
 
 ```mermaid

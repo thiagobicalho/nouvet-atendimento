@@ -11,7 +11,10 @@
     completa 16.15-alpine3.24 (não 16-alpine solto) e n8n na tag exata 2.14.2 (AD-10).
     Duas bases Postgres separadas no mesmo servidor, cada uma com usuário de
     privilégio mínimo próprio (AD-3) — banco interno do n8n usa DB_TYPE=postgresdb,
-    não SQLite.
+    não SQLite. Repo layout já decidido (ARCHITECTURE-SPINE.md, Structural Seed):
+    migrations SQL numeradas em n8n/migrations/, docker-compose.yml na raiz — não
+    inventar estrutura nova, seguir o que já está lá (inclusive os README.md de cada
+    pasta).
 
 - id: "2"
   title: Config-as-Data (AD-1)
