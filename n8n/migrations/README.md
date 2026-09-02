@@ -17,3 +17,8 @@ exato do corte segue Deferred).
 A partir da `0004`, o diretório passa a incluir também função/`GRANT` armazenados (não só
 DDL de tabela) — `secretaria_config_ler`, a porta única de leitura seletiva de
 `secretaria_config` (AD-1).
+
+A `0005` introduz `lock_conversa_adquirir`/`lock_conversa_liberar` — as funções atômicas
+de debounce/lock com recuperação de TTL (AD-5) — mais as colunas `lock_adquirido_em`
+(`n8n_status_atendimento`) e `processada` + índice único em `id_mensagem`
+(`n8n_fila_mensagens`).

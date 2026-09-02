@@ -12,7 +12,8 @@ location: n8n/migrations/0002_schema_operacional.sql (tabela n8n_status_atendime
 source_spec: `1-infra-e-persistencia-base.md`
 severity: low
 reason: AD-5 (recuperação automática de lock travado por TTL) é escopo da Story 3 ("Debounce e lock com recuperação de TTL"); esta story só cria o schema base. Story 3 provavelmente precisa de uma migration adicional (ex. 0004) adicionando essa coluna.
-status: open
+status: resolved
+resolution: `n8n/migrations/0005_debounce_lock_ttl.sql` adiciona `lock_adquirido_em` a `n8n_status_atendimento` e a função atômica `lock_conversa_adquirir` que a usa para recuperar o lock travado além do TTL.
 
 ### DW-3: n8n_fila_mensagens não tem coluna de status/processado nem índice único em id_mensagem para deduplicação.
 origin: spec-deferred 61f85afed68c
@@ -20,7 +21,8 @@ location: n8n/migrations/0002_schema_operacional.sql (tabela n8n_fila_mensagens)
 source_spec: `1-infra-e-persistencia-base.md`
 severity: low
 reason: O mecanismo de debounce/dedup é lógica de workflow da Story 3, não desta story; o schema atual só cria a fila crua.
-status: open
+status: resolved
+resolution: `n8n/migrations/0005_debounce_lock_ttl.sql` adiciona a coluna `processada` e um índice único em `id_mensagem` (usado pelo workflow de ingestão via `ON CONFLICT (id_mensagem) DO NOTHING`, fora do escopo desta migration). Este resolved cobre só o pré-requisito de schema: o `INSERT ... ON CONFLICT (id_mensagem) DO NOTHING` real e a marcação de `processada` em runtime ainda não existem em nenhum workflow -- ficam para a Story 5 (ingestão) implementar sobre este schema.
 
 ### DW-4: identidade_cliente_pet.rd_crm_contact_id não tem índice.
 origin: spec-deferred f932572f660e
@@ -132,4 +134,108 @@ location: n8n/migrations/0004_config_leitura_seletiva.sql; glossary.md
 source_spec: `2-config-as-data.md`
 severity: medium
 reason: A Story 5/6 precisa decidir se passa p_setor distintos para Consultas e Vacinas ou unifica — comparação por string exata sem lista canônica é risco de resultado vazio silencioso; achado do review adversarial (blind hunter).
+status: open
+
+### DW-18: lock_conversa_liberar não usa fencing token — uma execução genuinamente lenta (não travada por crash) que ultrapassa o TTL pode liberar o lock que uma outra execução já recuperou legitimamente, reabri
+origin: spec-deferred a4fdda71fe4b
+location: n8n/migrations/0005_debounce_lock_ttl.sql (lock_conversa_liberar)
+source_spec: `3-debounce-e-lock-com-recuperacao-de-ttl.md`
+severity: medium
+reason: AD-5 (ARCHITECTURE-SPINE.md) descreve o "mecanismo mínimo obrigatório" sem mencionar fencing/token de posse, aceitando esse risco residual explicitamente ("um Error Trigger... é bem-vindo mas não substitui a checagem de TTL"); achado do review adversarial (blind hunter), não introduzido além do que a própria arquitetura já assume como risco conhecido.
+status: open
+
+### DW-19: lock_conversa_adquirir não valida p_ttl_minutos NULL/zero/negativo -- NULL faz a função nunca recuperar o lock (falha fechada), zero ou negativo faz todo lock parecer sempre expirado (derruba a exclus
+origin: spec-deferred f57c3a55e208
+location: n8n/migrations/0005_debounce_lock_ttl.sql (lock_conversa_adquirir); DW-11
+source_spec: `3-debounce-e-lock-com-recuperacao-de-ttl.md`
+severity: low
+reason: Mesma lacuna já registrada em DW-11 (secretaria_config.lock_ttl_minutos sem CHECK de faixa), agora com consumidor real e concreto pela primeira vez; achado do review adversarial (edge-case hunter).
+status: open
+
+### DW-20: lock_conversa_adquirir/lock_conversa_liberar não fixam SET search_path.
+origin: spec-deferred ba9d892a4ac8
+location: n8n/migrations/0005_debounce_lock_ttl.sql
+source_spec: `3-debounce-e-lock-com-recuperacao-de-ttl.md`
+severity: low
+reason: Mesma lacuna de hardening já registrada em DW-14 para secretaria_config_ler, agora duplicada nas duas novas funções; achado do review adversarial (blind hunter).
+status: open
+
+### DW-21: Migration 0005 usa ALTER TABLE/CREATE UNIQUE INDEX sem guards de idempotência (IF NOT EXISTS) -- falha se reaplicada contra um cluster já migrado.
+origin: spec-deferred b3d2524a6a36
+location: n8n/migrations/0005_debounce_lock_ttl.sql
+source_spec: `3-debounce-e-lock-com-recuperacao-de-ttl.md`
+severity: low
+reason: Mesma classe de problema já registrada em DW-1 para o bootstrap 0001; achado do review adversarial (blind hunter).
+status: open
+
+### DW-22: CREATE UNIQUE INDEX em n8n_fila_mensagens(id_mensagem) falharia se já existirem linhas com id_mensagem duplicado (ex. dado de dev/teste remanescente).
+origin: spec-deferred bc7d5a2d61cb
+location: n8n/migrations/0005_debounce_lock_ttl.sql
+source_spec: `3-debounce-e-lock-com-recuperacao-de-ttl.md`
+severity: low
+reason: Baixo risco prático hoje -- nenhum workflow ainda escreve em n8n_fila_mensagens (Story 5 pendente), então a tabela está vazia em qualquer ambiente atual; achado do review adversarial (edge-case hunter).
+status: open
+
+### DW-23: O uso real do dedup de enfileiramento (INSERT ... ON CONFLICT (id_mensagem) DO NOTHING) e da marcação de processada continuam pendentes -- esta story só entrega o pré-requisito de schema, não o workfl
+origin: spec-deferred 6853420b5aee
+location: n8n/migrations/0005_debounce_lock_ttl.sql; Story 5
+source_spec: `3-debounce-e-lock-com-recuperacao-de-ttl.md`
+severity: low
+reason: DW-3 foi marcado resolved (instrução explícita do invocador), mas seu texto original nomeava o mecanismo de dedup em uso real, não só o schema; achado do review adversarial (intent-alignment). Consumo real fica para a Story 5 (CAP-1, "01 - Agente.json").
+status: open
+
+### DW-24: app_role mantém os GRANTs diretos de UPDATE/INSERT em n8n_status_atendimento (herdados da 0002) sem revogação -- qualquer node do fluxo de ingestão pode contornar lock_conversa_adquirir/lock_conversa_
+origin: spec-deferred 56697306b9ac
+location: n8n/migrations/0002_schema_operacional.sql (GRANT de app_role em n8n_status_atendimento); n8n/migrations/0005_debounce_lock_ttl.sql
+source_spec: `3-debounce-e-lock-com-recuperacao-de-ttl.md`
+severity: medium
+reason: Mesma classe de gap já registrada em DW-12/DW-16 para secretaria_config, mas nunca rastreada para a tabela de lock -- aqui é mais consequente, pois é exatamente a garantia de atomicidade que esta story entrega; achado do review adversarial (blind hunter).
+status: open
+
+### DW-25: Migration 0005 não usa BEGIN/COMMIT explícito -- se o CREATE UNIQUE INDEX falhar (ex. dado duplicado pré-existente, DW-22), os ALTER TABLE/backfill anteriores já teriam sido commitados, deixando o sch
+origin: spec-deferred 2291bbf39fb9
+location: n8n/migrations/0005_debounce_lock_ttl.sql
+source_spec: `3-debounce-e-lock-com-recuperacao-de-ttl.md`
+severity: low
+reason: Mesma classe de risco de migration não-atômica já aceita nas migrations anteriores (0001-0004, nenhuma delas usa BEGIN/COMMIT explícito tampouco); achado do review adversarial (blind hunter), não introduzido além do padrão já existente no diretório.
+status: open
+
+### DW-26: secretaria_config_ler (0004) não expõe lock_ttl_minutos em nenhuma das fases ('triagem'/'setor') -- não existe porta única (AD-1) pela qual quem for chamar lock_conversa_adquirir (Story 5) obtenha o T
+origin: spec-deferred d4e7c38100f3
+location: n8n/migrations/0004_config_leitura_seletiva.sql (secretaria_config_ler); Story 5
+source_spec: `3-debounce-e-lock-com-recuperacao-de-ttl.md`
+severity: medium
+reason: O intent desta story exige "TTL vem de secretaria_config.lock_ttl_minutos (nunca hardcoded)", mas secretaria_config_ler só devolve as fatias 'triagem'/'setor' do JSON, nenhuma incluindo lock_ttl_minutos -- confirmado lendo 0004_config_leitura_seletiva.sql; achado do review adversarial (blind hunter), fora do escopo desta story (Code Map/Tasks não tocam a 0004).
+status: open
+
+### DW-27: .claude/skills/n8n-agent-patterns/references/agente-e-subfluxos.md ainda descreve o lock da ingestão de forma genérica (SELECT+UPDATE separados), sem citar as novas funções atômicas lock_conversa_adqu
+origin: spec-deferred 242ead87a3b6
+location: .claude/skills/n8n-agent-patterns/references/agente-e-subfluxos.md
+source_spec: `3-debounce-e-lock-com-recuperacao-de-ttl.md`
+severity: low
+reason: O doc de referência do padrão de ingestão não foi atualizado por esta story -- o Code Map só cita a diferença a não replicar, não pede atualização do doc; achado do review adversarial (blind hunter).
+status: open
+
+### DW-28: .claude/skills/n8n-agent-patterns/references/config-postgres.md ainda mostra o schema anterior à 0005 (sem lock_adquirido_em/processada).
+origin: spec-deferred 0d74dea69675
+location: .claude/skills/n8n-agent-patterns/references/config-postgres.md
+source_spec: `3-debounce-e-lock-com-recuperacao-de-ttl.md`
+severity: low
+reason: Doc de referência de schema ficou desatualizado após a 0005; achado do review adversarial (blind hunter).
+status: open
+
+### DW-29: Migration 0005 não documenta um caminho de rollback/down-migration (duas ALTER TABLE + backfill + índice único + duas funções).
+origin: spec-deferred c336b219bc21
+location: n8n/migrations/0005_debounce_lock_ttl.sql
+source_spec: `3-debounce-e-lock-com-recuperacao-de-ttl.md`
+severity: low
+reason: Nenhuma das migrations 0001-0004 documenta rollback tampouco, mas a 0005 é a primeira com múltiplos passos interdependentes (ALTER + backfill + índice + funções), tornando um rollback manual mais arriscado que nas anteriores; achado do review adversarial (blind hunter).
+status: open
+
+### DW-30: Follow-up review still recommended for 3 after the damping cap was spent
+origin: review-budget-followup
+location: n/a
+source_spec: `3-debounce-e-lock-com-recuperacao-de-ttl.md`
+severity: low
+reason: The follow-up-review damping cap (limits.max_followup_reviews = 1) was spent with the story finalized (status: done, verify green) while the review pass still recommended an independent follow-up. The work was committed by bmad-loop run 20260902-140919-5139; this entry preserves the lingering recommendation for a deliberate later review.
 status: open
