@@ -22,3 +22,14 @@ A `0005` introduz `lock_conversa_adquirir`/`lock_conversa_liberar` — as funç�
 de debounce/lock com recuperação de TTL (AD-5) — mais as colunas `lock_adquirido_em`
 (`n8n_status_atendimento`) e `processada` + índice único em `id_mensagem`
 (`n8n_fila_mensagens`).
+
+A `0006` entrega a porta única idempotente de identidade cliente/pet (AD-6/AD-11):
+`telefone_normalizar` (normalização centralizada de telefone, AD-8, concedida tanto a
+`app_role` quanto a `identidade_role`), `identidade_cliente_pet_buscar`/
+`identidade_cliente_pet_resolver` (leitura e escrita únicas de `identidade_cliente_pet`,
+com lock consultivo por telefone normalizado — só `identidade_role`), troca do índice
+único de `identidade_cliente_pet` para case-insensitive `(telefone, lower(btrim(nome_pet)))`
+e índice em `rd_crm_contact_id`. `identidade_cliente_pet_resolver` também devolve
+`possivel_duplicidade_familiar` — sinal booleano de que outro telefone já tem pet com o
+mesmo nome (núcleo familiar com dois telefones), pro sub-workflow futuro decidir alerta
+de revisão humana no card do RD CRM (AD-11).

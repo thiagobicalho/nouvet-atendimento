@@ -30,7 +30,8 @@ location: n8n/migrations/0003_identidade_cliente_pet.sql
 source_spec: `1-infra-e-persistencia-base.md`
 severity: low
 reason: Esse é o caminho de lookup provável quando a Story 4 (porta única idempotente) ou a Story 11 (registro no CRM) resolverem conversa -> contato do RD CRM; adicionar quando o padrão de acesso real dessas stories estiver implementado.
-status: open
+status: resolved
+resolution: `n8n/migrations/0006_identidade_porta_unica.sql` adiciona `idx_identidade_cliente_pet_rd_crm_contact_id` (índice parcial, `WHERE rd_crm_contact_id IS NOT NULL`) sobre `identidade_cliente_pet`.
 
 ### DW-5: n8n exposto em 0.0.0.0:5678 sem proxy reverso/TLS nem N8N_HOST/WEBHOOK_URL/ N8N_SECURE_COOKIE configurados.
 origin: spec-deferred fc5b3166ae1b
@@ -78,7 +79,8 @@ location: n8n/migrations/0003_identidade_cliente_pet.sql (identidade_cliente_pet
 source_spec: `1-infra-e-persistencia-base.md`
 severity: low
 reason: "Rex" e "rex" não colidem hoje (unique é case-sensitive) e dois pets distintos com o mesmo nome para o mesmo telefone seriam rejeitados na inserção; a chave natural escolhida é adequada para o caso comum, mas o tratamento desses casos de borda fica para quando a porta única de escrita (Story 4) definir a regra de deduplicação real.
-status: open
+status: resolved
+resolution: `n8n/migrations/0006_identidade_porta_unica.sql` troca o índice único para `(telefone, lower(btrim(nome_pet)))` (case-insensitive, fecha a metade "Rex"/"rex" da DW-10) e `identidade_cliente_pet_resolver` trata dois pets reais com nome idêntico no mesmo telefone como a mesma identidade (última chamada atualiza espécie/raça) — limitação aceita e documentada explicitamente no design da story, não um bug residual.
 
 ### DW-11: Colunas numéricas de secretaria_config (sla_resposta_minutos, lock_ttl_minutos, max_followups) não têm CHECK de faixa e aceitariam 0 ou negativo.
 origin: spec-deferred 020a3d83043f
@@ -238,4 +240,92 @@ location: n/a
 source_spec: `3-debounce-e-lock-com-recuperacao-de-ttl.md`
 severity: low
 reason: The follow-up-review damping cap (limits.max_followup_reviews = 1) was spent with the story finalized (status: done, verify green) while the review pass still recommended an independent follow-up. The work was committed by bmad-loop run 20260902-140919-5139; this entry preserves the lingering recommendation for a deliberate later review.
+status: open
+
+### DW-31: identidade_role mantém GRANT direto de INSERT/UPDATE/DELETE em identidade_cliente_pet (herdado da 0003) sem revogação -- a "porta única" de AD-11 é uma convenção de código, não uma garantia de banco.
+origin: spec-deferred 1c79c7929bdb
+location: n8n/migrations/0003_identidade_cliente_pet.sql (GRANT SELECT, INSERT, UPDATE, DELETE ... TO identidade_role); n8n/migrations/0006_identidade_porta_unica.sql
+source_spec: `4-identidade-cliente-pet-porta-unica-idempotente.md`
+severity: medium
+reason: Mesma classe de gap já registrada em DW-12/DW-16 (secretaria_config) e DW-24 (n8n_status_atendimento) -- aqui nunca foi rastreada para a tabela de identidade; achado do review adversarial (blind hunter). Revogar exigiria SECURITY DEFINER ou esquema de papéis adicional, mudança estrutural maior, fora do escopo desta story.
+status: open
+
+### DW-32: telefone_normalizar sempre insere o 9º dígito em qualquer número local de 10 dígitos, sem distinguir celular antigo de telefone fixo -- um fixo poderia ser normalizado para um número que colide com um
+origin: spec-deferred ec08334c320d
+location: n8n/migrations/0006_identidade_porta_unica.sql (telefone_normalizar)
+source_spec: `4-identidade-cliente-pet-porta-unica-idempotente.md`
+severity: medium
+reason: Risco baixo hoje porque o único canal é WhatsApp (AD-7, só celular) e nenhum import real do SimplesVet rodou ainda; relevante se a exportação do SimplesVet um dia incluir telefone fixo de contato; achado do review adversarial (edge-case hunter).
+status: open
+
+### DW-33: CREATE UNIQUE INDEX case-insensitive em identidade_cliente_pet (0006) não trata dado pré-existente que já colida sob lower(btrim(nome_pet)) -- falharia se "Rex"/"rex" já existirem como linhas separada
+origin: spec-deferred de5fefd7cb31
+location: n8n/migrations/0006_identidade_porta_unica.sql (DROP CONSTRAINT / CREATE UNIQUE INDEX)
+source_spec: `4-identidade-cliente-pet-porta-unica-idempotente.md`
+severity: low
+reason: Mesma classe de risco já aceita em DW-1/DW-21/DW-22 (migrations sem guard de idempotência/dado pré-existente); baixo risco prático hoje porque nenhum workflow real ainda escreve em identidade_cliente_pet; achado do review adversarial (verification-gap).
+status: open
+
+### DW-34: possivel_duplicidade_familiar só enxerga linhas já commitadas -- duas chamadas genuinamente simultâneas do resolver para o mesmo nome de pet vindas de dois telefones reais diferentes podem, sob READ C
+origin: spec-deferred 9130fb79bbf9
+location: n8n/migrations/0006_identidade_porta_unica.sql (identidade_cliente_pet_resolver, CTE duplicidade)
+source_spec: `4-identidade-cliente-pet-porta-unica-idempotente.md`
+severity: low
+reason: Limite já reconhecido explicitamente em AD-11 na spine ("este segundo caso pode não ser 100% eliminado por normalização de telefone... são números realmente diferentes") -- comportamento aceito por design, documentado aqui como o mecanismo exato da lacuna para referência futura; achado do review adversarial (blind hunter).
+status: open
+
+### DW-35: pg_advisory_xact_lock(hashtext(telefone)) usa hash de 32 bits como chave do lock -- colisão de hash entre telefones não relacionados os faria serializar entre si (latência, não incorretude).
+origin: spec-deferred a6cc9b517952
+location: n8n/migrations/0006_identidade_porta_unica.sql (identidade_cliente_pet_resolver)
+source_spec: `4-identidade-cliente-pet-porta-unica-idempotente.md`
+severity: low
+reason: Risco desprezível na escala do Piloto (uma clínica, poucas conversas simultâneas); achado do review adversarial (blind hunter), documentado para referência caso o volume cresça muito no futuro.
+status: open
+
+### DW-36: identidade_cliente_pet_resolver não expõe forma de voltar especie_pet/raca_pet/ rd_crm_contact_id para NULL depois de gravado uma vez -- COALESCE(EXCLUDED.x, tabela.x) preserva sempre o valor já conhe
+origin: spec-deferred 7e4b873b4123
+location: n8n/migrations/0006_identidade_porta_unica.sql (identidade_cliente_pet_resolver, CTE upsert)
+source_spec: `4-identidade-cliente-pet-porta-unica-idempotente.md`
+severity: medium
+reason: Trade-off direto do patch [medium] já aplicado nesta mesma story (que trocou overwrite incondicional por COALESCE para não perder dado em atualização parcial) -- resolver o oposto (permitir limpar) exigiria um mecanismo explícito de "limpar campo" (sentinela ou parâmetro dedicado), decisão de design fora do escopo de um patch trivial; achado do review adversarial (blind hunter / edge-case hunter).
+status: open
+
+### DW-37: pg_advisory_xact_lock(hashtext(telefone)) não tem timeout nem retry -- uma transação presa (ex.: sessão travada, erro de aplicação que nunca comita/aborta) bloquearia indefinidamente qualquer chamada
+origin: spec-deferred 15f863aa643d
+location: n8n/migrations/0006_identidade_porta_unica.sql (identidade_cliente_pet_resolver, CTE travado)
+source_spec: `4-identidade-cliente-pet-porta-unica-idempotente.md`
+severity: medium
+reason: Primeiro uso de pg_advisory_xact_lock no diretório (0005 usa outro mecanismo de lock, não advisory lock) -- não há precedente estabelecido de padrão de timeout/retry para copiar; decisão de política de timeout é de design, fora do escopo de um patch trivial; achado do review adversarial (edge-case hunter).
+status: open
+
+### DW-38: Não existe script de teste versionado no repositório que exercite os 8 cenários da I/O & Edge-Case Matrix contra um motor Postgres real -- a validação via @electric-sql/pglite mencionada no `## Verifi
+origin: spec-deferred b5f83601589b
+location: n8n/migrations/0006_identidade_porta_unica.sql (identidade_cliente_pet_buscar, identidade_cliente_pet_resolver); ## Verification da story
+source_spec: `4-identidade-cliente-pet-porta-unica-idempotente.md`
+severity: medium
+reason: Achado do review adversarial (verification-gap) -- a única checagem automatizada persistida no repo é o comando estrutural (busca de texto/posição no SQL) e o mirror Python isolado de telefone_normalizar; nenhum dos dois exercita identidade_cliente_pet_buscar/identidade_cliente_pet_resolver contra um banco de verdade. Fora do escopo de um patch trivial (exigiria decidir onde/como versionar um script Node+pglite e sua dependência).
+status: open
+
+### DW-39: As 3 novas funções (telefone_normalizar, identidade_cliente_pet_buscar, identidade_cliente_pet_resolver) não fixam SET search_path.
+origin: spec-deferred b2375141b1bf
+location: n8n/migrations/0006_identidade_porta_unica.sql (telefone_normalizar, identidade_cliente_pet_buscar, identidade_cliente_pet_resolver)
+source_spec: `4-identidade-cliente-pet-porta-unica-idempotente.md`
+severity: low
+reason: Mesma lacuna de hardening já aceita a severidade baixa em DW-14 (secretaria_config_ler, 0004) e DW-20 (lock_conversa_adquirir/lock_conversa_liberar, 0005) -- padrão pré-existente no diretório, não uma regressão desta story; achado do review adversarial (blind hunter).
+status: open
+
+### DW-40: 0006 usa ALTER TABLE/DROP CONSTRAINT e CREATE UNIQUE INDEX sem guards de idempotência (IF EXISTS/IF NOT EXISTS) -- falha se reaplicada contra um cluster já migrado.
+origin: spec-deferred a7f2a44bb9aa
+location: n8n/migrations/0006_identidade_porta_unica.sql (DROP CONSTRAINT / CREATE UNIQUE INDEX)
+source_spec: `4-identidade-cliente-pet-porta-unica-idempotente.md`
+severity: low
+reason: Mesma classe de risco já aceita em DW-21/DW-22 (migration 0005, mesmo padrão) -- já citada como precedente aceito no próprio deferred existente desta story (ver item "CREATE UNIQUE INDEX case-insensitive ... não trata dado pré-existente"); achado do review adversarial (blind hunter).
+status: open
+
+### DW-41: A CTE duplicidade compara lower(btrim(nome_pet)) entre telefones diferentes sem índice de apoio (o único índice único tem telefone como coluna líder) -- toda chamada do resolver faz um scan sequencial
+origin: spec-deferred b95ceb7ef0eb
+location: n8n/migrations/0006_identidade_porta_unica.sql (identidade_cliente_pet_resolver, CTE duplicidade)
+source_spec: `4-identidade-cliente-pet-porta-unica-idempotente.md`
+severity: low
+reason: Risco desprezível na escala do Piloto (uma clínica, poucas linhas na tabela), mesma linha de raciocínio já aceita em DW-35 (colisão de hash do advisory lock); achado do review adversarial (blind hunter).
 status: open
