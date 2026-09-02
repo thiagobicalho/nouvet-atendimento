@@ -35,7 +35,12 @@
   invoke_dev_with: >-
     Recuperação de lock travado por TTL é obrigatória — achado CRÍTICO do review
     adversarial: sem isso um crash deixa o telefone travado pra sempre. Lock fica
-    travado durante toda a sequência de pacing de mensagens (AD-7).
+    travado durante toda a sequência de pacing de mensagens (AD-7). Resolver também
+    DW-2 e DW-3 do deferred-work.md (implementation-artifacts) — colunas/índices que
+    a Story 1 deixou de fora de propósito por serem escopo desta story: timestamp de
+    aquisição do lock em n8n_status_atendimento (para calcular expiração por TTL) e
+    coluna de status/processado + índice único de dedup em n8n_fila_mensagens. Marcar
+    ambos como resolved no ledger ao concluir.
 
 - id: "4"
   title: Identidade de cliente/pet e porta única idempotente (AD-6/AD-11)
@@ -50,7 +55,13 @@
     duplicidade de card entre dois telefones do mesmo núcleo familiar (AD-11).
     Postgres alimenta a decisão de criar/atualizar o card do RD CRM, não o substitui
     (AD-6) — cadastro definitivo no RD CRM só após intenção de agendamento
-    confirmada (FR-21).
+    confirmada (FR-21). Resolver também DW-4 e DW-10 do deferred-work.md
+    (implementation-artifacts): índice em identidade_cliente_pet.rd_crm_contact_id
+    (caminho de lookup desta story) e a regra de deduplicação de
+    UNIQUE(telefone, nome_pet) para variação de maiúsculas/minúsculas e dois pets
+    com o mesmo nome no mesmo telefone — decidir a regra real de dedup aqui, já que é
+    exatamente o problema que a porta única resolve. Marcar ambos como resolved no
+    ledger ao concluir.
 
 - id: "5"
   title: "CAP-1 — Recepção e Identificação"
