@@ -1,0 +1,66 @@
+services:
+  postgres:
+    image: postgres:16.15-alpine3.24
+    restart: unless-stopped
+    environment:
+      # Superusuário de bootstrap (só usado para criar bancos/papéis nas migrations
+      # 0001-0003, nunca usado pelo n8n nem pela aplicação em runtime — AD-3).
+      POSTGRES_USER: ${POSTGRES_SUPERUSER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD:?defina POSTGRES_SUPERUSER_PASSWORD no .env}
+      # Banco default do container = banco da aplicação; as migrations 0002/0003 rodam
+      # aqui (o entrypoint do postgres executa docker-entrypoint-initdb.d conectado a
+      # este banco). O banco interno do n8n é criado à parte pela migration 0001.
+      POSTGRES_DB: ${POSTGRES_APP_DB:-nouvet_app}
+      # Senhas dos 3 papéis de privilégio mínimo (AD-3) — nomes de banco/papel são fixos
+      # nas migrations (nouvet_n8n/nouvet_app, n8n_role/app_role/identidade_role); só a
+      # senha vem de variável de ambiente. Lidas pela migration 0001 (bootstrap).
+      N8N_ROLE_PASSWORD: ${POSTGRES_N8N_ROLE_PASSWORD:?defina POSTGRES_N8N_ROLE_PASSWORD no .env}
+      APP_ROLE_PASSWORD: ${POSTGRES_APP_ROLE_PASSWORD:?defina POSTGRES_APP_ROLE_PASSWORD no .env}
+      IDENTIDADE_ROLE_PASSWORD: ${POSTGRES_IDENTIDADE_ROLE_PASSWORD:?defina POSTGRES_IDENTIDADE_ROLE_PASSWORD no .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Migrations numeradas (n8n/migrations/README.md) rodam automaticamente na
+      # primeira subida do volume, em ordem alfabética — mesmo processo em dev/produção.
+      - ./n8n/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  n8n:
+    image: n8nio/n8n:2.14.2
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Banco interno do n8n (workflows/execuções/credenciais) — nunca SQLite, nunca
+      # compartilhado com o banco da aplicação (AD-3).
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: "5432"
+      # Fixos (não configuráveis por env var): a migration 0001 sempre cria o banco
+      # nouvet_n8n e o papel n8n_role com esses nomes literais — sobrescrever aqui sem
+      # também mudar a migration deixaria o n8n apontando para um banco/papel que nunca
+      # foi criado.
+      DB_POSTGRESDB_DATABASE: nouvet_n8n
+      DB_POSTGRESDB_USER: n8n_role
+      DB_POSTGRESDB_PASSWORD: ${POSTGRES_N8N_ROLE_PASSWORD:?defina POSTGRES_N8N_ROLE_PASSWORD no .env}
+      # Obrigatória via variável de ambiente, sem fallback: se ausente, a subida falha
+      # explicitamente em vez de deixar o n8n auto-gerar a chave (AD-2) — perda do
+      # volume ./n8n_data sem essa chave fixa = credenciais irrecuperáveis.
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:?N8N_ENCRYPTION_KEY é obrigatória — gere uma chave (mínimo 32 caracteres hex) e defina no .env antes de subir a stack}
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:5678/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
+  n8n_data:
