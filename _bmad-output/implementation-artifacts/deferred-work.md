@@ -476,7 +476,8 @@ location: n8n/workflows/01 - Agente.json (systemMessage, Seção 3.2)
 source_spec: `7-cap-3-fluxo-care-center.md`
 severity: medium
 reason: A Seção 3.2 é fraseada para coleta de um único serviço por vez ("qual serviço... o cliente quer"), sem instrução explícita para coletar múltiplos serviços quando citados juntos na mesma mensagem.
-status: open
+status: resolved
+resolution: Adicionada Validação 13 ao `systemMessage` (`01 - Agente.json`), cobrindo Seções 3/4/5 — coletar todos os itens do catálogo mencionados na mesma mensagem, não só o primeiro. Coberto por assert na Verification da story 7 (2026-09-03, revisão independente pós-DW-59/60/61/62/63).
 
 ### DW-60: Seção 3 não cobre o cliente revisando uma preferência já coletada (serviço, data/horário ou profissional) no meio da coleta.
 origin: spec-deferred 48f3b11b87df
@@ -484,7 +485,8 @@ location: n8n/workflows/01 - Agente.json (systemMessage, Seção 3)
 source_spec: `7-cap-3-fluxo-care-center.md`
 severity: medium
 reason: O texto da Seção 3 descreve só a primeira coleta, sem instrução para o caso de correção/mudança de uma preferência já dada anteriormente na mesma conversa.
-status: open
+status: resolved
+resolution: Adicionada Validação 14 ao `systemMessage` (`01 - Agente.json`), cobrindo Seções 3/4/5 — atualizar a preferência com o novo valor informado, sem insistir no valor anterior. Coberto por assert na Verification da story 7 (2026-09-03, revisão independente pós-DW-59/60/61/62/63).
 
 ### DW-61: Nenhuma instrução evita chamadas repetidas de Buscar_info_setor a cada turno da mesma sub-conversa do Care Center.
 origin: spec-deferred b6751c7060d0
@@ -492,7 +494,8 @@ location: n8n/workflows/01 - Agente.json (systemMessage, Seção 3.1)
 source_spec: `7-cap-3-fluxo-care-center.md`
 severity: low
 reason: Ao contrário da Validação #10 (que proíbe chamar Escalar_humano duas vezes para o mesmo evento), não há orientação equivalente para reutilizar o retorno já obtido de Buscar_info_setor em vez de re-consultar a cada turno.
-status: open
+status: resolved
+resolution: Adicionada Validação 15 ao `systemMessage` (`01 - Agente.json`) — reutilizar catálogo/profissionais já obtidos para o setor corrente, só re-chamar se o setor mudar. Coberto por assert na Verification da story 7 (2026-09-03, revisão independente pós-DW-59/60/61/62/63).
 
 ### DW-62: Seção 3 não trata o cliente mudando de assunto para outro setor no meio da coleta do Care Center.
 origin: spec-deferred 703522820836
@@ -500,7 +503,8 @@ location: n8n/workflows/01 - Agente.json (systemMessage, Seção 3)
 source_spec: `7-cap-3-fluxo-care-center.md`
 severity: medium
 reason: Não há instrução para interromper a coleta e reclassificar quando o cliente pede algo de outro setor (ex. Consultas) no meio do fluxo do Care Center.
-status: open
+status: resolved
+resolution: Adicionada Validação 16 ao `systemMessage` (`01 - Agente.json`) — interromper a coleta corrente e voltar à Seção 2 para reclassificar quando o cliente muda de setor no meio da coleta (Seções 3/4/5). Coberto por assert na Verification da story 7 (2026-09-03, revisão independente pós-DW-59/60/61/62/63).
 
 ### DW-63: Seção 3.4 não orienta o que fazer quando mais de um profissional da lista retornada corresponde aproximadamente ao nome citado pelo cliente.
 origin: spec-deferred a7ad5940c58c
@@ -508,7 +512,8 @@ location: n8n/workflows/01 - Agente.json (systemMessage, Seção 3.4)
 source_spec: `7-cap-3-fluxo-care-center.md`
 severity: low
 reason: A instrução atual só cobre "nome bate" ou "nome não está na lista", sem tratar ambiguidade entre múltiplos nomes parecidos.
-status: open
+status: resolved
+resolution: Adicionada Validação 17 ao `systemMessage` (`01 - Agente.json`), cobrindo Seções 3.4/4.4/5.4 — nunca escolher silenciosamente entre nomes parecidos, pedir confirmação ao cliente. Coberto por assert na Verification da story 7 (2026-09-03, revisão independente pós-DW-59/60/61/62/63).
 
 ### DW-64: O input `setor` do trigger de "03 - Buscar Info Setor.json" não é marcado como obrigatório no schema do workflowInputs.
 origin: spec-deferred d80b06f9667a
@@ -516,4 +521,14 @@ location: n8n/workflows/03 - Buscar Info Setor.json (executeWorkflowTrigger)
 source_spec: `7-cap-3-fluxo-care-center.md`
 severity: low
 reason: Hardening de defesa em profundidade — hoje depende só do agente sempre preencher `setor` via `$fromAI`; sem `required: true` no trigger, um valor vazio passaria silenciosamente para a query Postgres.
-status: open
+status: resolved
+resolution: Investigado (2026-09-03, revisão independente) — a suposição original não se sustenta: o node `n8n-nodes-base.executeWorkflowTrigger` (`workflowInputs.values`) não suporta um campo `required` por item nesta versão do n8n (confirmado contra todo uso do node no repo, incluindo material de referência) — só o node `toolWorkflow` consumidor tem esse campo, num schema diferente. Um guard real exigiria um nó `IF` novo dentro do sub-workflow (checar `setor` não vazio antes da query Postgres), mudança de topologia fora do escopo de um patch — não implementado agora; documentado aqui para não reabrir a mesma suposição incorreta no futuro.
+
+### DW-65: Follow-up review recomendado para a story 8 nunca rodou (sessão `8-review-1` morreu por limite de uso do adapter codex antes da 2ª passada)
+origin: independent-review-post-followup
+location: n/a
+source_spec: `8-cap-4-fluxo-consultas-e-vacinas.md`
+severity: low
+reason: `followup_review_recommended: true` ficou sem nenhuma revisão de follow-up de fato executada — a sessão automática (`8-review-1`) foi morta pelo limite de uso do `codex` antes de completar, e a `8-review-2` que o loop disparou em seguida também travou no mesmo limite (rate-limit interativo) e precisou ser parada manualmente; o adapter de review foi trocado para `claude` no `policy.toml` para evitar repetição.
+status: resolved
+resolution: Revisão manual feita em 2026-09-03 (ver Review Triage Log da story 8, seção "Revisão independente"). A maior parte dos gaps esperados já tinha sido coberta pelas Validações 13-17 adicionadas durante a resolução das pendências da Story 7 (aplicam-se às Seções 3/4/5 simultaneamente). 1 achado novo e específico de Consultas corrigido por simetria com Vacinas (Seção 4.2 agora reconhece a especialidade pedida antes de pivotar para queixa).
