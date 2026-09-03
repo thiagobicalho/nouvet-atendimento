@@ -210,7 +210,8 @@ location: n8n/migrations/0004_config_leitura_seletiva.sql (secretaria_config_ler
 source_spec: `3-debounce-e-lock-com-recuperacao-de-ttl.md`
 severity: medium
 reason: O intent desta story exige "TTL vem de secretaria_config.lock_ttl_minutos (nunca hardcoded)", mas secretaria_config_ler só devolve as fatias 'triagem'/'setor' do JSON, nenhuma incluindo lock_ttl_minutos -- confirmado lendo 0004_config_leitura_seletiva.sql; achado do review adversarial (blind hunter), fora do escopo desta story (Code Map/Tasks não tocam a 0004).
-status: open
+status: resolved
+resolution: `n8n/migrations/0010_atendimento_config_ler_lock_ttl.sql` (Story 5) estende `atendimento_config_ler` (renomeada `secretaria_config_ler` -> `atendimento_config_ler` na 0007) para expor `lock_ttl_minutos` nas fatias `triagem` e `setor`; o node de lock de `n8n/workflows/01 - Agente.json` lê o TTL de lá e passa para `lock_conversa_adquirir`, nunca hardcoded.
 
 ### DW-27: .claude/skills/n8n-agent-patterns/references/agente-e-subfluxos.md ainda descreve o lock da ingestão de forma genérica (SELECT+UPDATE separados), sem citar as novas funções atômicas lock_conversa_adqu
 origin: spec-deferred 242ead87a3b6

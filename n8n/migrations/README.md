@@ -56,3 +56,10 @@ animal (pelagem, esterilização, pedigree, microchip, vivo/morto, data de nasci
 referência ao código do animal no SimplesVet). Deliberadamente NÃO importa colunas
 comerciais/analíticas do SimplesVet (NPS, ranking ABC, valores pagos) — isso é papel
 do funil no RD CRM (AD-6), não da identidade operacional rápida.
+
+A `0010` fecha DW-26: estende `atendimento_config_ler` para expor `lock_ttl_minutos`
+nas duas fatias (`triagem`/`setor`) — mesma classe de campo operacional que
+`sla_resposta_minutos`, já presente nas duas; nenhuma coluna nova em
+`atendimento_config` (o campo já existe desde a `0002`). Consumida por
+`n8n/workflows/01 - Agente.json` (Story 5/CAP-1) para passar o TTL a
+`lock_conversa_adquirir` sem hardcode.

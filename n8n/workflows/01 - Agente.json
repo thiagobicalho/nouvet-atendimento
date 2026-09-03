@@ -1,0 +1,865 @@
+{
+  "name": "01 - Agente",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "atendimento-nouvet-recepcao",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        17000
+      ],
+      "id": "29960436-749b-4288-9a69-5777370f46a7",
+      "name": "Mensagem recebida",
+      "webhookId": "60d6af6c-599a-4e10-a5e7-79b05ce8cd13"
+    },
+    {
+      "parameters": {
+        "content": "## Payload do webhook (RD Conversas / Tallos)\n\nO schema exato do payload de mensagem recebida do RD Conversas não é documentado como contrato formal (ver skill rd-station-api, só o formato de ENVIO é documentado). Os campos extraídos no node \"Extrair dados da mensagem\" logo abaixo são um mapeamento razoável a validar contra o payload real na VPS de dev antes do go-live (mesmo tratamento de dado externo ainda não confirmado já usado nas Stories 1-4).",
+        "height": 260,
+        "width": 380
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        16740
+      ],
+      "id": "67057507-4a82-4cab-b46b-78564d204fe3",
+      "name": "Sticky Note - Payload do webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "61e1f0e1-0b22-4f86-96c9-779adcf7e8c5",
+              "name": "contact_id",
+              "value": "={{ $json.body.contact?.id || $json.body.contact_id || $json.body.id }}",
+              "type": "string"
+            },
+            {
+              "id": "58711e8a-1c3f-4126-ba96-fbf0c4876dc3",
+              "name": "telefone",
+              "value": "={{ $json.body.contact?.cel_phone || $json.body.contact?.phone || $json.body.phone || $json.body.from }}",
+              "type": "string"
+            },
+            {
+              "id": "84b7fa31-bc86-4a75-9b6d-0c652595000c",
+              "name": "mensagem",
+              "value": "={{ $json.body.message || $json.body.content || $json.body.text || '<mensagem sem texto reconhecido>' }}",
+              "type": "string"
+            },
+            {
+              "id": "45a14cd3-645e-4d9c-ae72-8efca097e311",
+              "name": "id_mensagem",
+              "value": "={{ $json.body.message_id || $json.body.id || $json.body.uuid }}",
+              "type": "string"
+            },
+            {
+              "id": "bab1fa7d-2593-4a53-aa6b-5ff674487ae2",
+              "name": "timestamp",
+              "value": "={{ $json.body.timestamp ? new Date($json.body.timestamp).toISOString() : $now.toISO() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        17000
+      ],
+      "id": "a4c2b3c9-3e76-409a-8a7c-4dcedfdf293c",
+      "name": "Extrair dados da mensagem"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO n8n_fila_mensagens (id_mensagem, telefone, mensagem, \"timestamp\")\nVALUES ($1, $2, $3, $4::timestamp)\nON CONFLICT (id_mensagem) DO NOTHING",
+        "options": {
+          "queryReplacement": "={{ $json.id_mensagem }},{{ $json.telefone }},{{ $json.mensagem }},{{ $json.timestamp }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        440,
+        17000
+      ],
+      "id": "da87a0ba-f522-4905-8411-bd4e065e7053",
+      "name": "Enfileirar mensagem",
+      "credentials": {
+        "postgres": {
+          "id": "SET_IN_N8N_UI",
+          "name": "Postgres - Atendimento Nouvet"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT atendimento_config_ler('triagem') AS config",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        660,
+        17000
+      ],
+      "id": "856ad06d-5b6b-4004-8df3-df9abe425caf",
+      "name": "Buscar Config",
+      "credentials": {
+        "postgres": {
+          "id": "SET_IN_N8N_UI",
+          "name": "Postgres - Atendimento Nouvet"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT lock_conversa_adquirir($1, $2) AS lock_adquirido",
+        "options": {
+          "queryReplacement": "={{ $('Extrair dados da mensagem').item.json.telefone }},{{ $('Buscar Config').item.json.config.lock_ttl_minutos }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        880,
+        17000
+      ],
+      "id": "e40b245d-49b8-4c06-9eca-5601b1c1983c",
+      "name": "Adquirir Lock",
+      "credentials": {
+        "postgres": {
+          "id": "SET_IN_N8N_UI",
+          "name": "Postgres - Atendimento Nouvet"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "2ea40d9b-e292-42bd-bf4b-e68fc1481fac",
+              "leftValue": "={{ $json.lock_adquirido }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1100,
+        17000
+      ],
+      "id": "2e202d2f-2845-41ff-88d2-db269e9ab81f",
+      "name": "Lock adquirido?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        17220
+      ],
+      "id": "610188a8-c2bb-413b-8bae-778e0fd95424",
+      "name": "Outra execução já está processando"
+    },
+    {
+      "parameters": {
+        "amount": 8,
+        "unit": "seconds"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1320,
+        17000
+      ],
+      "id": "793dbdbb-d4e4-4f71-a584-879dca8a3928",
+      "name": "Esperar",
+      "webhookId": "0e547354-dda1-4c38-b006-cf6d118081e8"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "n8n_fila_mensagens",
+          "mode": "list"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "telefone",
+              "value": "={{ $('Extrair dados da mensagem').item.json.telefone }}"
+            },
+            {
+              "column": "processada",
+              "condition": "equal",
+              "value": false
+            }
+          ]
+        },
+        "sort": {
+          "values": [
+            {
+              "column": "timestamp"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1540,
+        17000
+      ],
+      "id": "f8e79041-9f86-4954-8cf0-e23265af9f5f",
+      "name": "Buscar mensagens",
+      "credentials": {
+        "postgres": {
+          "id": "SET_IN_N8N_UI",
+          "name": "Postgres - Atendimento Nouvet"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6b8ee690-ae42-4e97-b410-23ffd544ecc8",
+              "name": "mensagem_agregada",
+              "value": "={{ $('Buscar mensagens').all().map(i => i.json.mensagem).join('\\n') }}",
+              "type": "string"
+            },
+            {
+              "id": "6470bf78-9abe-4101-9bae-98a141a3fb1d",
+              "name": "ids_lote",
+              "value": "={{ $('Buscar mensagens').all().map(i => i.json.id) }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1760,
+        17000
+      ],
+      "id": "84d1f407-c3d4-4b56-acdd-626f36581336",
+      "name": "Agregar mensagens"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT telefone_normalizar($1) AS telefone_normalizado",
+        "options": {
+          "queryReplacement": "={{ $('Extrair dados da mensagem').item.json.telefone }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1980,
+        17000
+      ],
+      "id": "80e697d0-b658-484e-a5c5-f74471589b9c",
+      "name": "Normalizar telefone",
+      "credentials": {
+        "postgres": {
+          "id": "SET_IN_N8N_UI",
+          "name": "Postgres - Atendimento Nouvet"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT identidade_cliente_pet_buscar($1) AS identidade",
+        "options": {
+          "queryReplacement": "={{ $('Normalizar telefone').item.json.telefone_normalizado }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2200,
+        17000
+      ],
+      "id": "9e082c8d-a9c2-4b9e-a493-775ac8ff9c44",
+      "name": "Buscar Identidade",
+      "credentials": {
+        "postgres": {
+          "id": "SET_IN_N8N_UI",
+          "name": "Postgres - Atendimento Nouvet"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ea120246-8336-40dd-8931-be22bc3e6ccf",
+              "name": "contact_id",
+              "value": "={{ $('Extrair dados da mensagem').item.json.contact_id }}",
+              "type": "string"
+            },
+            {
+              "id": "b5435553-b3de-4d9d-9ac4-8db334b336fd",
+              "name": "telefone",
+              "value": "={{ $('Extrair dados da mensagem').item.json.telefone }}",
+              "type": "string"
+            },
+            {
+              "id": "7de97804-6ffa-42c1-b8b6-a8cbfa22324d",
+              "name": "telefone_normalizado",
+              "value": "={{ $('Normalizar telefone').item.json.telefone_normalizado }}",
+              "type": "string"
+            },
+            {
+              "id": "fc1aae94-90b3-4f00-aad9-b6aa7e2c7334",
+              "name": "mensagem_agregada",
+              "value": "={{ $('Agregar mensagens').item.json.mensagem_agregada }}",
+              "type": "string"
+            },
+            {
+              "id": "a19698f4-d28e-4494-b0ee-f5703dc4dd75",
+              "name": "nome_secretaria",
+              "value": "={{ $('Buscar Config').item.json.config.nome_secretaria }}",
+              "type": "string"
+            },
+            {
+              "id": "a2338458-20fc-41b1-99b8-4c6266ff5804",
+              "name": "nome_empresa",
+              "value": "={{ $('Buscar Config').item.json.config.nome_empresa }}",
+              "type": "string"
+            },
+            {
+              "id": "1b75e12f-231e-4454-97dd-821e93beb68c",
+              "name": "endereco",
+              "value": "={{ $('Buscar Config').item.json.config.endereco }}",
+              "type": "string"
+            },
+            {
+              "id": "69f7af60-b12d-4289-bd08-2c53480b98da",
+              "name": "cidade_estado",
+              "value": "={{ $('Buscar Config').item.json.config.cidade_estado }}",
+              "type": "string"
+            },
+            {
+              "id": "5ea7096d-1a99-464d-80f1-7e724f627a69",
+              "name": "telefone_clinica",
+              "value": "={{ $('Buscar Config').item.json.config.telefone }}",
+              "type": "string"
+            },
+            {
+              "id": "e98dd488-0295-46ee-a853-23fd387129a8",
+              "name": "whatsapp_clinica",
+              "value": "={{ $('Buscar Config').item.json.config.whatsapp }}",
+              "type": "string"
+            },
+            {
+              "id": "3a291e1a-143e-43d8-85ab-acc9913f4e90",
+              "name": "email_clinica",
+              "value": "={{ $('Buscar Config').item.json.config.email }}",
+              "type": "string"
+            },
+            {
+              "id": "b4843a61-e842-4c11-91e8-5bc17d211ec5",
+              "name": "site",
+              "value": "={{ $('Buscar Config').item.json.config.site }}",
+              "type": "string"
+            },
+            {
+              "id": "63b122fa-6b0c-4aba-9c12-d4b0895d774c",
+              "name": "horario_funcionamento",
+              "value": "={{ $('Buscar Config').item.json.config.horario_funcionamento }}",
+              "type": "string"
+            },
+            {
+              "id": "22664740-c726-437f-9535-6737edf24de7",
+              "name": "tom_voz",
+              "value": "={{ $('Buscar Config').item.json.config.tom_voz }}",
+              "type": "string"
+            },
+            {
+              "id": "a0027163-b61b-4663-a909-a2ab24f40968",
+              "name": "formas_pagamento",
+              "value": "={{ ($('Buscar Config').item.json.config.formas_pagamento || []).join(', ') }}",
+              "type": "string"
+            },
+            {
+              "id": "6e2d212b-39b4-4405-a6c5-e9d4d23ac6a2",
+              "name": "convenios",
+              "value": "={{ Array.isArray($('Buscar Config').item.json.config.convenios) ? $('Buscar Config').item.json.config.convenios.join(', ') : ($('Buscar Config').item.json.config.convenios || 'nenhum convênio configurado') }}",
+              "type": "string"
+            },
+            {
+              "id": "9c6a5eef-f1f7-4470-81db-d44fc5850ca0",
+              "name": "sinais_alerta_clinico",
+              "value": "={{ $('Buscar Config').item.json.config.sinais_alerta_clinico || [] }}",
+              "type": "array"
+            },
+            {
+              "id": "23fea29a-dba2-4bf1-b311-b790a82337e6",
+              "name": "sla_resposta_minutos",
+              "value": "={{ $('Buscar Config').item.json.config.sla_resposta_minutos }}",
+              "type": "number"
+            },
+            {
+              "id": "36f49362-4b59-4466-a1e6-ea1ca87c0e1d",
+              "name": "identidade",
+              "value": "={{ $('Buscar Identidade').item.json.identidade }}",
+              "type": "array"
+            },
+            {
+              "id": "df622d45-b817-400c-bfab-65a28dda6a14",
+              "name": "cliente_reconhecido",
+              "value": "={{ Array.isArray($('Buscar Identidade').item.json.identidade) && $('Buscar Identidade').item.json.identidade.length > 0 }}",
+              "type": "boolean"
+            },
+            {
+              "id": "f4037f38-b5f3-4b54-98dd-e62aff26eac5",
+              "name": "nome_cliente",
+              "value": "={{ (Array.isArray($('Buscar Identidade').item.json.identidade) && $('Buscar Identidade').item.json.identidade.length > 0) ? $('Buscar Identidade').item.json.identidade[0].nome_cliente : '' }}",
+              "type": "string"
+            },
+            {
+              "id": "6e7e675e-bc47-4a90-a696-5c0844b09340",
+              "name": "nome_pet",
+              "value": "={{ (Array.isArray($('Buscar Identidade').item.json.identidade) && $('Buscar Identidade').item.json.identidade.length > 0) ? $('Buscar Identidade').item.json.identidade.map(i => i.nome_pet).join(', ') : '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2420,
+        17000
+      ],
+      "id": "0c7c6ed9-3918-4f77-8cca-ac2e98a277bd",
+      "name": "Info"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Info').item.json.mensagem_agregada }}",
+        "options": {
+          "systemMessage": "=# PAPEL\n\n<papel>\n  Você é o atendente virtual do(a) {{ $('Info').item.json.nome_empresa }} (identificado internamente como \"{{ $('Info').item.json.nome_secretaria }}\"), responsável pela Recepção e Identificação do primeiro contato via WhatsApp/RD Station Conversas. Nesta fase, sua função é: acolher o cliente, identificar quem está falando (usando a identidade já resolvida antes deste turno — nunca perguntando \"você tem cadastro?\") e descobrir o que a pessoa precisa hoje. Você nunca classifica setor nem executa qualquer ação de agenda, orçamento ou cadastro nesta fase — isso é uma fase seguinte deste mesmo atendimento.\n\n  Você sempre se identifica explicitamente como atendente virtual — nunca finge ser uma pessoa, nunca nega ser uma IA se perguntado diretamente.\n</papel>\n\n# PERSONALIDADE E TOM DE VOZ\n\n<personalidade>\n  Adote integralmente o tom de voz configurado abaixo (nunca substitua por um tom genérico nem hardcoded neste prompt — este texto vem da Configuração de Personalização, lido a cada execução):\n\n  {{ $('Info').item.json.tom_voz }}\n</personalidade>\n\n# SINAIS DE ALERTA E EMERGÊNCIA DECLARADA\n\n<sinais-de-alerta>\n  **PRIORIDADE MÁXIMA — esta seção vem antes de qualquer outra instrução operacional deste prompt, inclusive antes da Abertura/Identificação do SOP abaixo.**\n\n  Se em qualquer momento da conversa o cliente relatar um sintoma ou situação que combine com a lista abaixo (lida da Configuração de Personalização a cada execução, nunca hardcoded):\n\n  {{ ($('Info').item.json.sinais_alerta_clinico || []).map(s => '  - ' + s).join('\\n') }}\n\n  Você deve, nesta ordem:\n  1. **Interromper a coleta normal** — não continue perguntando dados de identificação/intenção como se nada tivesse acontecido.\n  2. **Nunca diagnosticar** — não dê opinião médica, não diga o que pode ser.\n  3. **Nunca minimizar** — nunca diga algo como \"deve ser só...\" ou \"provavelmente não é nada\".\n  4. **Reconhecer a gravidade em voz alta** — deixe claro que entendeu que é sério e que está sendo tratado com prioridade.\n  5. **Comunicar prioridade sem prometer o que você não controla** — nesta fase do Piloto ainda não existe um mecanismo automático de transferência para humano ligado a este atendimento (entregue em fase seguinte); diga que a solicitação está sendo registrada com prioridade máxima, sem prometer um horário de retorno específico.\n\n  Isso vale mesmo se o cliente ainda não disse o nome dele, não tem cadastro, ou é a primeira mensagem da conversa — Sinal de Alerta sempre tem prioridade sobre a Seção 1 do SOP abaixo.\n</sinais-de-alerta>\n\n# CONTEXTO\n\n<contexto>\n  ## Identidade do contato (já resolvida antes deste turno — nunca pergunte \"você tem cadastro?\")\n\n  {{ $('Info').item.json.cliente_reconhecido ? ('Este telefone já é conhecido: cliente ' + $('Info').item.json.nome_cliente + ', pet(s): ' + $('Info').item.json.nome_pet + '. Personalize a saudação com esses dados, mas NUNCA presuma que a necessidade de hoje é igual à do atendimento anterior — pergunte normalmente o que a pessoa precisa hoje.') : 'Este telefone ainda não está cadastrado. Trate como cliente novo: pergunte o nome e o que a pessoa precisa hoje, sem exigir cadastro prévio nem travar a conversa por causa disso.' }}\n\n  ## Dados institucionais (Configuração de Personalização, fatia de triagem — lidos a cada execução, nunca hardcoded)\n\n  * Nome da empresa: {{ $('Info').item.json.nome_empresa }}\n  * Endereço: {{ $('Info').item.json.endereco }}\n  * Cidade/Estado: {{ $('Info').item.json.cidade_estado }}\n  * Telefone: {{ $('Info').item.json.telefone_clinica }}\n  * WhatsApp: {{ $('Info').item.json.whatsapp_clinica }}\n  * E-mail: {{ $('Info').item.json.email_clinica }}\n  * Site: {{ $('Info').item.json.site }}\n  * Horário de funcionamento: {{ $('Info').item.json.horario_funcionamento }}\n  * Formas de pagamento: {{ $('Info').item.json.formas_pagamento }}\n  * Convênios aceitos: {{ $('Info').item.json.convenios }} (nunca ofereça isso de forma proativa — ver Validações)\n\n  Estas são as únicas Fontes Confiáveis disponíveis nesta fase. Se o cliente perguntar algo que não está nesta lista nem no restante deste prompt, reconheça que você não tem essa informação agora, em vez de inventar uma resposta.\n</contexto>\n\n# SOP - PROCEDIMENTO OPERACIONAL PADRÃO\n\n<sop>\n  ## 1. Abertura, Identificação e Descoberta de Intenção\n\n  Esta é a única seção do SOP ativa nesta fase do Piloto — a Seção 2 (Triagem e Direcionamento por setor: Care Center, Consultas, Vacinas, Exames, Orçamentos) é implementada em uma fase seguinte deste mesmo atendimento, ainda não ativa.\n\n  ### 1.1 Verificação de Sinal de Alerta\n  Antes de seguir os passos abaixo, confirme que a mensagem do cliente não contém nenhum item da seção \"Sinais de Alerta e Emergência Declarada\" acima. Se contiver, siga aquela seção primeiro — ela sempre tem prioridade sobre este fluxo.\n\n  ### 1.2 Abertura\n  Cumprimente o cliente e apresente-se explicitamente como atendente virtual, no tom de voz configurado (ex.: algo no espírito de \"Oi! Eu sou o atendente virtual do(a) {{ $('Info').item.json.nome_empresa }}, estou aqui para te ajudar\" — adapte ao tom configurado, nunca copie literalmente).\n\n  ### 1.3 Identificação\n  Use o bloco \"Identidade do contato\" da seção Contexto acima:\n  * Telefone reconhecido → personalize com o nome do cliente e do(s) pet(s) já conhecidos, sem repetir uma pergunta cuja resposta você já tem.\n  * Telefone novo → siga o fluxo de cliente novo (pergunte o nome), sem exigir cadastro nem travar a conversa.\n\n  ### 1.4 Descoberta de intenção\n  Pergunte diretamente o que a pessoa precisa hoje. Nunca presuma a demanda com base em um atendimento anterior, mesmo quando o telefone é reconhecido — sempre pergunte.\n\n  ### 1.5 Próximo passo\n  Depois de entender a necessidade do cliente, o atendimento segue para a triagem/direcionamento por setor — funcionalidade entregue em uma fase seguinte deste mesmo fluxo. Nesta fase, não classifique setor nem execute qualquer ação de agenda, orçamento ou cadastro; reconheça a necessidade relatada e informe que o atendimento vai continuar a partir dali.\n</sop>\n\n# FERRAMENTAS DISPONÍVEIS\n\n<ferramentas>\n  ## Refletir\n\n  <ferramenta id=\"Refletir\">\n    **Uso**: espaço de raciocínio explícito antes de decidir como agir — não busca dado novo nem altera nada em banco ou sistema externo.\n    **Parâmetros**: nenhum, só o texto do seu próprio raciocínio.\n    **Quando usar**: antes de decidir como tratar um Sinal de Alerta, quando não tiver certeza se falta alguma informação básica, ou em qualquer situação ambígua desta fase de Recepção e Identificação.\n  </ferramenta>\n\n  Nenhuma outra ferramenta está disponível nesta fase: nenhuma tool de agenda (buscar/criar/atualizar/cancelar evento — AD-4), nenhuma \"Escalar_humano\" ou tool de handoff (entregue no CAP-2/Story 6 e CAP-12/Story 14), nenhuma tool de cadastro/CRM (CAP-7/Story 11).\n</ferramentas>\n\n# VALIDAÇÕES E REGRAS DE NEGÓCIO\n\n<validacoes>\n  1. **Identificação obrigatória**: sempre se identifique como atendente virtual — nunca finja ser humano, nunca negue ser uma IA se perguntado.\n  2. **Nunca diagnosticar nem minimizar**: nem para Sinal de Alerta, nem para qualquer outro sintoma relatado.\n  3. **Nunca ofereça convênio de forma proativa**: só fale sobre convênios se o cliente perguntar primeiro; quando perguntado, responda só com a lista configurada acima — nunca prometa inclusão futura de um convênio que não está nela.\n  4. **Nunca invente dado fora da seção Contexto**: nome de profissional, serviço, valor ou informação institucional que não estejam explicitamente disponíveis acima deve ser tratado como \"não tenho essa informação agora\", nunca como suposição.\n  5. **Nunca pergunte \"você tem cadastro?\"**: a identidade já foi resolvida antes deste turno (ver Contexto) — use o que já se sabe, sem repetir pergunta já respondida.\n  6. **Nunca trave a conversa por falta de cadastro**: cliente novo segue normalmente pelo fluxo de cliente novo.\n  7. **Nenhuma ação de agenda, orçamento ou cadastro nesta fase**: não prometa confirmar horário, gerar orçamento ou criar cadastro — isso é fase seguinte.\n</validacoes>\n\n# EXEMPLOS DE FLUXO\n\n<exemplos>\n  **ATENÇÃO**: exemplos ilustrativos — adapte sempre ao tom configurado e ao que o cliente realmente disse; nunca copie a mensagem literalmente.\n\n  ## Exemplo 1 — Telefone reconhecido, fora do horário comercial (grounded em UJ-1)\n  Contexto: sábado à noite, cliente_reconhecido = true, nome_cliente = \"Mariana\", nome_pet = \"Bidu\".\n\n  **Cliente**: Oi, será que dá pra marcar um banho pro Bidu?\n  **Atendente virtual**: Oi, Mariana! Eu sou o atendente virtual do(a) {{ $('Info').item.json.nome_empresa }} — mesmo fora do horário de atendimento humano, já posso começar a anotar o que você precisa. Hoje é sobre o Bidu mesmo?\n\n  (A resposta acontece normalmente mesmo fora do horário comercial — 24/7 — sem esperar o próximo dia útil para dar o primeiro retorno.)\n\n  ## Exemplo 2 — Telefone novo, não sabe o que precisa (grounded em UJ-2)\n  Contexto: cliente_reconhecido = false.\n\n  **Cliente**: Oi, meu cachorro tá com um probleminha\n  **Atendente virtual**: Oi! Eu sou o atendente virtual do(a) {{ $('Info').item.json.nome_empresa }}, estou aqui pra te ajudar. Antes de mais nada, qual seu nome? E me conta um pouco do que está acontecendo com seu cachorro, pra eu te direcionar certinho.\n\n  ## Exemplo 3 — Sinal de Alerta logo no início (grounded em UJ-2, edge case)\n  **Cliente**: Meu cachorro não para de vomitar há 3 dias\n  **Atendente virtual**: *[reconhece item da lista de Sinais de Alerta antes de seguir qualquer outro passo]* Entendo, isso é sério e vou priorizar seu atendimento agora mesmo — não vou continuar com as perguntas de praxe. Pode me confirmar seu nome e o nome do seu pet enquanto isso é registrado com prioridade máxima?\n\n  ## Exemplo 4 — Mensagens picadas (grounded em UJ-4/debounce)\n  Contexto: o cliente mandou 3 mensagens seguidas (\"Oi\", \"tudo bem?\", \"queria saber sobre banho\"). Todas chegam agregadas em uma mensagem só antes deste turno começar — trate como uma única mensagem, nunca responda pedaço por pedaço nem aja como se fossem 3 conversas separadas.\n</exemplos>\n\n# TRATAMENTO DE CASOS ESPECIAIS\n\n<casos-especiais>\n  ## Fora do horário comercial\n  Responda normalmente (24/7) — a Recepção e Identificação não depende de humano disponível. Se fizer sentido no tom configurado, você pode mencionar o horário de funcionamento ({{ $('Info').item.json.horario_funcionamento }}) para avisar quando um humano vai poder confirmar algo que dependa dele, mas nunca deixe de responder por estar fora do horário.\n\n  ## Dúvidas sobre convênio\n  Nunca inicie o assunto. Se perguntado, cite só os convênios da lista configurada; fora dela, diga que não trabalham com esse convênio no momento, sem prometer inclusão futura.\n\n  ## Cliente insatisfeito ou pedindo para falar com humano\n  Reconheça o pedido com empatia. Nesta fase do Piloto ainda não existe uma ferramenta de transferência automática ligada a este atendimento — não prometa uma transferência imediata que você não pode executar; registre a necessidade e siga o fluxo normalmente.\n\n  ## Cliente enviou áudio, foto ou documento\n  Se você receber um texto indicando que o cliente enviou um arquivo que você não consegue interpretar, avise isso com transparência e peça para descrever em texto o que precisa.\n</casos-especiais>\n\n# OBSERVAÇÕES FINAIS\n\n<observacoes-finais>\n  1. Você sempre se identifica como atendente virtual — nunca omita isso, mesmo se perguntado diretamente \"você é um robô?\".\n  2. Nunca diagnostique, nunca minimize um sintoma relatado — nem fora da lista de Sinais de Alerta.\n  3. Nunca ofereça convênio proativamente.\n  4. Sinal de Alerta sempre tem prioridade máxima, mesmo antes de saber o nome do cliente.\n  5. Nesta fase, você não tem ferramenta de agenda, orçamento, cadastro nem escalonamento automático — não prometa nada que dependa dessas ações.\n  6. Toda informação institucional que você usa vem da seção Contexto acima, lida a cada execução — nunca reaproveite um valor de uma conversa anterior se ele não estiver na Configuração de Personalização atual.\n</observacoes-finais>\n\n# INFORMAÇÕES DO SISTEMA\n\n<informacoes-sistema>\n  **Data e Hora Atual**: {{ $now.format('FFFF') }}\n  **Telefone do contato (E.164)**: {{ $('Info').item.json.telefone_normalizado }}\n  **Cliente já cadastrado?**: {{ $('Info').item.json.cliente_reconhecido ? 'Sim' : 'Não' }}\n  **SLA de resposta configurado**: {{ $('Info').item.json.sla_resposta_minutos }} minutos\n</informacoes-sistema>"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        2640,
+        17000
+      ],
+      "id": "f7716007-a02a-4dee-8f85-d1089969351d",
+      "name": "Agente Nouvet"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2540,
+        17260
+      ],
+      "id": "667b0673-b879-44cd-a6bf-68e2dfc2e124",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "SET_IN_N8N_UI",
+          "name": "OpenAI - Atendimento Nouvet"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Extrair dados da mensagem').item.json.telefone }}",
+        "tableName": "n8n_historico_mensagens",
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        2640,
+        17260
+      ],
+      "id": "e43e55ab-6c0f-4110-a0d6-b31aad19930a",
+      "name": "Memory",
+      "credentials": {
+        "postgres": {
+          "id": "SET_IN_N8N_UI",
+          "name": "Postgres - Atendimento Nouvet"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Use esta ferramenta para refletir antes de agir. Ela não busca dado novo nem altera nada em banco ou sistema externo, só registra seu raciocínio antes de decidir como responder -- use antes de tratar um Sinal de Alerta ou em qualquer situação ambígua desta fase de Recepção e Identificação."
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        2740,
+        17260
+      ],
+      "id": "acec1f03-7028-44d9-8fe9-dddb36930e28",
+      "name": "Refletir"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.tallos.com.br/v2/messages/{{ $('Info').item.json.contact_id }}/send",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "name": "sent_by",
+              "value": "bot"
+            }
+          ]
+        },
+        "sendHeaders": false,
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2860,
+        17000
+      ],
+      "id": "3d979efe-c6c7-452b-8c13-e3d26d9fdb8f",
+      "name": "Enviar resposta RD Conversas",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "SET_IN_N8N_UI",
+          "name": "RD Station Conversas - Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE n8n_fila_mensagens SET processada = TRUE WHERE id = ANY($1::bigint[])",
+        "options": {
+          "queryReplacement": "={{ $('Agregar mensagens').item.json.ids_lote }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3080,
+        17000
+      ],
+      "id": "f005be9c-1ca4-4c1c-935d-02521b1418ff",
+      "name": "Marcar mensagens processadas",
+      "credentials": {
+        "postgres": {
+          "id": "SET_IN_N8N_UI",
+          "name": "Postgres - Atendimento Nouvet"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT lock_conversa_liberar($1)",
+        "options": {
+          "queryReplacement": "={{ $('Extrair dados da mensagem').item.json.telefone }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3300,
+        17000
+      ],
+      "id": "c6c14177-dbca-41fb-83ed-983a19100821",
+      "name": "Liberar Lock",
+      "credentials": {
+        "postgres": {
+          "id": "SET_IN_N8N_UI",
+          "name": "Postgres - Atendimento Nouvet"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Mensagem recebida": {
+      "main": [
+        [
+          {
+            "node": "Extrair dados da mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair dados da mensagem": {
+      "main": [
+        [
+          {
+            "node": "Enfileirar mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enfileirar mensagem": {
+      "main": [
+        [
+          {
+            "node": "Buscar Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Config": {
+      "main": [
+        [
+          {
+            "node": "Adquirir Lock",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adquirir Lock": {
+      "main": [
+        [
+          {
+            "node": "Lock adquirido?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lock adquirido?": {
+      "main": [
+        [
+          {
+            "node": "Esperar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Outra execução já está processando",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Esperar": {
+      "main": [
+        [
+          {
+            "node": "Buscar mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar mensagens": {
+      "main": [
+        [
+          {
+            "node": "Agregar mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agregar mensagens": {
+      "main": [
+        [
+          {
+            "node": "Normalizar telefone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar telefone": {
+      "main": [
+        [
+          {
+            "node": "Buscar Identidade",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Identidade": {
+      "main": [
+        [
+          {
+            "node": "Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Info": {
+      "main": [
+        [
+          {
+            "node": "Agente Nouvet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente Nouvet",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agente Nouvet",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Refletir": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Nouvet",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente Nouvet": {
+      "main": [
+        [
+          {
+            "node": "Enviar resposta RD Conversas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar resposta RD Conversas": {
+      "main": [
+        [
+          {
+            "node": "Marcar mensagens processadas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar mensagens processadas": {
+      "main": [
+        [
+          {
+            "node": "Liberar Lock",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "ebc22c02-69b4-43d0-b293-f6b536e1f73f",
+  "meta": {
+    "instanceId": "atendimento-nouvet-piloto"
+  },
+  "id": "112b4f21-047b-4b0c-9179-40dcbb8f1d0e",
+  "tags": []
+}
