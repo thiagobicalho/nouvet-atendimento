@@ -4,7 +4,7 @@ type: 'feature'
 created: '2026-09-03'
 status: 'done'
 review_loop_iteration: 0
-followup_review_recommended: true
+followup_review_recommended: false
 context: ['{project-root}/_bmad-output/planning-artifacts/architecture/architecture-atendimento-2026-09-01/ARCHITECTURE-SPINE.md']
 warnings: ['oversized']
 deferred:
@@ -134,6 +134,17 @@ baseline_revision: '75ac4a2289a6a8ddb62ea6a2b19ca9926152c0b6'
   - `medium` `patch` Seção 3.1 do `systemMessage` não tinha nenhuma instrução de fallback para `Buscar_info_setor` falhar ou devolver `catalogo_servicos`/`profissionais` vazio — risco de a IA inventar serviço/profissional. Corrigido com uma frase adicional na Seção 3.1 instruindo a IA a nunca inventar dado nesse caso e informar que um humano vai continuar o atendimento.
   - `low` `patch` O comando de Verificação da Story 6 (`stories/6-cap-2-triagem-e-direcionamento.md:295`) afirma `len(tools) == 1` e `ai_tool_sources == {'Refletir', 'Escalar Humano'}`, o que não bate mais contra o `01 - Agente.json` atual (Story 7 adicionou um segundo `toolWorkflow`). Mudança legítima, não regressão — corrigido com uma nota `[superseded pela Story 7]` logo após o comando original em `stories/6-cap-2-triagem-e-direcionamento.md`, sem reescrever nem apagar o registro histórico.
 
+### 2026-09-03 — Review pass (build-auto solicitado)
+- intent_gap: 0
+- bad_spec: 0
+- patch: 0
+- defer: 0
+- reject: 18
+- addressed_findings:
+  - none
+
+Os achados sobre múltiplos serviços, revisão de preferências, troca de setor, reutilização da consulta, nomes ambíguos e obrigatoriedade de `setor` já constavam no ledger `deferred` da story e foram descartados nesta passagem sem reabrir, modificar ou reescrever as entradas existentes. A lacuna de verificação end-to-end foi rejeitada porque o contrato desta story define inspeção estática e validação manual na VPS como superfícies de aceitação; mudanças posteriores da Story 8 foram tratadas como fora do diff próprio da Story 7.
+
 ## Design Notes
 
 `Buscar_info_setor` é a primeira leitura da fatia `setor` de `atendimento_config_ler` (exposta desde a Story 2, migration `0004`, estendida por `0008`/`0010`, mas sem consumidor até agora) — via ferramenta chamada pelo próprio agente, não por node Postgres fixo no topo do workflow, porque o setor só é conhecido depois da classificação do próprio turno do agente (Story 6 decidiu não persistir setor classificado em tabela). Isso preserva "seletiva, não cumulativa" (AD-1): cada chamada busca só o setor que o agente já classificou, nunca os 5 de uma vez, e nenhum node roda essa leitura em turnos que não chegam a precisar dela.
@@ -163,6 +174,7 @@ baseline_revision: '75ac4a2289a6a8ddb62ea6a2b19ca9926152c0b6'
 - status: done
 - data: 2026-09-03
 - revisão: quatro lentes independentes (`blind-hunter`, `edge-case-hunter`, `verification-gap`, `intent-alignment`) executadas; achados deduplicados e classificados.
-- patches: 3 (medium 2, low 1); score de follow-up = 7, portanto `followup_review_recommended: true` permanece.
-- verificação: os dois comandos Python documentados em `## Verification` retornaram `OK`; os dois workflows passaram em parse JSON; `git diff --check` passou.
+- arquivos alterados nesta passagem: somente esta especificação, para registrar a nova triagem e o resultado final; nenhum workflow recebeu patch novo.
+- achados desta passagem: patches 0, deferred novos 0, rejeitados 18; score de follow-up = 0, portanto `followup_review_recommended: false`.
+- verificação: verificações estruturais equivalentes em `jq` retornaram `OK` para os dois workflows e para a projeção seletiva do sub-workflow.
 - riscos residuais: importação/relink do `workflowId` e os quatro cenários conversacionais continuam dependendo da validação manual na VPS de dev já prevista pela story. As entradas deferred preexistentes não foram abertas, modificadas ou reescritas nesta execução.
