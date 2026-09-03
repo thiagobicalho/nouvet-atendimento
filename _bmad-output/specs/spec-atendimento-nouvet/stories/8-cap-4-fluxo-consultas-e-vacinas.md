@@ -5,7 +5,7 @@ created: '2026-09-03'
 status: 'done'
 baseline_revision: 'facc3f0b9bb0fa7f42eda143cb0efe173ee06658'
 review_loop_iteration: 0
-followup_review_recommended: false
+followup_review_recommended: true
 context: ['{project-root}/_bmad-output/planning-artifacts/architecture/architecture-atendimento-2026-09-01/ARCHITECTURE-SPINE.md']
 warnings: ['oversized']
 deferred: []
@@ -70,11 +70,24 @@ deferred: []
 ### 2026-09-03 — Review pass
 - intent_gap: 0
 - bad_spec: 0
-- patch: 1 (medium 1medium)
+- patch: 1 (medium 1)
 - defer: 0
 - reject: 12
 - addressed_findings:
   - `medium` `patch` As Seções 4.2 (Consultas) e 5.2 (Vacinas) do `systemMessage` só cobriam "cliente não sabe" ou "catálogo vazio" como gatilho para coletar queixa/registrar preferência em texto — não havia instrução para quando o cliente cita uma especialidade/vacina específica que não corresponde a nenhum item do `catalogo_servicos` retornado (não vazio, sem match), achado convergente de dois revisores independentes (blind-hunter e edge-case-hunter). Corrigido ampliando o gatilho existente em ambas as seções para incluir explicitamente esse caso ("ou se a especialidade/vacina citada pelo cliente não corresponder a nenhum item da lista retornada"), reutilizando o mesmo padrão "não force, não invente" já presente nas duas seções — sem introduzir o enquadramento de "pedido não agendável" da Seção 3.5 (Care Center), que o próprio Intent exclui explicitamente para Consultas.
+
+### 2026-09-03 — Review pass
+- intent_gap: 0
+- bad_spec: 0
+- patch: 5 (medium 4, low 1)
+- defer: 0
+- reject: 8
+- addressed_findings:
+  - `medium` `patch` Exemplos 5 e 6 alinhados aos fluxos ativos: agora chamam `Buscar_info_setor`, coletam os dados pertinentes no mesmo fluxo e deixam a confirmação de agenda para uma pessoa.
+  - `medium` `patch` Seções 4.1 e 5.1 passaram a tratar explicitamente falha técnica da ferramenta, preservando coleta textual sem validar catálogo ou profissional; a descrição da ferramenta foi alinhada aos mesmos fallbacks.
+  - `medium` `patch` Seções 4.3 e 5.3 agora reaproveitam data/horário já informados e perguntam somente o que faltar.
+  - `medium` `patch` A verificação delimita a Seção 5 em `</sop>` e valida os novos fallbacks, a coleta sem repetição e cada apontamento de fase futura.
+  - `low` `patch` Corrigida a serialização da contagem do passe anterior (`medium 1`).
 
 ## Design Notes
 
@@ -83,25 +96,14 @@ O ramo de queixa em Consultas não é um "pedido adicional não agendável" (lin
 ## Verification
 
 **Commands:**
-- `python3 -c "import json; d = json.load(open('n8n/workflows/01 - Agente.json')); agent = [n for n in d['nodes'] if n.get('type') == '@n8n/n8n-nodes-langchain.agent'][0]; sm = agent['parameters']['options']['systemMessage']; order = ['1. Abertura', '2. Triagem e Direcionamento', '3. Fluxo Care Center', '4. Fluxo Consultas', '5. Fluxo Vacinas']; idxs = [sm.index(s) for s in order]; assert idxs == sorted(idxs); tools = [n for n in d['nodes'] if n.get('type') == '@n8n/n8n-nodes-langchain.toolWorkflow']; names = {t['name'] for t in tools}; assert names == {'Escalar Humano', 'Buscar Info Setor'}; ai_tool_sources = {src for src, out in d['connections'].items() if any(c['node'] == 'Agente Nouvet' for group in out.get('ai_tool', []) for c in group)}; assert ai_tool_sources == {'Refletir', 'Escalar Humano', 'Buscar Info Setor'}; s4 = sm[sm.index('4. Fluxo Consultas'):sm.index('5. Fluxo Vacinas')]; s5 = sm[sm.index('5. Fluxo Vacinas'):]; assert 'Buscar_info_setor' in s4 and 'setor=\"Consultas\"' in s4; assert 'Buscar_info_setor' in s5 and 'setor=\"Vacinas\"' in s5; assert 'queixa' in s4.lower(); assert 'Consultas, Vacinas, Exames, Orçamentos' not in sm; print('OK')"` -- expected: `OK`.
+- `python3 -c "import json; d = json.load(open('n8n/workflows/01 - Agente.json')); agent = [n for n in d['nodes'] if n.get('type') == '@n8n/n8n-nodes-langchain.agent'][0]; sm = agent['parameters']['options']['systemMessage']; order = ['1. Abertura', '2. Triagem e Direcionamento', '3. Fluxo Care Center', '4. Fluxo Consultas', '5. Fluxo Vacinas']; idxs = [sm.index(s) for s in order]; assert idxs == sorted(idxs); tools = [n for n in d['nodes'] if n.get('type') == '@n8n/n8n-nodes-langchain.toolWorkflow']; names = {t['name'] for t in tools}; assert names == {'Escalar Humano', 'Buscar Info Setor'}; ai_tool_sources = {src for src, out in d['connections'].items() if any(c['node'] == 'Agente Nouvet' for group in out.get('ai_tool', []) for c in group)}; assert ai_tool_sources == {'Refletir', 'Escalar Humano', 'Buscar Info Setor'}; s4 = sm[sm.index('4. Fluxo Consultas'):sm.index('5. Fluxo Vacinas')]; s5 = sm[sm.index('5. Fluxo Vacinas'):sm.index('</sop>')]; assert 'Buscar_info_setor' in s4 and 'setor=\"Consultas\"' in s4; assert 'Buscar_info_setor' in s5 and 'setor=\"Vacinas\"' in s5; assert 'queixa' in s4.lower(); assert 'ferramenta falhar' in s4.lower() and 'ferramenta falhar' in s5.lower(); assert 'somente o que ainda faltar' in s4.lower() and 'somente o que ainda faltar' in s5.lower(); assert 'Chamar Escalar_humano não é necessário' in s4 and 'Chamar Escalar_humano não é necessário' in s5; assert 'para os demais setores (Consultas, Vacinas, Exames, Orçamentos)' not in sm; assert 'Consultas, Vacinas, Exames e Orçamentos' not in sm; assert 'para os demais setores (Exames, Orçamentos)' in sm; assert 'Para Care Center, Consultas e Vacinas, a coleta' in sm; print('OK')"` -- expected: `OK`.
 
 **Manual checks (if no CLI):**
 - Na VPS de dev: com `01 - Agente.json` já importado (tool `Buscar Info Setor` relinkada desde a Story 7), testar os 5 cenários da I/O Matrix com um telefone de teste classificado em Consultas e outro em Vacinas.
 
 ## Auto Run Result
 
-Status: done
-
-**Summary:** Story 8 (CAP-4 — Fluxo Consultas e Vacinas) implementada e revisada via `bmad-build-auto`. Acrescentadas as seções "4. Fluxo Consultas" e "5. Fluxo Vacinas" ao `<sop>` de `01 - Agente.json`, cada uma chamando `Buscar_info_setor` com um `setor` literal distinto (`"Consultas"` / `"Vacinas"`, nunca fundido), reutilizando sem alteração de topologia a mesma ferramenta genérica entregue pela Story 7. Consultas ganhou o ramo extra de queixa (UJ-2) quando o cliente não sabe a especialidade. Os 4 apontamentos "fase seguinte ainda não construída" foram atualizados para citar só Exames/Orçamentos como pendentes.
-
-**Files changed:**
-- `n8n/workflows/01 - Agente.json` — nó `Agente Nouvet`: acrescenta SOP §4 (Consultas) e §5 (Vacinas); atualiza os 4 apontamentos de fase pendente (`<papel>`, SOP §1, SOP §2.2, Validação 8); atualiza `description`/hint `$fromAI` da tool `Buscar_info_setor` para citar os 3 setores ativos; adiciona Validação 12 com os invariantes de Consultas/Vacinas. Nenhum nó novo, nenhuma mudança de `connections`.
-- `n8n/workflows/03 - Buscar Info Setor.json` — só o texto do sticky note atualizado para registrar o consumo pela Story 8 (Consultas/Vacinas), sem mudança de `nodes`/`connections`.
-
-**Review findings breakdown:** 1 finding triado `patch` (medium) e corrigido nesta passada; 0 `intent_gap`; 0 `bad_spec`; 0 `defer`; 12 `reject` (ruído ou já corretamente fora de escopo pelo próprio Intent — ver Review Triage Log). O patch aplicado ampliou o gatilho de fallback das Seções 4.2/5.2 para cobrir também o caso de especialidade/vacina citada pelo cliente sem correspondência no catálogo retornado (catálogo não vazio, sem match) — gap convergente entre 2 revisores independentes, ausente do texto original.
-
-**Follow-up review recommendation:** `false`. Score = 3 × 1 medium + 1 × 0 low = 3 (< 5), nenhum finding `high`.
-
-**Verification performed:** comando de verificação do spec (`## Verification`) executado após a implementação e novamente após o patch — `OK` nas duas vezes (ordem das seções do SOP, conjunto de tools `ai_tool` inalterado, `setor` literal distinto em cada seção nova, "queixa" presente na Seção 4, apontamento fundido antigo removido). Auditoria da I/O & Edge-Case Matrix: as 5 linhas foram conferidas por inspeção estática do `systemMessage` resultante — todas batem com a coluna "Expected Output/Behavior", incluindo a correção aplicada nesta rodada. Checks manuais na VPS de dev (5 cenários com telefone de teste) não foram executados nesta sessão automatizada — seguem pendentes como verificação manual futura, conforme a própria seção `## Verification` do spec já previa.
-
-**Residual risks:** catálogo de Consultas/Vacinas ainda vazio em `n8n/seed/0001_atendimento_config.sql` (dado real pendente do Nouvet, mesma classe do DW-42, corretamente fora de escopo desta story) — os cenários de "especialidade/vacina conhecida" da I/O Matrix só serão exercitáveis fim-a-fim quando esse dado existir. Mensagens que misturam Consultas/Vacinas (ou outro setor) na mesma frase continuam sem tratamento dedicado — gap já conhecido e deliberadamente não resolvido desde a Story 6, não reaberto por esta story. Checks manuais de VPS (5 cenários) seguem pendentes de execução humana.
+- Status final: `done`.
+- Achados corrigidos neste passe: 5 (`medium`: 4; `low`: 1); score de follow-up: 12.
+- Verificação executada: comando estático da seção `Verification` → `OK`; parse dos dois workflows JSON → `JSON OK`; `git diff --check` desde `facc3f0b9bb0fa7f42eda143cb0efe173ee06658` → sem erros.
+- Risco residual: o comportamento conversacional depende do LLM e os cinco cenários permanecem como validação manual na VPS; por isso `followup_review_recommended: true`.
