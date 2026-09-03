@@ -19,13 +19,17 @@
 - id: "2"
   title: Config-as-Data (AD-1)
   description: >-
-    Leitura seletiva de secretaria_config por setor a cada turno (nunca dump do
+    Leitura seletiva de atendimento_config por setor a cada turno (nunca dump do
     negócio inteiro) e seed inicial de tom, catálogo de serviços, limiares de SLA,
     lista interina de sinais de alerta e contatos de plantonista/emergência.
   invoke_dev_with: >-
     Montagem do systemMessage deve ser seletiva por setor já classificado — nunca um
     dump da config inteira (resolve preocupação de custo/tamanho de prompt do
-    Thiago). secretaria_config é singleton (id = 1).
+    Thiago). atendimento_config é singleton (id = 1). Consultas e Vacinas são 2
+    setores distintos (p_setor='Consultas' / p_setor='Vacinas', nunca fundidos) —
+    resolve a pendência deferred registrada na story (item 2): o critério é a
+    intenção declarada pelo cliente na abertura do contato, não o desfecho clínico
+    dentro do atendimento.
 
 - id: "3"
   title: Debounce e lock com recuperação de TTL (AD-5)
@@ -69,7 +73,28 @@
     Recepcionista IA responde 24/7 a todo contato via WhatsApp/RD Conversas,
     identifica cliente/pet por telefone sem perguntar se tem cadastro, personaliza
     com o que já sabe e nunca oferece convênio proativamente.
+  spec_checkpoint: true
   done_checkpoint: true
+  invoke_dev_with: >-
+    Estrutura do systemMessage: usar o ESQUELETO de seções do
+    `01 - Secretária V3.json` (Papel → Personalidade/Tom → Contexto → SOP por fluxo
+    numerado → Ferramentas Disponíveis com formato id/uso/parâmetros/quando →
+    Validações → Exemplos de fluxo → Casos Especiais → Observações Finais →
+    Informações do Sistema) como molde organizacional — mas o CONTEÚDO de cada seção
+    é reescrito do zero contra PRD/ARCHITECTURE-SPINE, nunca copiado. Divergências
+    obrigatórias em relação à referência: (a) Contexto NUNCA é dump estático —
+    montagem seletiva por fase via atendimento_config_ler (AD-1); (b) SEM fluxo de
+    agendamento real nem ferramentas de calendário (Buscar_janelas_disponiveis/
+    Criar_agendamento/etc. não se aplicam, AD-4); (c) SEM cobrança/Asaas (Financeiro
+    fora do Piloto); (d) SEM ferramenta de pacing de texto separado (RD Conversas não
+    suporta o mecanismo que a Evolution API suportava); (e) SOP ramificado por 5
+    setores (Care Center/Consultas/Vacinas/Exames/Orçamentos), não um fluxo genérico
+    único; (f) Sinais de Alerta/Emergência Declarada precisam ser seção de
+    prioridade máxima perto do topo, não enterrados em "casos especiais" — é o
+    guardrail de segurança nº1 do produto. Superfície configurável do prompt = só o
+    que já está em atendimento_config + atendimento_profissionais (filtrado por
+    setor via atendimento_config_ler) — nenhuma coluna nova precisa ser criada pra
+    esta story.
 
 - id: "6"
   title: "CAP-2 — Triagem e Direcionamento"
@@ -91,6 +116,7 @@
     Coleta serviço (banho cachorro, banho gato, tosa), data/horário/profissional
     preferidos e solicitação adicional não agendável; nunca reserva
     automaticamente.
+  spec_checkpoint: true
   done_checkpoint: true
   invoke_dev_with: >-
     Nenhuma tool de escrita OU leitura de agenda ligada ao agente neste Piloto (AD-4,
@@ -102,7 +128,12 @@
     Coleta profissional desejado, especialidade ou queixa (quando cliente não sabe
     escolher) e data/horário preferidos; mesma lógica da CAP-3, nunca reserva
     automática.
+  spec_checkpoint: true
   done_checkpoint: true
+  invoke_dev_with: >-
+    Consultas e Vacinas são 2 setores distintos (p_setor='Consultas' /
+    p_setor='Vacinas', nunca fundidos) — decisão registrada na Story 2. Um
+    profissional pode atender os dois (atendimento_profissionais.setores é array).
 
 - id: "9"
   title: "CAP-5 — Fluxo Exames"
@@ -110,6 +141,7 @@
     Recebe pedido/carta anexada, identifica necessidade de anestesia e pergunta por
     pré-anestésicos vigentes; caminho único sem segmentação por tipo de exame, nunca
     agenda.
+  spec_checkpoint: true
   done_checkpoint: true
   invoke_dev_with: >-
     Regra de anestesia vem da config (AD-1, FR-16), não hardcoded no fluxo.
@@ -121,6 +153,7 @@
   description: >-
     Qualquer demanda de orçamento é roteada direto a um humano com todo o contexto
     já coletado anexado ao card; não existe Agente de Orçamento dedicado.
+  spec_checkpoint: true
   done_checkpoint: true
 
 - id: "11"
@@ -129,6 +162,7 @@
     Pipeline único no RD Station CRM, cadastro definitivo só após intenção de
     agendamento confirmada, histórico preservado com o atendimento mais recente
     primeiro, nunca sobrescrito.
+  spec_checkpoint: true
   done_checkpoint: true
   invoke_dev_with: >-
     Mapeamento de stage_id do funil vem da config (AD-1, FR-23) — etapas assumidas
@@ -145,6 +179,7 @@
     Renova o vencimento da tarefa a cada resposta relevante do lead; se um humano
     não responde em 5min, atualiza o cliente e escalona progressivamente ao gestor
     a cada ciclo.
+  spec_checkpoint: true
   done_checkpoint: true
   invoke_dev_with: >-
     Gatilho de lembrete é cron (confirmado), mas o job DEVE reconferir se o card já
@@ -181,6 +216,7 @@
     Disponibiliza os 5 indicadores mínimos (leads recebidos, atendidos/não
     atendidos, distribuição por setor, tempo de resposta) consultáveis diariamente
     pela gestão.
+  spec_checkpoint: true
   done_checkpoint: true
   invoke_dev_with: >-
     Mecanismo de leitura/fonte para 3 dos 5 indicadores (leads recebidos,

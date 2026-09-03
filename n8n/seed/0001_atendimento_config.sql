@@ -1,4 +1,4 @@
--- 0001 — Seed inicial de secretaria_config (AD-1, Config-as-Data). Popula a linha
+-- 0001 — Seed inicial de atendimento_config (AD-1, Config-as-Data). Popula a linha
 -- singleton (id=1) com o conteúdo de negócio já confirmado disponível hoje. Aplicação
 -- manual (README.md deste diretório) -- não roda em docker-entrypoint-initdb.d, só
 -- n8n/migrations roda automaticamente (docker-compose.yml).
@@ -6,7 +6,7 @@
 -- ON CONFLICT (id) DO NOTHING: reaplicar este arquivo depois da primeira vez não
 -- duplica nem sobrescreve a linha -- edição de conteúdo em produção passa a ser feita
 -- direto no banco (Consistency Conventions da spine), não reaplicando este seed.
-INSERT INTO secretaria_config (
+INSERT INTO atendimento_config (
 	id,
 	nome_secretaria,
 	nome_empresa,

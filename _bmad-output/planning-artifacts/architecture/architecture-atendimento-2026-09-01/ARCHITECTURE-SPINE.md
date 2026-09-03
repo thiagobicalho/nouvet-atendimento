@@ -38,9 +38,9 @@ companions: []
 
 - **Binds:** FR-8, FR-16, FR-23, FR-30, FR-31, FR-34, FR-35, FR-41, NFR-2, NFR-5, seção 4.10 (Configuração Externa de Personalização)
 - **Prevents:** personalização hardcoded no `systemMessage` do agente ou em nó do n8n (o contraexemplo de referência, `clinica/`, faz exatamente isso — 27KB de texto fixo — e não permite editar tom/regras sem redeploy)
-- **Rule:** princípio aberto, não lista fechada — **todo dado que reflete uma regra de negócio do Nouvet (o que pode mudar sem envolver um desenvolvedor), e não uma decisão técnica de implementação, vive em tabela Postgres**, lida por um node dedicado a cada execução do agente, nunca cacheada, nunca em texto fixo. Isso inclui explicitamente, além de tom/dados institucionais/limiares de tempo/sinais de alerta/destinatários de emergência: a lista de exames que exigem anestesia (FR-16), o mapeamento de `stage_id` do funil RD CRM por setor (FR-23, resolve também a lacuna técnica da Questão em Aberto #4 do PRD), e o conteúdo institucional/de serviços que a IA pode citar como fato (**resolve FR-30/FR-31 — Fontes Confiáveis**: no Piloto, "Fonte Confiável" = o mesmo dado de `secretaria_config`/tabela de serviços já lido a cada turno; não há pipeline de RAG/base de conhecimento separada nesta janela de 10 dias — se a IA não tem o dado na config, reconhece incerteza e não responde por inferência, ver FR-31).
+- **Rule:** princípio aberto, não lista fechada — **todo dado que reflete uma regra de negócio do Nouvet (o que pode mudar sem envolver um desenvolvedor), e não uma decisão técnica de implementação, vive em tabela Postgres**, lida por um node dedicado a cada execução do agente, nunca cacheada, nunca em texto fixo. Isso inclui explicitamente, além de tom/dados institucionais/limiares de tempo/sinais de alerta/destinatários de emergência: a lista de exames que exigem anestesia (FR-16), o mapeamento de `stage_id` do funil RD CRM por setor (FR-23, resolve também a lacuna técnica da Questão em Aberto #4 do PRD), e o conteúdo institucional/de serviços que a IA pode citar como fato (**resolve FR-30/FR-31 — Fontes Confiáveis**: no Piloto, "Fonte Confiável" = o mesmo dado de `atendimento_config`/tabela de serviços já lido a cada turno; não há pipeline de RAG/base de conhecimento separada nesta janela de 10 dias — se a IA não tem o dado na config, reconhece incerteza e não responde por inferência, ver FR-31).
 - **Montagem do `systemMessage` é seletiva por setor, não cumulativa** `[CONFIRMADO 02/set/2026]`: antes de o turno classificar o setor (fase de Recepção/Triagem), o prompt carrega só o necessário para saudação/identificação/classificação — tom, dados institucionais mínimos, guardrails. A partir do turno em que o setor é classificado, o prompt passa a carregar **só a fatia de config daquele setor** (ex.: regras de Care Center), nunca a config de todos os setores ao mesmo tempo. Isso mantém o custo de token controlável e reduz a superfície de um setor vazar informação de outro (achado do Reviewer Gate/Murat no party mode de 02/set).
-- **Gatilho de lembretes/follow-up automático é cron** `[CONFIRMADO 02/set/2026]` (FR-25–29, alimenta SM-3): um workflow independente (`scheduleTrigger`), separado do agente principal, varre `lembretes_horas`/`follow_ups_horas` em `secretaria_config` e o estado em `n8n_status_atendimento`. **Condição obrigatória, não opcional:** antes de disparar qualquer lembrete, o job reconfere se o card/atendimento já foi resolvido por humano — nunca dispara sobre um atendimento já concluído. Sem essa checagem, o mecanismo produz exatamente o que a contra-métrica SM-C2 do PRD probe ("lembrete não pode virar spam percebido").
+- **Gatilho de lembretes/follow-up automático é cron** `[CONFIRMADO 02/set/2026]` (FR-25–29, alimenta SM-3): um workflow independente (`scheduleTrigger`), separado do agente principal, varre `lembretes_horas`/`follow_ups_horas` em `atendimento_config` e o estado em `n8n_status_atendimento`. **Condição obrigatória, não opcional:** antes de disparar qualquer lembrete, o job reconfere se o card/atendimento já foi resolvido por humano — nunca dispara sobre um atendimento já concluído. Sem essa checagem, o mecanismo produz exatamente o que a contra-métrica SM-C2 do PRD probe ("lembrete não pode virar spam percebido").
 
 ### AD-2 — Credenciais só no cofre nativo do n8n [ADOPTED]
 
@@ -52,7 +52,7 @@ companions: []
 
 - **Binds:** infraestrutura de dados, ambas as VPS
 - **Prevents:** dados operacionais internos do n8n (workflows/execuções/credenciais) misturados com os dados da aplicação do agente na mesma base/usuário; e — dentro do banco da aplicação — a tabela de identidade (PII permanente, ver Deferred/LGPD) acessível pelo mesmo papel de privilégio amplo usado por tabelas de plumbing sem dado pessoal
-- **Rule:** um servidor Postgres, duas bases — (1) banco interno do n8n (`DB_TYPE=postgresdb`), (2) banco dedicado da aplicação (`secretaria_config`, `secretaria_profissionais`, `n8n_historico_mensagens`, `n8n_fila_mensagens`, `n8n_status_atendimento` + tabela de identidade cliente/pet) — cada base com usuário próprio de privilégio mínimo. **Dentro do banco da aplicação**, a tabela de identidade cliente/pet usa um papel Postgres próprio, mais restrito que o papel usado pelas tabelas de fila/lock/config, dado que é a única tabela com PII permanente.
+- **Rule:** um servidor Postgres, duas bases — (1) banco interno do n8n (`DB_TYPE=postgresdb`), (2) banco dedicado da aplicação (`atendimento_config`, `secretaria_profissionais`, `n8n_historico_mensagens`, `n8n_fila_mensagens`, `n8n_status_atendimento` + tabela de identidade cliente/pet) — cada base com usuário próprio de privilégio mínimo. **Dentro do banco da aplicação**, a tabela de identidade cliente/pet usa um papel Postgres próprio, mais restrito que o papel usado pelas tabelas de fila/lock/config, dado que é a única tabela com PII permanente.
 
 ### AD-4 — Agente nunca faz checagem de agenda nem escreve nela [ADOPTED]
 
@@ -109,7 +109,7 @@ graph TD
   WA[WhatsApp] --> RDC[RD Station Conversas]
   RDC -- webhook --> Ingress["Ingress: fila + lock com TTL (AD-5)"]
   Ingress --> Agent["Agente único, systemMessage dinâmico por setor (AD-1)"]
-  Cfg[("Postgres: secretaria_config / profissionais")] -. lida a cada turno .-> Agent
+  Cfg[("Postgres: atendimento_config / atendimento_profissionais")] -. lida a cada turno .-> Agent
   Agent -- toolWorkflow --> Tools["Sub-workflows (AD-4)"]
   Tools --> Porta["Porta única de contato/card (AD-11)"]
   Porta --> CRM["RD Station CRM (AD-8)"]
@@ -127,7 +127,7 @@ O agente único só fala com `Ingress`, `Cfg` e `Tools` — nunca diretamente co
 | Concern | Convention |
 | --- | --- |
 | Naming (workflows) | Prefixo numérico por ordem de papel no fluxo (ex.: `00 - Configurações`, `01 - Agente`, `02+` sub-workflows de ação), seguindo o padrão já validado em `secretariav3-completo` |
-| Naming (tabelas) | `snake_case` em português, reaproveitando os nomes já usados no padrão de referência (`secretaria_config`, `n8n_historico_mensagens`, etc.) — não inventar nomenclatura nova |
+| Naming (tabelas) | `snake_case` em português, prefixo `atendimento_` para as tabelas de negócio do Nouvet (`atendimento_config`, `atendimento_profissionais`) — `[CORRIGIDO 02/set/2026, correct-course]` o naming original reaproveitava o prefixo `secretaria_` do padrão de referência (`secretariav3-completo`) sem decisão do Thiago; só a convenção de naming de *workflow* (linha acima) foi de fato confirmada por ele. Tabelas `n8n_*` (infra de fila/lock/memória) e `identidade_cliente_pet` não mudam — não reaproveitavam nome do template |
 | Data & formats (telefone) | Normalização centralizada (AD-8): E.164 limpo, considerando 9º dígito móvel — nunca reimplementada por integração |
 | Data & formats (datas) | `DD/MM/YYYY` ao gravar `birth_date` no RD Conversas |
 | State & mutation (config) | Durante o Piloto, só a equipe Btech edita a Configuração de Personalização, via acesso direto ao banco — não há formulário n8n nem UI de autoatendimento (adiada, ver Deferred) |
@@ -155,7 +155,7 @@ n8n/
   workflows/    # exports .json dos workflows (convenção numérica: 00 - Configurações,
                 # 01 - Agente, 02+ sub-workflows), ver n8n/workflows/README.md
   migrations/   # SQL versionado e numerado do schema do banco dedicado da aplicação (AD-3)
-  seed/         # dados iniciais de secretaria_config (AD-1)
+  seed/         # dados iniciais de atendimento_config (AD-1)
 docker-compose.yml  # stack pinada (AD-10), criado na Story 1 (Infra e persistência base)
 ```
 
@@ -183,12 +183,12 @@ Não há staging separado — a VPS de dev acumula esse papel durante o Piloto d
 
 | Tabela | Papel | Privilégio |
 | --- | --- | --- |
-| `secretaria_config` | Config de personalização, singleton (`id = 1`) — tom, dados institucionais, limiares de SLA/follow-up, sinais de alerta, destinatários de emergência, catálogo de serviços (Fontes Confiáveis, AD-1) | Papel padrão do banco da aplicação |
-| `secretaria_profissionais` | Profissionais e disponibilidade por especialidade | Papel padrão |
+| `atendimento_config` | Config de personalização, singleton (`id = 1`) — tom, dados institucionais, limiares de SLA/follow-up, sinais de alerta, destinatários de emergência, catálogo de serviços (Fontes Confiáveis, AD-1) | Papel padrão do banco da aplicação |
+| `atendimento_profissionais` | Um profissional por linha (`setores TEXT[]` para quem atende mais de um setor, ex. Consultas + Vacinas) — lido só na fatia `setor` de `atendimento_config_ler`, nunca em `triagem`, filtrado pelo setor já classificado. Existe pra o agente responder "quais profissionais vocês têm?" sem inventar nome (Fontes Confiáveis, FR-30/31) | Papel padrão |
 | `n8n_historico_mensagens` | Memória de conversa do agente (`memoryPostgresChat`, por `session_id`) | Papel padrão |
 | `n8n_fila_mensagens` | Buffer de debounce (AD-5) | Papel padrão |
 | `n8n_status_atendimento` | Lock de concorrência com TTL + estado de follow-up (AD-5) | Papel padrão |
-| identidade cliente/pet *(schema a detalhar no build)* | Identidade operacional (AD-6), escrita só pela porta única (AD-11) — replica campos já pedidos hoje pelo cadastro SimplesVet | Papel restrito (AD-3) — PII permanente |
+| `identidade_cliente_pet` | Identidade operacional (AD-6), escrita só pela porta única (AD-11) — campos reais do cadastro SimplesVet (responsável: nome/CPF/RG/contato; endereço; animal: nome/espécie/raça/pelagem/esterilização/pedigree/microchip/vivo-morto), grounded em `_bmad-output/reference/clientes.csv` (correct-course 02/set/2026) — nunca colunas comerciais/analíticas (NPS, ranking, valores pagos), isso é papel do funil no RD CRM (AD-6) | Papel restrito (AD-3) — PII permanente |
 
 ## Capability → Architecture Map
 
@@ -228,5 +228,5 @@ Não há staging separado — a VPS de dev acumula esse papel durante o Piloto d
 - **Mecanismo/fonte de serving dos 5 indicadores mínimos (FR-36–39)** — FR-37 (atendido/não atendido) deriva das esteiras do RD CRM (AD-8); FR-36/38/39 (leads recebidos, distribuição por setor, tempo de 1ª resposta) ainda não têm fonte/mecanismo de leitura nomeado — baixo risco de bloquear o build (é reporting, sem dependência de ordem de construção), mas precisa de resposta antes da entrega dos indicadores.
 - **Modelo/node de processamento de imagem (visão)** para fotos enviadas pelo cliente — multimodal está confirmado em escopo (áudio, documento, imagem), mas o node/modelo de visão é detalhe de build.
 - **UI de autoatendimento** da Configuração de Personalização para o Nouvet — deliberadamente adiada para depois do Piloto.
-- **Schema multi-tenant** — `secretaria_config` é singleton hoje; só precisa de coluna de tenant se o Nouvet vier a rodar múltiplas instâncias.
+- **Schema multi-tenant** — `atendimento_config` é singleton hoje; só precisa de coluna de tenant se o Nouvet vier a rodar múltiplas instâncias.
 - **Retenção de dados do Postgres de identidade (LGPD)** — acompanha Questão em Aberto #13/#14 do PRD; o Postgres de identidade virou base permanente (não "exportação temporária"), o que aumenta a responsabilidade de retenção/exclusão — a refletir no PRD.

@@ -104,7 +104,8 @@ location: n8n/migrations/0004_config_leitura_seletiva.sql; glossary.md
 source_spec: `2-config-as-data.md`
 severity: medium
 reason: A Story 5/6 precisa decidir se passa p_setor distintos para Consultas e Vacinas ou unifica — comparação por string exata sem lista canônica é risco de resultado vazio silencioso; achado do review adversarial (blind hunter).
-status: open
+status: resolved
+resolution: correct-course (sprint-change-proposal-2026-09-02.md) — Consultas e Vacinas são 2 setores distintos (`p_setor='Consultas'` / `p_setor='Vacinas'`, nunca fundidos), critério é a intenção declarada pelo cliente na abertura do contato. Lista canônica de `p_setor` em escopo no Piloto = os 5 setores com Agente de Setor/roteamento (Care Center, Exames, Consultas, Vacinas, Orçamentos — glossary.md linhas 9/13); Internação/Oncologia/Financeiro (também listados no glossário como setores do Nouvet) nunca são usados como `p_setor` — fora do escopo do Piloto. Decisão registrada em `stories.yaml` (Story 2 e Story 8).
 
 ### DW-14: secretaria_config_ler não fixa SET search_path.
 origin: spec-deferred 4de0e45a48d7
@@ -136,7 +137,8 @@ location: n8n/migrations/0004_config_leitura_seletiva.sql; glossary.md
 source_spec: `2-config-as-data.md`
 severity: medium
 reason: A Story 5/6 precisa decidir se passa p_setor distintos para Consultas e Vacinas ou unifica — comparação por string exata sem lista canônica é risco de resultado vazio silencioso; achado do review adversarial (blind hunter).
-status: open
+status: resolved
+resolution: duplicado de DW-13 (mesmo achado, review passes diferentes) — mesma resolução: correct-course (sprint-change-proposal-2026-09-02.md) fixa Consultas/Vacinas como setores distintos e a lista canônica de 5 `p_setor` em escopo no Piloto.
 
 ### DW-18: lock_conversa_liberar não usa fencing token — uma execução genuinamente lenta (não travada por crash) que ultrapassa o TTL pode liberar o lock que uma outra execução já recuperou legitimamente, reabri
 origin: spec-deferred a4fdda71fe4b
@@ -328,4 +330,20 @@ location: n8n/migrations/0006_identidade_porta_unica.sql (identidade_cliente_pet
 source_spec: `4-identidade-cliente-pet-porta-unica-idempotente.md`
 severity: low
 reason: Risco desprezível na escala do Piloto (uma clínica, poucas linhas na tabela), mesma linha de raciocínio já aceita em DW-35 (colisão de hash do advisory lock); achado do review adversarial (blind hunter).
+status: open
+
+### DW-42: atendimento_profissionais criada e conectada em atendimento_config_ler, mas sem dado real -- seed fica vazio/placeholder.
+origin: correct-course sprint-change-proposal-2026-09-02.md
+location: n8n/seed/ (a criar, seed de atendimento_profissionais); n8n/migrations/0008_atendimento_profissionais.sql
+source_spec: n/a (achado de correct-course, não de story)
+severity: medium
+reason: Thiago ainda não passou a lista real de profissionais por setor (mesmo tratamento já dado à lista interina de sinais de alerta clínico na Story 2) -- não bloqueia o build (a função já devolve `[]` corretamente sem dado), mas bloqueia o agente responder "quais profissionais vocês têm?" com informação real. Bloqueia o go-live de 08/09, não o início da construção.
+status: open
+
+### DW-43: identidade_cliente_pet_resolver (0006) não escreve os campos novos de 0009 (CPF, RG, endereço, dados do animal) -- só os 5 parâmetros originais (telefone, nome_cliente, nome_pet, especie_pet, raca_pet).
+origin: correct-course sprint-change-proposal-2026-09-02.md
+location: n8n/migrations/0006_identidade_porta_unica.sql (identidade_cliente_pet_resolver); n8n/migrations/0009_identidade_cliente_pet_campos_reais.sql
+source_spec: n/a (achado de correct-course, não de story)
+severity: medium
+reason: 0009 adicionou colunas à tabela mas não estendeu a função de escrita única (AD-11) que deveria populá-las -- import real (última ação antes do go-live) ainda está pendente de qualquer forma, mas o resolver precisa ser estendido antes desse runbook ser exercido de verdade, senão os campos novos ficam sempre NULL mesmo com dado real disponível.
 status: open

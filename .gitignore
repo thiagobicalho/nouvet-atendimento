@@ -28,3 +28,6 @@ _bmad/render/
 
 # Metadados do Windows/WSL (arquivo baixado da internet)
 *:Zone.Identifier
+
+# Dado real de cliente (PII - CPF/RG/telefone/endereço) - nunca versionar
+_bmad-output/reference/clientes.csv

@@ -1,8 +1,13 @@
 # n8n/seed
 
-Dados iniciais de `secretaria_config` — tom, dados institucionais, catálogo de serviços,
+Dados iniciais de `atendimento_config` — tom, dados institucionais, catálogo de serviços,
 lista interina de sinais de alerta clínico, limiares de SLA/follow-up, contatos de
 plantonista/emergência (AD-1, Config-as-Data).
+
+`atendimento_profissionais` ainda não tem seed — Thiago não passou a lista real de
+profissionais por setor (DW-42, `deferred-work.md`). Não bloqueia o build (a leitura
+seletiva já devolve `[]` corretamente sem dado), bloqueia só o go-live: sem isso o
+agente não consegue responder "quais profissionais vocês têm?" com informação real.
 
 Este seed é o **ponto de partida** para popular a tabela na primeira subida do banco de
 cada ambiente (dev, depois produção) — não é a fonte viva depois disso. Durante o Piloto,
@@ -14,11 +19,11 @@ edição de conteúdo em produção é feita só pela equipe Btech via acesso di
 Diferente de `n8n/migrations` (montado em `docker-entrypoint-initdb.d`, roda sozinho na
 primeira subida do volume — ver `docker-compose.yml`), `n8n/seed` **não** é montado no
 container nem roda automaticamente. Depois de subir a stack e aplicar as migrations
-0001-0004, aplicar o seed manualmente, conectado ao banco da aplicação
+0001-0009, aplicar o seed manualmente, conectado ao banco da aplicação
 (`$POSTGRES_APP_DB`, default `nouvet_app`):
 
 ```sh
-psql -h <host> -U <superusuário ou app_role> -d "${POSTGRES_APP_DB:-nouvet_app}" -f n8n/seed/0001_secretaria_config.sql
+psql -h <host> -U <superusuário ou app_role> -d "${POSTGRES_APP_DB:-nouvet_app}" -f n8n/seed/0001_atendimento_config.sql
 ```
 
 Idempotente (`ON CONFLICT (id) DO NOTHING`) — reaplicar não duplica nem sobrescreve a
@@ -27,7 +32,7 @@ linha singleton (`id=1`).
 ## Import inicial do SimplesVet (identidade cliente/pet)
 
 `identidade_cliente_pet` (AD-6) tem um segundo processo de carga inicial, distinto do
-seed de `secretaria_config` acima: o import único do cadastro existente no SimplesVet.
+seed de `atendimento_config` acima: o import único do cadastro existente no SimplesVet.
 **Arquivo real ainda não fornecido pela Btech neste momento** — o que existe aqui é só
 o processo documentado e reaplicável, para ser exercido assim que o export chegar.
 
@@ -69,4 +74,11 @@ celular real não relacionado (risco já registrado no ledger de deferred work d
 story).
 
 Só a equipe Btech executa este import, com acesso direto ao banco (mesma convenção de
-edição manual de `secretaria_config`, ver spine).
+edição manual de `atendimento_config`, ver spine).
+
+**Pendência aberta (DW-43):** `identidade_cliente_pet_resolver` (`0006`) ainda só
+recebe `(telefone, nome_cliente, nome_pet, especie_pet, raca_pet, origem,
+rd_crm_contact_id)` — os campos novos da `0009` (CPF, RG, endereço, dados do animal)
+não têm caminho de escrita ainda. Não bloqueia hoje (o import real também está
+pendente), mas a função precisa ser estendida antes deste runbook ser exercido de
+verdade.
