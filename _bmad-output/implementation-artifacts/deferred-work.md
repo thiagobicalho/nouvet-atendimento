@@ -348,3 +348,67 @@ source_spec: n/a (achado de correct-course, não de story)
 severity: medium
 reason: 0009 adicionou colunas à tabela mas não estendeu a função de escrita única (AD-11) que deveria populá-las -- import real (última ação antes do go-live) ainda está pendente de qualquer forma, mas o resolver precisa ser estendido antes desse runbook ser exercido de verdade, senão os campos novos ficam sempre NULL mesmo com dado real disponível.
 status: open
+
+### DW-44: Quando `destinatarios_emergencia` estiver vazio (situação atual em produção), o `systemMessage` ainda instrui a IA a dizer ao cliente que a solicitação "está sendo registrada com prioridade máxima" me
+origin: spec-deferred 86932cd9bd63
+location: n8n/workflows/01 - Agente.json (seção "SINAIS DE ALERTA E EMERGÊNCIA DECLARADA" e SOP 2.4) + n8n/workflows/02 - Escalar Humano.json (nó "Alerta não configurado")
+source_spec: `6-cap-2-triagem-e-direcionamento.md`
+severity: medium
+reason: Achado convergente do Blind Hunter e do Intent Alignment Auditor na review desta story. O fallback de lista vazia (`noOp` em `02 - Escalar Humano.json`) já é comportamento aceito e documentado (mesmo tratamento de dado pendente usado para `sinais_alerta_clinico`/`atendimento_profissionais`), mas a combinação com o texto fixo de "prioridade máxima" no SOP cria uma promessa não cumprida ao cliente enquanto `destinatarios_emergencia` seguir `[]`. Revisar antes do go-live, junto com o preenchimento real da lista pelo Nouvet.
+status: open
+
+### DW-45: Nenhum nó `httpRequest` do fluxo (nem o já existente "Enviar resposta RD Conversas" da Story 5, nem o novo "Enviar alerta RD Conversas") tem `retryOnFail`/`continueOnFail` configurado.
+origin: spec-deferred 465c95bc7729
+location: n8n/workflows/01 - Agente.json (nó "Enviar resposta RD Conversas") e n8n/workflows/02 - Escalar Humano.json (nó "Enviar alerta RD Conversas")
+source_spec: `6-cap-2-triagem-e-direcionamento.md`
+severity: low
+reason: Achado do Blind Hunter e do Edge Case Hunter, confirmado por inspeção direta do JSON (`retryOnFail`/`onError`/`continueOnFail` ausentes nos dois nós). É um padrão pré-existente desde a Story 5, não introduzido por esta story, mas com efeito mais sensível aqui: numa lista com múltiplos destinatários, uma falha de rede num item interrompe o `splitOut` e os destinatários restantes não recebem o alerta.
+status: open
+
+### DW-46: O SOP não cobre explicitamente uma mensagem do cliente que misture mais de um setor em escopo na mesma frase (ex. "queria saber de vacina e também um orçamento de banho").
+origin: spec-deferred 9e0ed5a71dfc
+location: n8n/workflows/01 - Agente.json (SOP Seção 2)
+source_spec: `6-cap-2-triagem-e-direcionamento.md`
+severity: low
+reason: Achado do Blind Hunter. Não é uma leitura obrigatória do intent desta story (nenhum cenário da I/O & Edge-Case Matrix cobre isso) nem foi mencionado em stories.yaml/SPEC.md — fica como refinamento de UX para uma passada futura sobre o SOP, não bloqueia esta story.
+status: open
+
+### DW-47: Não existe guarda contra chamadas repetidas de `Escalar_humano` para a mesma condição em turnos sucessivos da mesma conversa (ex. Sinal de Alerta que persiste por várias mensagens) — cada turno pode r
+origin: spec-deferred 14dd0b305f09
+location: n8n/workflows/01 - Agente.json (SOP Seção 2.3/2.4)
+source_spec: `6-cap-2-triagem-e-direcionamento.md`
+severity: low
+reason: Achado do Blind Hunter e do Edge Case Hunter. Fora do escopo desta story (que não introduz nenhum estado de conversa novo) — potencial candidato a CAP-8/ Story 12 (Temporizadores, Continuidade e SLA), que já vai mexer em `n8n_status_atendimento` para marcar "Aguardando Atendimento Humano".
+status: open
+
+### DW-48: O regex de checagem de "nenhuma credencial em texto plano" no script de verificação desta story (herdado literalmente da Story 5) não cobre as palavras-chave `token`/`secret` isoladas, só `api[_-]?key
+origin: spec-deferred ac0963b4d71e
+location: _bmad-output/specs/spec-atendimento-nouvet/stories/5-cap-1-recepcao-e-identificacao.md e 6-cap-2-triagem-e-direcionamento.md (seção Verification)
+source_spec: `6-cap-2-triagem-e-direcionamento.md`
+severity: low
+reason: Achado do Edge Case Hunter. Convenção pré-existente desde a Story 5, replicada aqui por consistência — não introduzida por esta story. Vale revisar o padrão em todas as stories na próxima oportunidade, não só nesta.
+status: open
+
+### DW-49: Nenhum comando de Verification desta story inspeciona a configuração real do `httpRequest` "Enviar alerta RD Conversas" (URL, método, `contentType`, `sent_by=bot`) — só a topologia/roteamento em volta
+origin: spec-deferred f64db09da457
+location: n8n/workflows/02 - Escalar Humano.json (nó "Enviar alerta RD Conversas")
+source_spec: `6-cap-2-triagem-e-direcionamento.md`
+severity: low
+reason: Achado do Blind Hunter, confirmado por inspeção direta: os 3 comandos de Verification checam nós/conexões/campos de entrada, nunca os parâmetros do próprio nó `httpRequest`. Mesmo padrão já usado desde a Story 5 (o node "Enviar resposta RD Conversas" também não tem seus parâmetros de request verificados por script) — não introduzido por esta story, só replicado por consistência com o nó novo.
+status: open
+
+### DW-50: Não existe nenhum registro persistido (tabela, log estruturado) dos acionamentos de `Escalar_humano` (motivo, horário, destinatário) consultável pelo Nouvet — a única trilha é a mensagem transitória d
+origin: spec-deferred d7c073261c8f
+location: n8n/workflows/02 - Escalar Humano.json (sem consumidor de log/tabela)
+source_spec: `6-cap-2-triagem-e-direcionamento.md`
+severity: medium
+reason: Achado do Blind Hunter. Fora do Code Map desta story (que deliberadamente não persiste setor classificado nem introduz coluna nova, ver Boundaries "Never") — potencial candidato a uma story futura de observabilidade/auditoria de handoffs (relacionado a CAP-8/Story 12, que já vai mexer em `n8n_status_atendimento`).
+status: open
+
+### DW-51: Follow-up review still recommended for 6 after the damping cap was spent
+origin: review-budget-followup
+location: n/a
+source_spec: `6-cap-2-triagem-e-direcionamento.md`
+severity: low
+reason: The follow-up-review damping cap (limits.max_followup_reviews = 1) was spent with the story finalized (status: done, verify green) while the review pass still recommended an independent follow-up. The work was committed by bmad-loop run 20260903-084456-f955; this entry preserves the lingering recommendation for a deliberate later review.
+status: open

@@ -1,0 +1,210 @@
+{
+  "name": "02 - Escalar Humano",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 02. Escalar Humano\n\nSub-workflow de handoff (CAP-2/Story 6). `destinatarios_emergencia` chega pronto do `executeWorkflowTrigger` -- vem de `atendimento_config_ler('triagem').destinatarios_emergencia` lido pelo node `Info` do `01 - Agente.json`, nunca decidido pelo LLM nem hardcoded aqui. Cada item do array é um objeto com pelo menos `contact_id` (RD Conversas) -- formato exato a validar contra dado real do Nouvet antes do go-live (hoje a lista vem vazia, `[]`, dado pendente).",
+        "height": 260,
+        "width": 460
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        0
+      ],
+      "id": "c67d69b8-4ced-4a81-8411-e5d4aac744d1",
+      "name": "Sticky Note - Origem dos destinatários"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "telefone"
+            },
+            {
+              "name": "nome_cliente"
+            },
+            {
+              "name": "nome_pet"
+            },
+            {
+              "name": "mensagem_relevante"
+            },
+            {
+              "name": "motivo"
+            },
+            {
+              "name": "resumo"
+            },
+            {
+              "name": "destinatarios_emergencia"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        220,
+        260
+      ],
+      "id": "15055821-9335-4497-a47c-d2761b322ce6",
+      "name": "Receber Solicitação"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "dccc8e3e-e69a-4c43-865a-ce159ea65adc",
+              "leftValue": "={{ $('Receber Solicitação').item.json.destinatarios_emergencia }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        260
+      ],
+      "id": "f637691b-ab28-41d0-929f-e88363fa6f24",
+      "name": "Destinatários configurados?"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "destinatarios_emergencia",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        660,
+        180
+      ],
+      "id": "8ffe2dd5-215c-4af4-9599-664926152b61",
+      "name": "Separar destinatários"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.tallos.com.br/v2/messages/{{ $json.destinatarios_emergencia.contact_id }}/send",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "=Atendimento a ser assumido por humano\n\nMotivo: {{ $('Receber Solicitação').item.json.motivo || '(motivo não informado)' }}\n\nCliente: {{ $('Receber Solicitação').item.json.nome_cliente || '(nome não informado)' }}\nPet: {{ $('Receber Solicitação').item.json.nome_pet || '(pet não informado)' }}\nTelefone: {{ $('Receber Solicitação').item.json.telefone || '(telefone não informado)' }}\n\nMensagem relevante do cliente:\n\"{{ $('Receber Solicitação').item.json.mensagem_relevante || '(mensagem não informada)' }}\"\n\nResumo:\n{{ $('Receber Solicitação').item.json.resumo || '(resumo não informado)' }}"
+            },
+            {
+              "name": "sent_by",
+              "value": "bot"
+            }
+          ]
+        },
+        "sendHeaders": false,
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        180
+      ],
+      "id": "d3a8995d-0042-462c-8d2e-872fec876340",
+      "name": "Enviar alerta RD Conversas",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "SET_IN_N8N_UI",
+          "name": "RD Station Conversas - Token"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        660,
+        380
+      ],
+      "id": "26808c36-2015-4541-b8c8-971ed23ac5c2",
+      "name": "Alerta não configurado"
+    }
+  ],
+  "connections": {
+    "Receber Solicitação": {
+      "main": [
+        [
+          {
+            "node": "Destinatários configurados?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Destinatários configurados?": {
+      "main": [
+        [
+          {
+            "node": "Separar destinatários",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alerta não configurado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Separar destinatários": {
+      "main": [
+        [
+          {
+            "node": "Enviar alerta RD Conversas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "0a93e01f-cb28-491e-83a5-00dfb6acdf86",
+  "meta": {
+    "instanceId": "atendimento-nouvet-piloto"
+  },
+  "id": "bcb6f853-8f84-4026-8a62-4d2ad637ee04",
+  "tags": []
+}
