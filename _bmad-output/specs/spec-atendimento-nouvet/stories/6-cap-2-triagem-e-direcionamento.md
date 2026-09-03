@@ -101,6 +101,75 @@ deferred:
       `n8n_status_atendimento`).
     location: 'n8n/workflows/02 - Escalar Humano.json (sem consumidor de log/tabela)'
     severity: medium
+  - summary: >-
+      Nem o `httpRequest` "Enviar alerta RD Conversas" nem o nó `toolWorkflow` "Escalar
+      Humano" têm `onError`/`retryOnFail` configurado — uma falha da API Tallos (timeout,
+      500, `contact_id` inválido) pode propagar como erro do próprio nó `Agente Nouvet`.
+    evidence: |-
+      Achado de revisão independente (`bmad-review`, pós-DW-51). Aprofunda o item já
+      registrado (ausência de retry, ver ledger) com uma consequência mais severa e
+      específica: o cliente pode ficar sem NENHUMA resposta no turno (não só sem o
+      alerta ao humano), já que uma exceção não tratada no sub-workflow tende a
+      derrubar a execução do nó chamador no n8n.
+    location: >-
+      n8n/workflows/02 - Escalar Humano.json (nó "Enviar alerta RD Conversas") + n8n/workflows/01
+      - Agente.json (nó "Escalar Humano")
+    severity: medium
+  - summary: >-
+      `resumo`/`motivo` de `Escalar_humano` são gerados via `$fromAI` a partir da conversa
+      do cliente sem nenhum guardrail de prompt injection — esta story abre o primeiro
+      canal onde texto do cliente chega a um humano (staff) sem revisão.
+    evidence: |-
+      Achado de revisão independente (`bmad-review`, pós-DW-51). Guardrails de prompt
+      injection são CAP-9/Story 13, ainda não construída — risco aceito como fora de
+      escopo desta story, mas deve ser considerado quando a Story 13 for desenhada.
+    location: 'n8n/workflows/01 - Agente.json (Ferramentas Disponíveis / SOP Seção 2.3)'
+    severity: medium
+  - summary: >-
+      O SOP não define o comportamento quando uma única mensagem do cliente combina 2
+      motivos distintos de `Escalar_humano` (ex. Sinal de Alerta + Convênio mencionado na
+      mesma frase) — a Validação 10 só cobre reacionar para "o mesmo evento".
+    evidence: |-
+      Achado de revisão independente (`bmad-review`, pós-DW-51). Ambiguidade de UX/produto,
+      não um bug — decisão pendente sobre se motivos múltiplos no mesmo turno devem gerar
+      1 ou 2 chamadas da ferramenta.
+    location: 'n8n/workflows/01 - Agente.json (systemMessage, Validação 10 e SOP 2.3)'
+    severity: low
+  - summary: >-
+      Nenhum timeout explícito configurado no `httpRequest` "Enviar alerta RD Conversas".
+    evidence: |-
+      Achado de revisão independente (`bmad-review`, pós-DW-51). Uma resposta lenta da API
+      Tallos pode prender a execução do sub-workflow (e o turno do agente) sem limite de
+      tempo definido.
+    location: 'n8n/workflows/02 - Escalar Humano.json (nó "Enviar alerta RD Conversas")'
+    severity: low
+  - summary: >-
+      Itens duplicados em `destinatarios_emergencia` (mesmo `contact_id` repetido) não são
+      deduplicados antes do envio — o mesmo destinatário pode receber a mesma mensagem 2x.
+    evidence: |-
+      Achado de revisão independente (`bmad-review`, pós-DW-51). Depende de qualidade de
+      dado na config (`atendimento_config`), não de um bug de lógica do fluxo.
+    location: 'n8n/workflows/02 - Escalar Humano.json (splitOut + httpRequest sequencial)'
+    severity: low
+  - summary: >-
+      Nenhum limite documentado para o tamanho do array `destinatarios_emergencia` — a
+      lista alimenta chamadas HTTP sequenciais dentro do mesmo turno do agente.
+    evidence: |-
+      Achado de revisão independente (`bmad-review`, pós-DW-51). Uma lista de
+      destinatários grande alonga a latência do turno do cliente proporcionalmente.
+    location: 'n8n/workflows/01 - Agente.json (nó Info, campo destinatarios_emergencia)'
+    severity: low
+  - summary: >-
+      O caminho de `destinatarios_emergencia` vazio (nó `noOp` "Alerta não configurado")
+      termina silenciosamente, sem nenhum log ou sinal distinto do caminho de sucesso —
+      é o estado real de produção hoje (`destinatarios_emergencia = []`).
+    evidence: |-
+      Achado de revisão independente (`bmad-review`, pós-DW-51). Relacionado ao item já
+      registrado sobre ausência de registro persistido de acionamentos bem-sucedidos, mas
+      cobre especificamente o caminho de falha silenciosa, que é o mais crítico
+      operacionalmente enquanto a lista de destinatários seguir vazia.
+    location: 'n8n/workflows/02 - Escalar Humano.json (nó "Alerta não configurado")'
+    severity: medium
 baseline_revision: '3d83acbde44ea213e40626ba3ca1ef7bed83b719'
 ---
 
@@ -205,6 +274,16 @@ Itens defer (2, novos nesta passada) e rejeitados (9) desta passada: os 2 novos 
 
 Itens rejeitados (9) desta passada: truncamento sem marcador de continuação dos títulos de DW-44/47/48/49/50 em `deferred-work.md` (padrão pré-existente desde DW-38–43, e o ledger é de propriedade do orquestrador desta execução, fora de escopo para edição aqui); reconsideração de severidade de DW-44 e DW-50 (medium → possivelmente alta) sem evidência nova além da já usada na passada anterior; achado do Blind Hunter sobre formato de telefone pouco articulado, sem ação concreta identificável; guarda `Array.isArray` para `destinatarios_emergencia` não-array no nó `Info` (replica exatamente o padrão já usado para `sinais_alerta_clinico` desde a Story 5, não é regressão desta story); ausência de documentação de shape do item de `destinatarios_emergencia` no schema do banco (já coberta em prosa no "Block If" do `<intent-contract>`); ausência de Verification contra Postgres real para `atendimento_config_ler('triagem')` (limitação de ambiente já aceita desde a Story 1); AC "aparecem exatamente" os 5 setores não ser 100% à prova de um 6º setor não intencional (verificação já cobre os 5 esperados + os 3 mais prováveis de erro, checagem exaustiva teria retorno decrescente); ausência de sticky note em `01 - Agente.json` para a Seção 2/`Escalar_humano` (já rejeitado na passada anterior como preferência estética, reapresentado sem informação nova); e afirmação não verificada em Design Notes sobre a Story 2/0004 ter antecipado o consumo do FR-41/CAP-12 (observação histórica de prosa, sem consequência funcional).
 
+### 2026-09-03 — Revisão independente (`bmad-review`, consumindo DW-51)
+
+Executada fora do `bmad-loop` (lentes `adversarial`, `edge-case-hunter`, `verification-gap`) sobre o diff da story já `done`, para atender à recomendação de follow-up review que o `bmad-loop` não conseguiu rodar (cap de `max_followup_reviews` esgotado — ver DW-51 em `deferred-work.md`).
+
+- 10 achados adversarial, 3 edge-case-hunter, 2 verification-gap.
+- `[patch]` aplicados (3): (1) `systemMessage` — Casos Especiais > "Cliente insatisfeito" ganhou uma frase esclarecendo que "registrar" nesta fase é só histórico de conversa, não um protocolo formal; (2) `description` do tool `Escalar Humano` ganhou reforço explícito para a IA continuar a conversa após chamá-lo; (3) Verification comando 2 estendido com 3 novas asserções cobrindo as duas mudanças de prompt acima e a guarda pré-existente contra citar `motivo` literal (que não tinha nenhuma asserção própria).
+- `[defer]` (7, novos itens no frontmatter): ausência de `onError`/`retryOnFail` propagando falha para o nó `Agente Nouvet` (aprofunda o achado de retry já conhecido, com consequência mais severa — cliente sem resposta no turno); superfície de prompt injection nova via `resumo`/`motivo` sem guardrail (CAP-9/Story 13 ainda não construída); SOP sem definição para motivos múltiplos no mesmo turno; ausência de timeout no `httpRequest` de alerta; ausência de dedup de `destinatarios_emergencia` duplicado; ausência de limite documentado para o tamanho da lista; caminho de lista vazia (`noOp`) sem log distinto do caminho de sucesso.
+- Demais achados (workflowId placeholder / checklist de go-live, `contact_id` malformado, campos não-`required` no schema) já cobertos por risco residual documentado no `<intent-contract>` (Block If) ou já presentes no ledger — não duplicados como novo item.
+- DW-51 marcada `resolved` no ledger.
+
 ## Design Notes
 
 `destinatarios_emergencia` já vinha exposto por `atendimento_config_ler` desde a 0004 (Story 2) nas duas fatias — Story 2 antecipou esse consumo antes mesmo do FR-41/CAP-12 existir como story própria; esta story é a primeira a efetivamente ler o campo (via `Info`), e a Story 14 (CAP-12) deve reutilizar o mesmo campo/sub-workflow, não duplicar. Exemplo do fallback de lista vazia (mesmo padrão do `05 - Escalar Humano.json` de referência, nó "Alerta não configurado"): se `destinatarios_emergencia` chegar `[]` no `executeWorkflowTrigger`, o sub-workflow termina em `noOp` sem chamar a API do RD Conversas — comportamento aceito e documentado (mesmo tratamento de dado pendente já usado para `sinais_alerta_clinico`/`atendimento_profissionais`), não bloqueia o build.
@@ -213,7 +292,7 @@ Itens rejeitados (9) desta passada: truncamento sem marcador de continuação do
 
 **Commands:**
 - `python3 -c "import json, re; d = json.load(open('n8n/workflows/02 - Escalar Humano.json')); assert 'nodes' in d and 'connections' in d; trg = [n for n in d['nodes'] if n.get('type') == 'n8n-nodes-base.executeWorkflowTrigger'][0]; inputs = [v['name'] for v in trg['parameters']['workflowInputs']['values']]; assert 'motivo' in inputs and 'destinatarios_emergencia' in inputs; content = json.dumps(d); assert not re.search(r'(Bearer |api[_-]?key|token\s*[:=]|secret|senha\s*[:=])', content, re.I); ifnode = [n for n in d['nodes'] if n['name'] == 'Destinatários configurados?'][0]; conns = d['connections'][ifnode['name']]['main']; assert {c['node'] for c in conns[0]} == {'Separar destinatários'}; assert {c['node'] for c in conns[1]} == {'Alerta não configurado'}; assert ifnode['parameters']['conditions']['conditions'][0]['operator']['operation'] == 'notEmpty'; trigconns = d['connections']['Receber Solicitação']['main']; assert {c['node'] for c in trigconns[0]} == {'Destinatários configurados?'}; splitconns = d['connections']['Separar destinatários']['main']; assert {c['node'] for c in splitconns[0]} == {'Enviar alerta RD Conversas'}; msgnode = [n for n in d['nodes'] if n['name'] == 'Enviar alerta RD Conversas'][0]; msg = [p['value'] for p in msgnode['parameters']['bodyParameters']['parameters'] if p['name'] == 'message'][0]; assert all(s in msg for s in ['(motivo não informado)', '(resumo não informado)', '(telefone não informado)', '(mensagem não informada)']); print('OK')"` -- expected: `OK` (inclui checagem do roteamento correto do IF, do operador `notEmpty` da condição, e da presença de texto de fallback para `motivo`/`resumo`/`telefone`/`mensagem_relevante` na mensagem de alerta).
-- `python3 -c "import json; d = json.load(open('n8n/workflows/01 - Agente.json')); agent = [n for n in d['nodes'] if n.get('type') == '@n8n/n8n-nodes-langchain.agent'][0]; sm = agent['parameters']['options']['systemMessage']; assert sm.index('1. Abertura') < sm.index('2. Triagem e Direcionamento'); assert 'Care Center' in sm and 'Consultas' in sm and 'Vacinas' in sm and 'Exames' in sm and 'Orçamentos' in sm; assert 'Internação' not in sm and 'Financeiro' not in sm and 'Oncologia' not in sm; tools = [n for n in d['nodes'] if n.get('type') == '@n8n/n8n-nodes-langchain.toolWorkflow']; assert len(tools) == 1 and 'Escalar' in tools[0]['name']; ai_tool_sources = {src for src, out in d['connections'].items() if any(c['node'] == 'Agente Nouvet' for group in out.get('ai_tool', []) for c in group)}; assert ai_tool_sources == {'Refletir', 'Escalar Humano'}; tool_inputs = tools[0]['parameters']['workflowInputs']['value']; assert 'fromAI' not in tool_inputs['destinatarios_emergencia'] and \"Info').item.json.destinatarios_emergencia\" in tool_inputs['destinatarios_emergencia']; assert 'fromAI' in tool_inputs['motivo'] and 'fromAI' in tool_inputs['resumo']; print('OK')"` -- expected: `OK` (inclui checagem de que só `Refletir`/`Escalar Humano` estão conectados via `ai_tool`, que `Oncologia` também está fora do prompt, e que `destinatarios_emergencia` no `toolWorkflow` vem exatamente do campo `destinatarios_emergencia` do nó `Info` e nunca de `fromAI`).
+- `python3 -c "import json; d = json.load(open('n8n/workflows/01 - Agente.json')); agent = [n for n in d['nodes'] if n.get('type') == '@n8n/n8n-nodes-langchain.agent'][0]; sm = agent['parameters']['options']['systemMessage']; assert sm.index('1. Abertura') < sm.index('2. Triagem e Direcionamento'); assert 'Care Center' in sm and 'Consultas' in sm and 'Vacinas' in sm and 'Exames' in sm and 'Orçamentos' in sm; assert 'Internação' not in sm and 'Financeiro' not in sm and 'Oncologia' not in sm; tools = [n for n in d['nodes'] if n.get('type') == '@n8n/n8n-nodes-langchain.toolWorkflow']; assert len(tools) == 1 and 'Escalar' in tools[0]['name']; ai_tool_sources = {src for src, out in d['connections'].items() if any(c['node'] == 'Agente Nouvet' for group in out.get('ai_tool', []) for c in group)}; assert ai_tool_sources == {'Refletir', 'Escalar Humano'}; tool_inputs = tools[0]['parameters']['workflowInputs']['value']; assert 'fromAI' not in tool_inputs['destinatarios_emergencia'] and \"Info').item.json.destinatarios_emergencia\" in tool_inputs['destinatarios_emergencia']; assert 'fromAI' in tool_inputs['motivo'] and 'fromAI' in tool_inputs['resumo']; assert 'nunca diga ao cliente o valor literal de' in sm; assert 'histórico da conversa' in sm; assert 'continue a conversa normalmente' in tools[0]['parameters']['description']; print('OK')"` -- expected: `OK` (inclui checagem de que só `Refletir`/`Escalar Humano` estão conectados via `ai_tool`, que `Oncologia` também está fora do prompt, que `destinatarios_emergencia` no `toolWorkflow` vem exatamente do campo `destinatarios_emergencia` do nó `Info` e nunca de `fromAI`, e as 3 asserções novas da revisão independente pós-DW-51: guarda contra citar `motivo` literal, esclarecimento de que "registrar" é só histórico de conversa, e reforço na `description` da tool para a IA continuar a conversa após chamá-la).
 - `python3 -c "import json; d = json.load(open('n8n/workflows/01 - Agente.json')); info = [n for n in d['nodes'] if n['name']=='Info'][0]; assigns = info['parameters']['assignments']['assignments']; names=[a['name'] for a in assigns]; assert 'destinatarios_emergencia' in names; de = [a for a in assigns if a['name']=='destinatarios_emergencia'][0]; assert \"Buscar Config').item.json.config.destinatarios_emergencia\" in de['value']; print('OK')"` -- expected: `OK` (checa não só o nome do campo no nó `Info`, mas que seu valor vem exatamente de `Buscar Config`, nunca hardcoded).
 
 **Manual checks (if no CLI):**

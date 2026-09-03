@@ -411,4 +411,61 @@ location: n/a
 source_spec: `6-cap-2-triagem-e-direcionamento.md`
 severity: low
 reason: The follow-up-review damping cap (limits.max_followup_reviews = 1) was spent with the story finalized (status: done, verify green) while the review pass still recommended an independent follow-up. The work was committed by bmad-loop run 20260903-084456-f955; this entry preserves the lingering recommendation for a deliberate later review.
+status: resolved
+resolution: Independent `bmad-review` run manually on 2026-09-03 (adversarial + edge-case-hunter + verification-gap lenses) against the story 6 diff. 3 cheap findings patched directly (prompt clarification on "registrar" = histórico de conversa, tool description reinforcing "continue a conversa" after handoff, new Verification assertions closing the gap on the motivo-literal guard). 7 remaining findings triaged and filed as new deferred items in `6-cap-2-triagem-e-direcionamento.md` (see DW-52 to DW-58 below) rather than acted on immediately — see story's Review Triage Log entry "2026-09-03 — Revisão independente" for full rationale per item.
+
+### DW-52: Nem o `httpRequest` "Enviar alerta RD Conversas" nem o `toolWorkflow` "Escalar Humano" têm `onError`/`retryOnFail` — falha da API Tallos pode propagar como erro do nó `Agente Nouvet`
+origin: independent-review-post-DW51
+location: n8n/workflows/02 - Escalar Humano.json (nó "Enviar alerta RD Conversas") + n8n/workflows/01 - Agente.json (nó "Escalar Humano")
+source_spec: `6-cap-2-triagem-e-direcionamento.md`
+severity: medium
+reason: Aprofunda o achado de retry já conhecido (DW-45) com uma consequência mais severa e específica — o cliente pode ficar sem NENHUMA resposta no turno, não só sem o alerta ao humano, já que uma exceção não tratada no sub-workflow tende a derrubar a execução do nó chamador no n8n.
+status: open
+
+### DW-53: `resumo`/`motivo` de `Escalar_humano` são gerados via `$fromAI` sem guardrail de prompt injection — canal novo onde texto do cliente chega a um humano sem revisão
+origin: independent-review-post-DW51
+location: n8n/workflows/01 - Agente.json (Ferramentas Disponíveis / SOP Seção 2.3)
+source_spec: `6-cap-2-triagem-e-direcionamento.md`
+severity: medium
+reason: Guardrails de prompt injection são CAP-9/Story 13, ainda não construída — risco aceito como fora de escopo desta story, mas deve ser considerado quando a Story 13 for desenhada.
+status: open
+
+### DW-54: SOP não define comportamento para uma mensagem que combine 2 motivos distintos de `Escalar_humano` no mesmo turno
+origin: independent-review-post-DW51
+location: n8n/workflows/01 - Agente.json (systemMessage, Validação 10 e SOP 2.3)
+source_spec: `6-cap-2-triagem-e-direcionamento.md`
+severity: low
+reason: Ambiguidade de UX/produto, não um bug — decisão pendente sobre se motivos múltiplos no mesmo turno devem gerar 1 ou 2 chamadas da ferramenta.
+status: open
+
+### DW-55: Nenhum timeout explícito configurado no `httpRequest` "Enviar alerta RD Conversas"
+origin: independent-review-post-DW51
+location: n8n/workflows/02 - Escalar Humano.json (nó "Enviar alerta RD Conversas")
+source_spec: `6-cap-2-triagem-e-direcionamento.md`
+severity: low
+reason: Uma resposta lenta da API Tallos pode prender a execução do sub-workflow (e o turno do agente) sem limite de tempo definido.
+status: open
+
+### DW-56: Itens duplicados em `destinatarios_emergencia` (mesmo `contact_id`) não são deduplicados antes do envio
+origin: independent-review-post-DW51
+location: n8n/workflows/02 - Escalar Humano.json (splitOut + httpRequest sequencial)
+source_spec: `6-cap-2-triagem-e-direcionamento.md`
+severity: low
+reason: Depende de qualidade de dado na config (`atendimento_config`), não de um bug de lógica do fluxo — o mesmo destinatário poderia receber a mesma mensagem 2x.
+status: open
+
+### DW-57: Nenhum limite documentado para o tamanho do array `destinatarios_emergencia`
+origin: independent-review-post-DW51
+location: n8n/workflows/01 - Agente.json (nó Info, campo destinatarios_emergencia)
+source_spec: `6-cap-2-triagem-e-direcionamento.md`
+severity: low
+reason: A lista alimenta chamadas HTTP sequenciais dentro do mesmo turno do agente — uma lista grande alonga a latência do turno do cliente proporcionalmente.
+status: open
+
+### DW-58: Caminho de `destinatarios_emergencia` vazio (nó `noOp` "Alerta não configurado") termina silenciosamente, sem log distinto do caminho de sucesso
+origin: independent-review-post-DW51
+location: n8n/workflows/02 - Escalar Humano.json (nó "Alerta não configurado")
+source_spec: `6-cap-2-triagem-e-direcionamento.md`
+severity: medium
+reason: Relacionado ao DW-50 (ausência de registro persistido de acionamentos bem-sucedidos), mas cobre especificamente o caminho de falha silenciosa — o mais crítico operacionalmente enquanto `destinatarios_emergencia` seguir vazio (estado real de produção hoje).
 status: open
