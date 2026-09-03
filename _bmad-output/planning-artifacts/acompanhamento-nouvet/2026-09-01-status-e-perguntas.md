@@ -1,19 +1,23 @@
 ---
 
-## title: Acompanhamento Nouvet — Atendimento Nouvet (Piloto) data: 2026-09-01 preparado_por: Thiago Bicalho (Btech.Cloud) destinado_a: liderança Nouvet
+## title: Acompanhamento Nouvet — Atendimento Nouvet (Piloto) data: 2026-09-01 (atualizado em 2026-09-03) preparado_por: Thiago Bicalho (Btech.Cloud) destinado_a: liderança Nouvet
 
 # Acompanhamento — Atendimento Nouvet (Piloto)
 
 Documento de status para o Nouvet: onde estamos, o que só o Nouvet pode responder, e achados relevantes para a decisão da diretoria. Não substitui o PRD técnico
 
-**Go-live do Piloto: 08/09/2026 — faltam 7 dias corridos a partir de hoje.**
+**Go-live do Piloto: 08/09/2026 — faltam 5 dias corridos a partir de hoje (03/09).**
 
 ## 1. Onde estamos
 
-O escopo do Piloto foi revisado nesta semana pela equipe Btech e é importante alinhar a expectativa antes de qualquer conversa com a diretoria:
+Atualização de progresso desde o último status (01/09): a construção segue em ritmo bom, com 6 das 15 entregas do Piloto já prontas — a base técnica inteira (infraestrutura, configuração dinâmica, fila de mensagens) e as duas primeiras capacidades do atendente já estão no ar:
 
-- **O Piloto de 10 dias não vai fechar nenhum agendamento sozinho — nem no Care Center.** O que ele entrega é: identificar o cliente, entender o que ele precisa, coletar todas as preferências de agendamento (serviço, data, horário, profissional) e registrar tudo pronto no CRM, notificando a pessoa certa da equipe para confirmar com o cliente. 
+- O atendente virtual já **identifica o cliente e entende o que ele precisa** assim que a conversa começa, 24/7, sem perguntar "você tem cadastro?" quando já conhece o telefone.
+- O atendente já **classifica automaticamente** a necessidade do cliente entre Care Center, Consultas, Vacinas, Exames ou Orçamentos — e já sabe encaminhar para um humano na hora quando é uma emergência, um assunto fora do escopo do Piloto, ou quando o cliente menciona convênio por conta própria.
+- **O Piloto de 10 dias não vai fechar nenhum agendamento sozinho — nem no Care Center.** O que ele entrega é: identificar o cliente, entender o que ele precisa, coletar todas as preferências de agendamento (serviço, data, horário, profissional) e registrar tudo pronto no CRM, notificando a pessoa certa da equipe para confirmar com o cliente.
 - Em compensação, dois pontos que geravam insegurança já foram resolvidos: (1) quando um atendimento demora para ser assumido por um humano, o gestor passa a ser avisado desde o primeiro sinal de atraso, não só depois que o problema já cresceu; (2) quando um cliente declara uma emergência com o pet, o alerta vai para todos os profissionais envolvidos naquele atendimento, não para uma pessoa só — e isso é configurável, sem precisar mexer no sistema para trocar quem recebe.
+
+O mecanismo de encaminhamento para humano (emergência, fora de escopo, convênio) já está funcionando tecnicamente — mas hoje ele não tem para quem enviar o alerta, porque a lista de contatos ainda não foi fornecida (ver Seção 2).
 
 
 
@@ -23,13 +27,18 @@ O escopo do Piloto foi revisado nesta semana pela equipe Btech e é importante a
 
 ### Bloqueia o go-live de 08/09 (não bloqueia o início da construção)
 
+Três blocos de dado real, todos com o mesmo prazo abaixo — sem eles, o sistema já construído vai ao ar com informação incompleta ou canais de segurança sem destinatário:
+
 - **Lista concreta de "sinal de alerta" clínico — as "red-flags" que fazem o agente acionar um humano na hora.** Já decidimos que essa lista fica configurável (não craveja no sistema), então já estamos construindo o mecanismo com uma lista provisória, sem esperar. Mas a lista que efetivamente vai estar ativa no dia 08/09, atendendo clientes reais, precisa ser validada pela equipe clínica do Nouvet antes disso — esse guardrail de segurança é o mais importante do produto, e não dá para deixar uma lista provisória valendo no lançamento.
+- **Lista de quem recebe o alerta quando o atendente encaminha para um humano** (emergência, assunto fora do escopo do Piloto, ou menção a convênio). O mecanismo já está pronto e funcionando — falta só a lista de destinatários. Sem ela, o cliente ouve que "a solicitação está sendo registrada com prioridade", mas hoje ninguém é de fato avisado.
+- **Dados institucionais e lista de profissionais**, hoje usados diretamente nas respostas do atendente e ainda não preenchidos: endereço, telefone, WhatsApp, e-mail, site, horário de funcionamento, formas de pagamento, convênios aceitos, e a lista de profissionais por setor (nome/especialidade). Sem isso, um cliente que pergunta o endereço da clínica ou quais profissionais atendem hoje não recebe uma resposta real.
 
 
 
 ### Importante, mas não impede a data de 08/09
 
-- **Tom de voz da IA quando ela não sabe responder algo.** Hoje isso é ajustável sem mexer no sistema, mas vale alinhar a mensagem com quem cuida da comunicação com o cliente do Nouvet.
+- **Tom de voz da IA quando ela não sabe responder algo.** Hoje já existe um rascunho nosso no ar (acolhedor, natural, nunca estruturado como menu) para não travar a construção, mas vale alinhar a mensagem final com quem cuida da comunicação com o cliente do Nouvet.
+- **Nome pelo qual a IA se apresenta ("atendente virtual do Nouvet").** Também já é um default nosso, nunca confirmado formalmente — vale um "OK" rápido da equipe de comunicação.
 - **Quem, do lado do Nouvet, vai manter a agenda dos profissionais atualizada** (mesmo que manualmente, por planilha) até que o agendamento automático de fato exista na próxima fase? Isso não trava o Piloto atual, mas é o alicerce da fase seguinte.
 
 
@@ -56,4 +65,4 @@ A conta do Nouvet tem 2 números de WhatsApp ativos no RD Conversas, com um cust
 
 ## 4. Prazo
 
-A construção já está seguindo em frente mesmo sem a lista definitiva de sinais de alerta clínico (ela é configurável, então não trava o início). Ainda assim, pedimos a lista validada pela equipe clínica o quanto antes — idealmente até 03/09/2026 — porque ela precisa estar pronta e revisada antes de ligarmos isso para clientes reais no dia 08/09. Os demais itens da seção 2 podem ser resolvidos ao longo da semana, mas quanto antes, melhor para a qualidade da entrega.
+A construção já está seguindo em frente mesmo sem os 3 blocos bloqueantes da Seção 2 (são configuráveis, então não travam a construção). O prazo que pedimos para a lista de sinais de alerta validada pela equipe clínica — **03/09/2026 — é hoje**; se ainda não temos retorno, precisamos alinhar um novo prazo que ainda caiba antes do dia 08/09, já que essa lista precisa estar pronta e revisada antes de ligarmos isso para clientes reais. Pedimos que os outros dois blocos (contatos de emergência e dados institucionais/profissionais) sigam o mesmo prazo — são igualmente necessários para o cliente ter uma experiência real no lançamento. Os itens da seção "Importante, mas não impede" podem ser resolvidos ao longo da semana, mas quanto antes, melhor para a qualidade da entrega.
