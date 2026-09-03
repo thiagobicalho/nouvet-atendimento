@@ -2,7 +2,7 @@
 title: 'CAP-3 — Fluxo Care Center'
 type: 'feature'
 created: '2026-09-03'
-status: 'blocked'
+status: 'done'
 review_loop_iteration: 0
 followup_review_recommended: false
 context: ['{project-root}/_bmad-output/planning-artifacts/architecture/architecture-atendimento-2026-09-01/ARCHITECTURE-SPINE.md']
@@ -171,8 +171,8 @@ Os achados sobre múltiplos serviços, revisão de preferências, troca de setor
 
 ## Auto Run Result
 
-- status: blocked
-- blocking condition: finalization left repository dirty (`stories/8-cap-4-fluxo-consultas-e-vacinas.md`, execução concorrente fora do escopo desta story).
+- status: done
+- finalização: o bloqueio temporário foi resolvido após a execução concorrente da Story 8 concluir; o worktree foi confirmado limpo antes desta atualização terminal.
 - data: 2026-09-03
 - revisão: quatro lentes independentes (`blind-hunter`, `edge-case-hunter`, `verification-gap`, `intent-alignment`) executadas; achados deduplicados e classificados.
 - arquivos alterados nesta passagem: somente esta especificação, para registrar a nova triagem e o resultado final; nenhum workflow recebeu patch novo.
