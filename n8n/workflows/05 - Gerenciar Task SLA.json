@@ -38,7 +38,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT sla_resposta_minutos, lock_ttl_minutos FROM atendimento_config WHERE id = 1",
+        "query": "SELECT atendimento_config_ler('triagem') AS config",
         "options": {}
       },
       "type": "n8n-nodes-base.postgres",
@@ -200,10 +200,17 @@
         "url": "={{ 'https://api.rd.services/crm/v2/tasks/' + $json.task_sla_existente.id }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "oAuth2Api",
-        "options": {},
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ data: { due_date: $now.plus({ minutes: $('Buscar SLA Config').item.json.sla_resposta_minutos }).toISO() } }) }}"
+        "jsonBody": "={{ JSON.stringify({ data: { due_date: $now.plus({ minutes: $('Buscar SLA Config').item.json.config.sla_resposta_minutos }).toISO() } }) }}"
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -227,7 +234,7 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        1760,
+        2200,
         80
       ],
       "id": "7dd09a0d-e9cd-4e40-b54d-0a1d5203ee70",
@@ -239,10 +246,17 @@
         "url": "https://api.rd.services/crm/v2/tasks",
         "authentication": "genericCredentialType",
         "genericAuthType": "oAuth2Api",
-        "options": {},
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ data: { name: 'Acompanhamento SLA', description: 'Task de acompanhamento de SLA de resposta -- renovada automaticamente enquanto o atendimento aguarda humano; escalonamento ao gestor quando vencida sem atividade do lead.', status: 'open', due_date: $now.plus({ minutes: $('Buscar SLA Config').item.json.sla_resposta_minutos }).toISO(), deal_id: $('Receber Solicitação').item.json.deal_id } }) }}"
+        "jsonBody": "={{ JSON.stringify({ data: { name: 'Acompanhamento SLA', description: 'Task de acompanhamento de SLA de resposta -- renovada automaticamente enquanto o atendimento aguarda humano; escalonamento ao gestor quando vencida sem atividade do lead.', status: 'open', due_date: $now.plus({ minutes: $('Buscar SLA Config').item.json.config.sla_resposta_minutos }).toISO(), deal_id: $('Receber Solicitação').item.json.deal_id } }) }}"
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -266,7 +280,7 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        1760,
+        2200,
         280
       ],
       "id": "9a4a21e4-8380-409f-8958-32fd76434648",
@@ -277,7 +291,7 @@
         "operation": "executeQuery",
         "query": "SELECT task_sla_lock_adquirir($1, $2) AS lock_adquirido",
         "options": {
-          "queryReplacement": "={{ [$('Receber Solicitação').item.json.deal_id, $('Buscar SLA Config').item.json.lock_ttl_minutos] }}"
+          "queryReplacement": "={{ [$('Receber Solicitação').item.json.deal_id, $('Buscar SLA Config').item.json.config.lock_ttl_minutos] }}"
         }
       },
       "type": "n8n-nodes-base.postgres",
@@ -366,6 +380,96 @@
       },
       "onError": "continueRegularOutput",
       "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8b6a3e1e-2b23-4b1a-9b0c-5b6b1e2a9a01",
+              "leftValue": "={{ $json.statusCode >= 200 && $json.statusCode < 300 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1760,
+        80
+      ],
+      "id": "8b6a3e1e-2b23-4b1a-9b0c-5b6b1e2a9a02",
+      "name": "Renovação de Task de SLA Bem-sucedida?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1980,
+        20
+      ],
+      "id": "8b6a3e1e-2b23-4b1a-9b0c-5b6b1e2a9a03",
+      "name": "Falha ao Renovar Task de SLA"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8b6a3e1e-2b23-4b1a-9b0c-5b6b1e2a9a04",
+              "leftValue": "={{ $json.statusCode >= 200 && $json.statusCode < 300 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1760,
+        280
+      ],
+      "id": "8b6a3e1e-2b23-4b1a-9b0c-5b6b1e2a9a05",
+      "name": "Criação de Task de SLA Bem-sucedida?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1980,
+        340
+      ],
+      "id": "8b6a3e1e-2b23-4b1a-9b0c-5b6b1e2a9a06",
+      "name": "Falha ao Criar Task de SLA"
     }
   ],
   "connections": {
@@ -453,7 +557,7 @@
       "main": [
         [
           {
-            "node": "Task SLA Renovada",
+            "node": "Renovação de Task de SLA Bem-sucedida?",
             "type": "main",
             "index": 0
           }
@@ -464,7 +568,7 @@
       "main": [
         [
           {
-            "node": "Task SLA Criada",
+            "node": "Criação de Task de SLA Bem-sucedida?",
             "type": "main",
             "index": 0
           }
@@ -532,6 +636,64 @@
           }
         ]
       ]
+    },
+    "Renovação de Task de SLA Bem-sucedida?": {
+      "main": [
+        [
+          {
+            "node": "Task SLA Renovada",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Falha ao Renovar Task de SLA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Falha ao Renovar Task de SLA": {
+      "main": [
+        [
+          {
+            "node": "Liberar Lock de Task SLA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Criação de Task de SLA Bem-sucedida?": {
+      "main": [
+        [
+          {
+            "node": "Task SLA Criada",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Falha ao Criar Task de SLA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Falha ao Criar Task de SLA": {
+      "main": [
+        [
+          {
+            "node": "Liberar Lock de Task SLA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "pinData": {},
@@ -542,7 +704,7 @@
     "callerPolicy": "workflowsFromSameOwner",
     "availableInMCP": false
   },
-  "versionId": "d3e1951c-3ef3-4a9d-90f1-25d0e503cbf3",
+  "versionId": "1d6b86c7-6c8e-4718-a227-ae54b1e26a83",
   "meta": {
     "instanceId": "atendimento-nouvet-piloto"
   },

@@ -58,7 +58,8 @@ ALTER TABLE atendimento_config
 -- `lock_conversa_adquirir`/`sessionKey` da memória, Story 3/5 -- nunca normalizado antes
 -- de chegar em `n8n_status_atendimento`), enquanto o `telefone` que
 -- `Registrar_atendimento_crm` tem disponível em `04 - Registrar Atendimento CRM.json` é
--- `Info.telefone_normalizado` (E.164 limpo, já normalizado para as chamadas ao RD CRM).
+-- `$('Receber Solicitação').item.json.telefone` (E.164 limpo, já normalizado para as
+-- chamadas ao RD CRM, recebido do agente de setor via `toolWorkflow`).
 -- Comparar os dois formatos direto (`=`) nunca bateria para o mesmo cliente na prática --
 -- reaproveita `telefone_normalizar` (AD-8, "reutilizado por qualquer ponto que precise
 -- comparar/casar contato", já concedido a app_role desde a 0006) em vez de reimplementar

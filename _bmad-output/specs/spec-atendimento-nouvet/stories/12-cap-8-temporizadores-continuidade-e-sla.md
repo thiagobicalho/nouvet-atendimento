@@ -56,6 +56,102 @@ deferred:
       n8n/workflows/06 - Lembretes e Escalonamento SLA.json (nó "Lead Ativo Desde o
       Início do Ciclo?")
     severity: low
+  - summary: >-
+      `estado_espera` nunca é gravado de volta para `aguardando_cliente` -- uma vez que
+      um telefone é marcado `aguardando_atendimento_humano` por um handoff, fica assim
+      para sempre, mesmo em conversas futuras totalmente novas do mesmo cliente.
+    evidence: |-
+      `atendimento_estado_espera_marcar` só é chamada por `04` com o literal
+      `'aguardando_atendimento_humano'` -- nenhum ponto do projeto (agente, cron,
+      qualquer sub-workflow) jamais chama com `'aguardando_cliente'`. Como
+      `n8n_status_atendimento.session_id` é `UNIQUE` por telefone (uma única linha por
+      cliente, reaproveitada para sempre, Story 3), qualquer cliente que já passou por
+      um handoff fica permanentemente fora do alcance do Sweep A (que exige
+      `estado_espera='aguardando_cliente'`) em qualquer conversa futura e não relacionada
+      -- mesmo que a Task de SLA daquele handoff antigo já tenha sido concluída no CRM
+      há muito tempo. A leitura literal do Always da story (só `Registrar_atendimento_crm`
+      escreve o estado, nunca especifica retorno) sustenta isso como comportamento
+      monotônico por design, mas o efeito prático (lembrete de inatividade pré-handoff
+      nunca mais dispara para um cliente recorrente) não é mencionado em nenhum lugar do
+      Intent/Edge-Case Matrix.
+    location: >-
+      n8n/migrations/0012_temporizadores_sla.sql (função
+      atendimento_estado_espera_marcar) e n8n/workflows/04 - Registrar Atendimento
+      CRM.json (único chamador)
+    severity: medium
+  - summary: >-
+      O cron `06` não tem trava contra suas próprias execuções sobrepostas -- só a
+      criação/renovação de Task dentro de `05` é protegida por lock; o envio de
+      mensagem/escalonamento por Task individual, em `06`, não é.
+    evidence: |-
+      A granularidade de referência do `scheduleTrigger` é de 1 minuto (nota da própria
+      story, não é invariante travada). Se o processamento sequencial de uma leva de
+      Tasks vencidas (deal -> contato -> identidade -> Conversas -> enviar/escalonar,
+      por Task) ultrapassar esse intervalo, o próximo tick pode reprocessar a mesma Task
+      vencida antes que o ciclo anterior tenha concluído sua renovação de `due_date`,
+      gerando mensagem duplicada ao cliente/gestor e incremento duplo de
+      `numero_ciclo_escalonamento` -- risco adjacente a SM-C2 (lembrete não pode virar
+      spam percebido) sob volume real.
+    location: >-
+      n8n/workflows/06 - Lembretes e Escalonamento SLA.json (Sweep B, varredura
+      sequencial de Tasks vencidas)
+    severity: medium
+  - summary: >-
+      A correlação Task->telefone via `deal.contact_id -> identidade_cliente_pet` usa
+      `ORDER BY i.updated_at DESC LIMIT 1`, que pode escolher a identidade errada quando
+      mais de um telefone compartilha o mesmo `rd_crm_contact_id` (núcleo familiar,
+      AD-11) -- e o `LEFT JOIN` resultante para `n8n_status_atendimento` pode então não
+      casar linha nenhuma, quebrando silenciosamente a persistência do contador de
+      ciclo.
+    evidence: |-
+      "Buscar Identidade e Status por Contato" (06) faz `SELECT ... FROM
+      identidade_cliente_pet i LEFT JOIN n8n_status_atendimento s ON
+      telefone_normalizar(s.session_id) = i.telefone WHERE i.rd_crm_contact_id = $1
+      ORDER BY i.updated_at DESC LIMIT 1`. O próprio AD-11 documenta duplicidade familiar
+      (cônjuges com o mesmo pet) como cenário real deste projeto, e a correlação
+      Task->telefone via `deal.contact_id -> identidade_cliente_pet.rd_crm_contact_id`
+      foi deliberadamente deixada a critério de quem implementa pelo "Block If" desta
+      story -- sem outro campo para desambiguar, a heurística de recência pode
+      selecionar o telefone/nome de um familiar que não é quem está de fato naquele
+      atendimento. Quando isso acontece, o `LEFT JOIN` pode não encontrar a sessão do
+      telefone errado, e "Incrementar Ciclo de Escalonamento" (`UPDATE ... WHERE
+      telefone_normalizar(session_id) = $1`) afeta 0 linhas silenciosamente -- toda
+      escalonação subsequente reporta "ciclo 1" mesmo que já tenham ocorrido vários.
+    location: >-
+      n8n/workflows/06 - Lembretes e Escalonamento SLA.json (nós "Buscar Identidade e
+      Status por Contato" e "Incrementar Ciclo de Escalonamento")
+    severity: medium
+  - summary: >-
+      "Enviar Atualização ao Cliente" (Sweep B) não verifica sucesso/falha do envio,
+      diferente do fix já aplicado a "Enviar Lembrete ao Cliente" (Sweep A) para o mesmo
+      tipo de risco.
+    evidence: |-
+      O nó é terminal (`onError: continueRegularOutput`, sem IF de status depois) --
+      uma falha de envio ao cliente é engolida em silêncio, sem sinal em lugar nenhum.
+      Diferente do caso já corrigido em Sweep A, aqui isso não suprime nenhum
+      mecanismo futuro (a renovação da Task e o alerta ao gestor rodam em um branch
+      paralelo independente, não acoplado ao sucesso desta mensagem) -- o cliente só
+      deixa de saber que a equipe foi notificada novamente, sem efeito colateral em
+      dados/estado.
+    location: >-
+      n8n/workflows/06 - Lembretes e Escalonamento SLA.json (nó "Enviar Atualização ao
+      Cliente")
+    severity: low
+  - summary: >-
+      `task_sla_lock_adquirir` não trata `p_ttl_minutos` nulo -- se a leitura de config
+      upstream falhar, um lock preso pode nunca ser reclamado por TTL.
+    evidence: |-
+      `task_sla_lock_adquirir` usa `make_interval(mins => p_ttl_minutos)` sem
+      `COALESCE`. Se "Buscar SLA Config" (05) falhar (`onError:
+      continueRegularOutput`, padrão já usado em todo o projeto) e o valor chegar
+      indefinido, `now() - make_interval(mins => NULL)` é `NULL`, e a condição de
+      reclamo do `DO UPDATE` (`lock_adquirido_em < NULL`) nunca é verdadeira -- um
+      lock preso por essa falha composta (config falha E existe lock preso) só se
+      resolve quando uma leitura de config bem-sucedida ocorrer de novo para aquele
+      `deal_id`.
+    location: >-
+      n8n/migrations/0012_temporizadores_sla.sql (função task_sla_lock_adquirir)
+    severity: low
 ---
 
 <intent-contract>
@@ -131,6 +227,10 @@ Reconciliação com `glossary.md` ("Aguardando Cliente/Aguardando Atendimento Hu
 - `python3 -c "import json; d = json.load(open('n8n/workflows/05 - Gerenciar Task SLA.json')); assert 'nodes' in d and 'connections' in d; trg = [n for n in d['nodes'] if n.get('type')=='n8n-nodes-base.executeWorkflowTrigger'][0]; assert 'deal_id' in [v['name'] for v in trg['parameters']['workflowInputs']['values']]; print('OK')"` -- expected: `OK` (workflow válido, `deal_id` como input).
 - `python3 -c "import json; d = json.load(open('n8n/workflows/06 - Lembretes e Escalonamento SLA.json')); assert 'nodes' in d and 'connections' in d; assert any(n.get('type')=='n8n-nodes-base.scheduleTrigger' for n in d['nodes']); print('OK')"` -- expected: `OK` (cron válido, gatilho `scheduleTrigger`).
 - `python3 -c "import json; d = json.load(open('n8n/workflows/04 - Registrar Atendimento CRM.json')); content = json.dumps(d); assert 'Gerenciar Task SLA' in content and 'atendimento_estado_espera_marcar' in content; print('OK')"` -- expected: `OK` (hook de handoff presente).
+- `python3 -c "\nimport json\nd = json.load(open('n8n/workflows/05 - Gerenciar Task SLA.json'))\nnames = [n['name'] for n in d['nodes']]\nassert 'Adquirir Lock de Task SLA' in names and 'Liberar Lock de Task SLA' in names\nc = d['connections']\nassert c['Lock de Task SLA Adquirido?']['main'][0][0]['node'] == 'Buscar Tasks Abertas do Deal'\nfor n in ['Task SLA Não Gerenciada', 'Task SLA Renovada', 'Task SLA Criada', 'Falha ao Criar Task de SLA', 'Falha ao Renovar Task de SLA']:\n    assert c[n]['main'][0][0]['node'] == 'Liberar Lock de Task SLA'\nprint('OK')\n"` -- expected: `OK` (lock de concorrência por `deal_id` guarda a busca-então-cria/renova, e todo desfecho -- sucesso, falha de API ou não-gerenciado -- libera o lock).
+- `python3 -c "import json; d = json.load(open('n8n/workflows/06 - Lembretes e Escalonamento SLA.json')); c = d['connections']; tb = [e['node'] for e in c['Task de SLA Confirmada Aberta?']['main'][0]]; assert 'Incrementar Ciclo de Escalonamento' in tb and 'Compor Dados de Escalonamento' in tb; fb = [e['node'] for e in c['Task de SLA Confirmada Aberta?']['main'][1]]; assert fb == ['Task de SLA Já Resolvida (Nenhuma Ação)']; print('OK')"` -- expected: `OK` (reconferência individual de cada Task, imediatamente antes de agir, é a única porta para enviar mensagem/escalonar; Task já resolvida durante o lote não gera nem mensagem nem recriação de Task -- SM-C2).
+- `python3 -c "import json; d = json.load(open('n8n/workflows/06 - Lembretes e Escalonamento SLA.json')); c = d['connections']; assert c['Enviar Lembrete ao Cliente']['main'][0][0]['node'] == 'Envio de Lembrete Bem-sucedido?'; assert c['Envio de Lembrete Bem-sucedido?']['main'][0][0]['node'] == 'Renovar Janela de Espera do Cliente'; assert c['Envio de Lembrete Bem-sucedido?']['main'][1][0]['node'] == 'Envio de Lembrete Falhou (janela não renovada)'; assert c['Escalar ao Gestor (SLA)']['main'][0][0]['node'] == 'Escalonamento ao Gestor Bem-sucedido?'; assert c['Escalonamento ao Gestor Bem-sucedido?']['main'][0][0]['node'] == 'Renovar Task de SLA (Escalonado)'; print('OK')"` -- expected: `OK` (janela do cliente só renova após confirmar o envio do lembrete; Task só é renovada como "escalonada" após confirmar que o alerta ao gestor não falhou).
+- `python3 -c "\nfor path in ['n8n/workflows/05 - Gerenciar Task SLA.json','n8n/workflows/06 - Lembretes e Escalonamento SLA.json']:\n    content = open(path).read()\n    assert 'atendimento_config_ler' in content\n    assert 'FROM atendimento_config' not in content\nprint('OK')\n"` -- expected: `OK` (`05`/`06` leem `sla_resposta_minutos`/`lock_ttl_minutos`/`destinatarios_gestor_sla` só via `atendimento_config_ler`, nunca por `SELECT` direto na tabela -- ponto único de leitura, AD-1).
 
 **Manual checks (if no CLI):**
 - Na VPS de dev: fechar um fluxo de setor de teste, confirmar no RD CRM que a Task "Acompanhamento SLA" nasce com `due_date` = agora+5min; aguardar sem responder e confirmar que o cron envia a atualização ao cliente e o alerta ao gestor após o vencimento, e que marcar a Task como `completed` no RD CRM impede o próximo disparo.
@@ -154,26 +254,47 @@ Reconciliação com `glossary.md` ("Aguardando Cliente/Aguardando Atendimento Hu
   - `[high]` `[patch]` Em `06`, "Enviar Lembrete ao Cliente" tem `onError: continueRegularOutput` e seu output alimenta incondicionalmente "Renovar Janela de Espera do Cliente" — um envio que falha ainda assim renova `updated_at`, suprimindo silenciosamente o próximo lembrete por uma janela inteira de SLA mesmo sem o cliente ter recebido nada (ameaça direta a SM-3). Ação: só renovar a janela no branch de sucesso do envio.
   - `[low]` `[patch]` `destinatarios_gestor_sla` está tipado `"string"` no schema de input do `executeWorkflow` de "Escalar ao Gestor (SLA)", apesar de ser array JSONB (mesmo formato de `destinatarios_emergencia`) — inofensivo hoje só porque `attemptToConvertTypes` é `false`. Ação: corrigir o tipo do schema.
 
+
+### 2026-09-04 — Review pass (follow-up)
+- intent_gap: 0
+- bad_spec: 0
+- patch: 10: (high 3, medium 5, low 2)
+- defer: 5: (high 0, medium 3, low 2)
+- reject: 11: (high 0, medium 2, low 9)
+- addressed_findings:
+  - `[high]` `[patch]` Em `06`, o branch falso de "Task de SLA Confirmada Aberta?" (Task resolvida por humano durante a reconferência individual) chamava `05 - Gerenciar Task SLA.json` só com `deal_id` -- como nenhuma Task "Acompanhamento SLA" aberta existe mais, `05` criava uma nova, ressuscitando um caso já resolvido pelo humano. Ação: esse branch agora vira um noOp ("Task de SLA Já Resolvida (Nenhuma Ação)"), sem nenhuma chamada a `05`.
+  - `[high]` `[patch]` `05 - Gerenciar Task SLA.json` tratava as chamadas `POST`/`PUT` a `/tasks` (`onError: continueRegularOutput`) como sucesso incondicional, liberando o lock e marcando "Task SLA Criada/Renovada" mesmo que a API tivesse retornado erro -- SLA nunca de fato rastreado, sem nenhum sinal. Ação: `options.response.response.fullResponse` habilitado nos dois `httpRequest`, com IF de `statusCode` 2xx antes de "Task SLA Criada"/"Task SLA Renovada"; falha vai para novos noOps ("Falha ao Criar/Renovar Task de SLA") que ainda liberam o lock.
+  - `[high]` `[patch]` Em `06`, "Escalar ao Gestor (SLA)" (`onError: continueRegularOutput`, `retryOnFail`) alimentava "Renovar Task de SLA (Escalonado)" incondicionalmente -- uma falha no alerta ao gestor (a mensagem mais crítica do mecanismo de SLA) passava despercebida. Ação: novo IF "Escalonamento ao Gestor Bem-sucedido?" (`$json.error` ausente) antes da renovação; falha vai a um noOp dedicado e a Task não é renovada, permitindo nova tentativa no próximo ciclo do cron (due_date continua vencido).
+  - `[medium]` `[patch]` `05`/`06` liam `sla_resposta_minutos`/`lock_ttl_minutos`/`destinatarios_gestor_sla` via `SELECT ... FROM atendimento_config WHERE id = 1` direto na tabela, contradizendo o próprio comentário da migration 0012 ("o cron lê a config via este mesmo ponto único de leitura (AD-1), nunca por SELECT direto na tabela") e o padrão já estabelecido em `01 - Agente.json`/`03 - Buscar Info Setor.json`. Ação: as duas queries agora usam `SELECT atendimento_config_ler('triagem') AS config`, com todas as expressões downstream ajustadas para `.item.json.config.<campo>` (mesmo padrão já usado no restante do projeto).
+  - `[medium]` `[patch]` Em `06`, "Escalar ao Gestor (SLA)" mapeava um texto gerado pelo próprio cron ("Task de SLA vencida sem resposta humana...") para `mensagem_relevante`, campo que o template de `02 - Escalar Humano.json` renderiza literalmente como `Mensagem relevante do cliente: "..."` -- atribuindo ao cliente uma frase que ele nunca disse. Ação: campo `mensagem_relevante` esvaziado nesta chamada (o contexto já é transmitido corretamente via `motivo`/`resumo`, que são compostos pelo cron).
+  - `[medium]` `[patch]` Nenhuma verificação automatizada cobria o lock de concorrência de `05` (só o "Manual checks" cobria, sob invocação humana). Ação: novo comando de verificação estrutural confirmando que o lock guarda a busca-então-cria/renova e que todo desfecho (sucesso, falha de API, ou não-gerenciado) libera o lock.
+  - `[medium]` `[patch]` Nenhuma verificação automatizada cobria a reconferência individual obrigatória de Murat (SM-C2) em `06`. Ação: novo comando de verificação estrutural confirmando que só o branch verdadeiro de "Task de SLA Confirmada Aberta?" alimenta o envio/escalonamento, e que o branch falso não recria a Task.
+  - `[medium]` `[patch]` Nenhuma verificação automatizada cobria os dois novos gates de sucesso-antes-de-renovar (lembrete ao cliente em Sweep A, escalonamento ao gestor em Sweep B). Ação: novo comando de verificação estrutural confirmando a topologia dos dois gates.
+  - `[low]` `[patch]` Comentário da migration 0012 atribuía a origem do telefone usado por `atendimento_estado_espera_marcar` a um nó `Info` de `01 - Agente.json` que não existe nesse workflow -- o chamador real é `$('Receber Solicitação').item.json.telefone` em `04`. Ação: comentário corrigido para citar o nó/campo real.
+  - `[low]` `[patch]` `conversas.md` tinha uma referência cruzada pendurada ("ver Deferred/observação abaixo") sem nenhuma observação correspondente no restante do arquivo. Ação: nota reescrita para ser autocontida.
+
 ## Auto Run Result
 
-Status: `done`
-Blocking condition: nenhuma.
+**Resumo:** Rodada de revisão de follow-up (sem novo intent) sobre a implementação já `done` do CAP-8. Não houve intent_gap nem bad_spec -- todos os achados de consequência ficaram dentro do espaço de decisão já delegado pela `<intent-contract>` original. Dez achados de `patch` foram corrigidos nesta passada (três `high`), cinco novos riscos foram para `deferred` (nenhum bloqueante), e onze achados foram descartados como ruído/duplicata/já coberto pelo spec literal.
 
-**Resumo da implementação:** Story 12 (CAP-8 — Temporizadores, Continuidade e SLA) implementada de ponta a ponta: estado de espera por sessão (`estado_espera`/`numero_ciclo_escalonamento`), Task dedicada de SLA no RD CRM criada/renovada por um sub-workflow reutilizável, e um cron independente que varre sessões pré-handoff vencidas (lembrete) e Tasks de SLA pós-handoff vencidas (atualização ao cliente + escalonamento progressivo ao gestor), reconferindo resolução ao vivo antes de disparar (condição de Murat/SM-C2).
+**Arquivos alterados nesta passada:**
+- `n8n/workflows/05 - Gerenciar Task SLA.json` -- leitura de config via `atendimento_config_ler('triagem')` (antes, SELECT direto); gate de `statusCode` 2xx antes de tratar `POST`/`PUT /tasks` como sucesso, com novos noOps de falha que ainda liberam o lock.
+- `n8n/workflows/06 - Lembretes e Escalonamento SLA.json` -- leitura de config via `atendimento_config_ler('triagem')`; branch de Task-já-resolvida-durante-reconferência não chama mais `05` (evitava recriar uma Task já fechada pelo humano); gate de sucesso antes de renovar a Task como "escalonada" (`Escalonamento ao Gestor Bem-sucedido?`); `mensagem_relevante` não fabrica mais uma citação do cliente.
+- `n8n/migrations/0012_temporizadores_sla.sql` -- comentário corrigido (fonte real do telefone em `04`).
+- `.claude/skills/rd-station-api/references/conversas.md` -- referência cruzada pendurada removida.
+- `_bmad-output/specs/spec-atendimento-nouvet/stories/12-cap-8-temporizadores-continuidade-e-sla.md` -- 4 novos comandos de verificação estrutural; 5 novos itens `deferred`; este `Auto Run Result` e a entrada de triagem desta passada.
 
-**Arquivos alterados:**
-- `n8n/migrations/0012_temporizadores_sla.sql` (novo) — remove schema morto (`aguardando_followup`/`numero_followup`/`lembretes_horas`/`follow_ups_horas`/`max_followups`); adiciona `estado_espera`, `numero_ciclo_escalonamento`, `destinatarios_gestor_sla`, `atendimento_estado_espera_marcar`; estende `atendimento_config_ler`; adiciona (na rodada de patch) `n8n_task_sla_lock` + `task_sla_lock_adquirir`/`task_sla_lock_liberar` para concorrência.
-- `n8n/workflows/05 - Gerenciar Task SLA.json` (novo) — porta única de criação/renovação da Task de SLA, agora com trava de concorrência por `deal_id`.
-- `n8n/workflows/06 - Lembretes e Escalonamento SLA.json` (novo) — cron `scheduleTrigger` (1 min) com Sweep A (lembrete pré-handoff via Postgres) e Sweep B (escalonamento pós-handoff via RD CRM), com paginação, filtro RDQL seguro, reconferência individual pré-disparo e guarda de envio bem-sucedido antes de renovar a janela.
-- `n8n/workflows/04 - Registrar Atendimento CRM.json` — hook mínimo ao final do fechamento de setor: chama `05` e `atendimento_estado_espera_marcar`.
-- `.claude/skills/rd-station-api/references/crm.md` — documenta `GET /tasks` e `PUT /tasks/{id}`.
-- `.claude/skills/rd-station-api/references/conversas.md` — corrige o endpoint real de busca por telefone (`GET /v2/contacts/{cel_phone}/exists`, não `/v2/contacts/phone/{phone}`) e documenta o contrato de resposta confirmado nesta story.
-- `n8n/migrations/README.md` — changelog da `0012`.
+**Achados de revisão (esta passada):**
+- Patch: 10 (high 3, medium 5, low 2) -- todos aplicados e reverificados (ver Review Triage Log).
+- Deferred: 5 (medium 3, low 2) -- adicionados à lista `deferred` do frontmatter.
+- Reject: 11 (medium 2, low 9) -- descartados (duplicata de itens já deferidos em passada anterior, comportamento já coberto pela leitura literal do spec, ou sem dano concreto demonstrado).
 
-**Review findings breakdown:** 7 patches aplicados (6 high, 1 low) — paginação da varredura de Tasks, formato seguro do filtro `due_date` (RDQL), trava de concorrência na criação/renovação da Task de SLA, reconferência individual antes de cada disparo (não só por lote), correção do endpoint real de busca por telefone no RD Conversas, não renovar a janela de espera em envio de lembrete que falhou, e tipo de schema do campo `destinatarios_gestor_sla`. 3 itens deferidos (2 medium, 1 low, registrados no frontmatter `deferred`). 10 itens rejeitados como ruído (defensáveis pelo desenho já registrado no spec ou de baixa probabilidade/impacto, ex.: sem teto de ciclos de escalonamento — corresponde à urgência crescente pedida pelo Intent).
+**Recomendação de follow-up:** `true` (3 achados `high` nesta passada; score 3×5(medium)+1×2(low) = 17, já acima do limiar por conta dos `high`).
 
-**Follow-up review recommendation:** `true` (qualquer patch `high` já força `true`; contagem por severidade desta rodada: high=6, medium=0, low=1; score bruto = 3×0 + 1×1 = 1).
+**Verificação realizada:**
+- Os 5 comandos originais da story (schema/migration, grep de campos removidos, estrutura de `05`/`06`/`04`) foram reexecutados após os patches -- todos `OK`.
+- 4 novos comandos de verificação estrutural adicionados e confirmados `OK`: lock de concorrência de `05` guardando e sendo liberado em todo desfecho; reconferência individual de Murat (SM-C2) como única porta de envio/escalonamento em `06`; gates de sucesso-antes-de-renovar (lembrete ao cliente e escalonamento ao gestor); ausência de leitura direta de `atendimento_config` em `05`/`06`.
+- Integridade estrutural de `05`/`06` (todo nó referenciado em `connections` existe, nenhuma referência solta) verificada via inspeção Python após cada edição.
+- RD CRM/n8n reais não disponíveis neste ambiente de build -- verificação manual na VPS de dev (já descrita na story) permanece pendente para o Nouvet/Btech.Cloud antes do go-live.
 
-**Verificação realizada:** os 5 comandos de `## Verification` da story rodaram e passaram (`OK`) antes e depois da rodada de patches. Checagem adicional de integridade de grafo (sem nós órfãos, sem conexões pendentes, sem nomes duplicados) nos três workflows tocados/criados. Auditoria da I/O & Edge-Case Matrix (5 cenários) contra a topologia final — todos batem, com os cenários 2/3/5 (não-resposta humana/já resolvido/escalonamento repetido) mais robustos após a reconferência individual pré-disparo (achado 4) e o cenário 4 (lembrete ao cliente) protegido contra perda silenciosa de ciclo em falha de envio (achado 6). Sem n8n/RD CRM real disponível neste ambiente de build — mesma limitação estática já documentada desde a Story 1.
-
-**Riscos residuais explícitos:** (1) os 3 itens `deferred` no frontmatter (falha parcial entre os dois branches novos do hook em `04`, branches terminais silenciosos sem log/alerta em `05`/`06`, comparação de timestamp sem normalização explícita de UTC); (2) a forma exata do JSON de paginação HTTP Request do n8n (feature nativa usada pela primeira vez neste projeto) não foi validada contra uma instância real — vale conferência na VPS de dev antes do go-live; (3) primeira story do projeto a fazer `PUT`/`GET` contra Tasks do RD CRM e a primeira a usar a busca por telefone do RD Conversas — ambos os contratos foram confirmados contra a documentação oficial nesta sessão, mas nunca contra tráfego real. O gap de cobertura para handoffs via `Escalar_humano` (SM-1/DW-50) permanece explícito no `Never`/Design Notes, não fechado por esta story.
+**Riscos residuais:** os 8 itens agora em `deferred` (3 da passada anterior + 5 desta), nenhum bloqueante para esta story: risco de SLA não-rastreado se `05` falhar como sub-workflow a partir de `04` (DW-75 já registrado); branches terminais silenciosos sem alerta/log (DW-76 já registrado); comparação de timestamp sem normalização explícita de UTC (DW-77 já registrado); `estado_espera` monotônico (nunca retorna a `aguardando_cliente`, afeta só clientes recorrentes pós-handoff); ausência de trava contra execuções sobrepostas do próprio cron `06`; heurística de correlação Task->telefone pode escolher o familiar errado quando um `rd_crm_contact_id` é compartilhado; "Enviar Atualização ao Cliente" sem verificação de sucesso (sem efeito colateral em estado); `task_sla_lock_adquirir` sem guarda contra TTL nulo.

@@ -10,7 +10,7 @@ Header `Authorization: Bearer <token_jwt>`. O token é estático, gerado manualm
 
 | Ação | Método | Path | Notas |
 |---|---|---|---|
-| Criar contato | POST | `/v2/contacts` | Campo obrigatório: `cel_phone`. **Depreciado** — a doc oficial recomenda `POST /v2/contacts/whatsapp-business-by-brokers` no lugar (não usado por nenhum workflow deste projeto hoje, ver Deferred/observação abaixo). |
+| Criar contato | POST | `/v2/contacts` | Campo obrigatório: `cel_phone`. **Depreciado** — a doc oficial recomenda `POST /v2/contacts/whatsapp-business-by-brokers` no lugar (não usado por nenhum workflow deste projeto hoje; nenhuma migração foi feita nesta sessão, apenas registrada a depreciação). |
 | Criar em lote | POST | `/v2/contacts/bulk` | Body `{"contacts": [...]}`. **Assíncrono** — devolve `{"job": {"id", "status": awaiting\|processing\|completed\|failed", ...}}`; consultar status depois. Exige plano Advanced. |
 | Verificar/obter por telefone | GET | `/v2/contacts/{cel_phone}/exists` | **Corrigido nesta sessão (CAP-8/Story 12)** — a entrada anterior desta tabela apontava `GET /v2/contacts/phone/{phone}`, um path não confirmado contra a doc oficial (possível suposição de uma sessão anterior, nunca antes exercitado por nenhum workflow deste projeto). Confirmado via `developers.rdstation.com/reference/conversas-v2-get-contact-by-phone.md`: apesar do nome ("exists"), devolve o contato completo quando encontrado — é o mecanismo real para resolver `contact_id` a partir de telefone antes de `POST /v2/messages/{contact_id}/send`. Ver formato de telefone e schema da resposta abaixo. |
 | Atualizar por telefone | PUT/PATCH | `/v2/contacts/phone/{phone}` | — não reconfirmado nesta sessão (fora do escopo desta story, nenhum workflow chama). |

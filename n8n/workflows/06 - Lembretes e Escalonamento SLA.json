@@ -54,7 +54,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT sla_resposta_minutos, destinatarios_gestor_sla FROM atendimento_config WHERE id = 1",
+        "query": "SELECT atendimento_config_ler('triagem') AS config",
         "options": {}
       },
       "type": "n8n-nodes-base.postgres",
@@ -79,7 +79,7 @@
         "operation": "executeQuery",
         "query": "SELECT s.session_id, s.updated_at\nFROM n8n_status_atendimento s\nWHERE s.estado_espera = 'aguardando_cliente'\n  AND s.updated_at <= now() - make_interval(mins => $1)",
         "options": {
-          "queryReplacement": "={{ [$('Buscar Config SLA').item.json.sla_resposta_minutos] }}"
+          "queryReplacement": "={{ [$('Buscar Config SLA').item.json.config.sla_resposta_minutos] }}"
         }
       },
       "type": "n8n-nodes-base.postgres",
@@ -648,7 +648,7 @@
             {
               "id": "fe4afdb6-9cbf-4cc0-8f14-3284ec98fbee",
               "name": "inicio_ciclo_atual",
-              "value": "={{ DateTime.fromISO($('Extrair Task e Deal').item.json.due_date).minus({ minutes: $('Buscar Config SLA').item.json.sla_resposta_minutos }).toISO() }}",
+              "value": "={{ DateTime.fromISO($('Extrair Task e Deal').item.json.due_date).minus({ minutes: $('Buscar Config SLA').item.json.config.sla_resposta_minutos }).toISO() }}",
               "type": "string"
             }
           ]
@@ -779,7 +779,7 @@
             {
               "id": "5c870f38-8c1e-44a6-be2e-cb3baab81450",
               "name": "minutos_atraso_total",
-              "value": "={{ ((Number($('Buscar Identidade e Status por Contato').item.json.numero_ciclo_escalonamento) || 0) + 1) * Number($('Buscar Config SLA').item.json.sla_resposta_minutos) }}",
+              "value": "={{ ((Number($('Buscar Identidade e Status por Contato').item.json.numero_ciclo_escalonamento) || 0) + 1) * Number($('Buscar Config SLA').item.json.config.sla_resposta_minutos) }}",
               "type": "number"
             }
           ]
@@ -921,10 +921,10 @@
             "telefone": "={{ $('Buscar Identidade e Status por Contato').item.json.telefone }}",
             "nome_cliente": "={{ $('Buscar Identidade e Status por Contato').item.json.nome_cliente }}",
             "nome_pet": "={{ $('Buscar Identidade e Status por Contato').item.json.nome_pet }}",
-            "mensagem_relevante": "=Task de SLA vencida sem resposta humana (deal {{ $('Extrair Task e Deal').item.json.deal_id }})",
+            "mensagem_relevante": "",
             "motivo": "={{ 'SLA de resposta estourado (ciclo ' + $('Compor Dados de Escalonamento').item.json.numero_ciclo_atual + ')' }}",
             "resumo": "={{ 'Atendimento aguardando humano há ' + $('Compor Dados de Escalonamento').item.json.minutos_atraso_total + ' minuto(s) no total (ciclo ' + $('Compor Dados de Escalonamento').item.json.numero_ciclo_atual + ' de escalonamento). Cliente: ' + ($('Buscar Identidade e Status por Contato').item.json.nome_cliente || '(nome não informado)') + '. Telefone: ' + ($('Buscar Identidade e Status por Contato').item.json.telefone || '(telefone não informado)') + '. Deal: ' + $('Extrair Task e Deal').item.json.deal_id }}",
-            "destinatarios_emergencia": "={{ $('Buscar Config SLA').item.json.destinatarios_gestor_sla }}"
+            "destinatarios_emergencia": "={{ $('Buscar Config SLA').item.json.config.destinatarios_gestor_sla }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -1050,8 +1050,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        4860,
-        640
+        2200,
+        220
       ],
       "id": "0f857459-54bd-4c4d-ba56-a7fbffb0c74d",
       "name": "Renovar Task de SLA (Escalonado)",
@@ -1272,47 +1272,60 @@
       "retryOnFail": true
     },
     {
-      "parameters": {
-        "source": "database",
-        "workflowId": {
-          "__rl": true,
-          "mode": "list",
-          "value": "SET_IN_N8N_UI",
-          "cachedResultName": "05 - Gerenciar Task SLA"
-        },
-        "workflowInputs": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "deal_id": "={{ $('Extrair Task e Deal').item.json.deal_id }}"
-          },
-          "matchingColumns": [],
-          "schema": [
-            {
-              "id": "deal_id",
-              "displayName": "deal_id",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "canBeUsedToMatch": true,
-              "type": "string",
-              "removed": false
-            }
-          ],
-          "attemptToConvertTypes": false,
-          "convertFieldsToString": false
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.2,
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
       "position": [
         4400,
         900
       ],
       "id": "b28738ed-25e6-42e2-a12c-369c9662aaa8",
-      "name": "Renovar Task de SLA (Resolvida Durante Reconferência)",
-      "onError": "continueRegularOutput",
-      "retryOnFail": true
+      "name": "Task de SLA Já Resolvida (Nenhuma Ação)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1a2f3e4-1111-4b1a-9b0c-5b6b1e2a9a10",
+              "leftValue": "={{ $json.error === undefined || $json.error === null }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1980,
+        300
+      ],
+      "id": "c1a2f3e4-1111-4b1a-9b0c-5b6b1e2a9a11",
+      "name": "Escalonamento ao Gestor Bem-sucedido?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2200,
+        400
+      ],
+      "id": "c1a2f3e4-1111-4b1a-9b0c-5b6b1e2a9a12",
+      "name": "Escalonamento ao Gestor Falhou (Task Não Renovada)"
     }
   ],
   "connections": {
@@ -1628,7 +1641,7 @@
       "main": [
         [
           {
-            "node": "Renovar Task de SLA (Escalonado)",
+            "node": "Escalonamento ao Gestor Bem-sucedido?",
             "type": "main",
             "index": 0
           }
@@ -1709,7 +1722,25 @@
         ],
         [
           {
-            "node": "Renovar Task de SLA (Resolvida Durante Reconferência)",
+            "node": "Task de SLA Já Resolvida (Nenhuma Ação)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escalonamento ao Gestor Bem-sucedido?": {
+      "main": [
+        [
+          {
+            "node": "Renovar Task de SLA (Escalonado)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Escalonamento ao Gestor Falhou (Task Não Renovada)",
             "type": "main",
             "index": 0
           }
@@ -1725,7 +1756,7 @@
     "callerPolicy": "workflowsFromSameOwner",
     "availableInMCP": false
   },
-  "versionId": "cebc2903-adac-4363-b826-21da7b29b6bb",
+  "versionId": "9fc7e1f5-b15e-422a-a9c5-a76b488d2275",
   "meta": {
     "instanceId": "atendimento-nouvet-piloto"
   },
