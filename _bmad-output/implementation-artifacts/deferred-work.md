@@ -532,3 +532,27 @@ severity: low
 reason: `followup_review_recommended: true` ficou sem nenhuma revisão de follow-up de fato executada — a sessão automática (`8-review-1`) foi morta pelo limite de uso do `codex` antes de completar, e a `8-review-2` que o loop disparou em seguida também travou no mesmo limite (rate-limit interativo) e precisou ser parada manualmente; o adapter de review foi trocado para `claude` no `policy.toml` para evitar repetição.
 status: resolved
 resolution: Revisão manual feita em 2026-09-03 (ver Review Triage Log da story 8, seção "Revisão independente"). A maior parte dos gaps esperados já tinha sido coberta pelas Validações 13-17 adicionadas durante a resolução das pendências da Story 7 (aplicam-se às Seções 3/4/5 simultaneamente). 1 achado novo e específico de Consultas corrigido por simetria com Vacinas (Seção 4.2 agora reconhece a especialidade pedida antes de pivotar para queixa).
+
+### DW-66: A expressão do campo `mensagem` (nó `Extrair dados da mensagem`) nunca trata `$json.body` como potencialmente ausente/nulo — acessa `b.message` direto sem guarda (`b = $json.body`).
+origin: spec-deferred 2a7618fe0c24
+location: n8n/workflows/01 - Agente.json -- nó "Extrair dados da mensagem", campo `mensagem`
+source_spec: `9-cap-5-fluxo-exames.md`
+severity: low
+reason: Pré-existente desde as Stories 1-4 (o código original já fazia `$json.body.message || $json.body.content || ...` sem checar `body` primeiro); a Story 9 apenas reutilizou a mesma variável `b` para montar a lógica de anexo, sem introduzir o problema. Se o webhook algum dia enviar um payload sem `body`, o node inteiro falha na avaliação da expressão -- risco real, mas de escopo maior que esta story (afeta qualquer setor, não só Exames).
+status: open
+
+### DW-67: A Seção 3 (Care Center) do SOP ainda afirma "nunca para os demais setores, que ainda não têm coleta ativa", frase que já ficou falsa desde a Story 8 (Consultas/Vacinas ganharam coleta ativa) e agora t
+origin: spec-deferred 544e4f9077b7
+location: n8n/workflows/01 - Agente.json -- nó `Agente Nouvet`, `systemMessage`, abertura da Seção "3. Fluxo Care Center"
+source_spec: `9-cap-5-fluxo-exames.md`
+severity: low
+reason: Confirmado por inspeção: as Seções 4 (Consultas) e 5 (Vacinas) já não têm essa frase -- só a Seção 3 ainda a mantém, um resíduo da Story 7 nunca atualizado quando outros setores passaram a ter coleta própria. A Story 9 não tocou na Seção 3.1 (só acrescentou a Seção 6 e atualizou os 4 apontamentos "fase seguinte ainda não construída" explicitamente listados no Boundaries da story), então o problema é anterior e mais amplo que este escopo.
+status: open
+
+### DW-68: O Set node de projeção em `03 - Buscar Info Setor.json` lê `$json.config.<campo>` para os 3 campos (`catalogo_servicos`, `profissionais`, `exames_exigem_anestesia`) sem nenhuma guarda para `$json.conf
+origin: spec-deferred f4be5b8572c0
+location: n8n/workflows/03 - Buscar Info Setor.json -- Set node "Selecionar Catálogo e Profissionais"
+source_spec: `9-cap-5-fluxo-exames.md`
+severity: low
+reason: Padrão pré-existente: `catalogo_servicos` e `profissionais` já liam `$json.config.*` sem guarda antes desta story; a Story 9 só acrescentou `exames_exigem_anestesia` seguindo exatamente o mesmo padrão já existente, sem introduzir a falta de guarda.
+status: open

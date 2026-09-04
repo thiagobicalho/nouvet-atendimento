@@ -3,7 +3,7 @@
   "nodes": [
     {
       "parameters": {
-        "content": "## 03. Buscar Info Setor\n\nSub-workflow de leitura (CAP-3/Story 7) -- ferramenta chamada pelo próprio `Agente Nouvet` via `toolWorkflow` (`01 - Agente.json`), sempre depois de o turno corrente já ter classificado o setor (Seção 2 do SOP). Implementa a montagem seletiva por setor \"não cumulativa\" (AD-1) sem o workflow persistir o setor classificado (decisão da Story 6): cada chamada busca só a fatia `setor` de `atendimento_config_ler(p_fase, p_setor)` (migrations 0004/0008/0010) para o `setor` recebido, nunca os 5 setores de uma vez. Devolve `catalogo_servicos` e `profissionais` já filtrados pelo setor -- nenhuma tool de agenda (AD-4), nenhuma escrita.\n\nScoped inicialmente (Story 7) só a `setor=\"Care Center\"` (quem decide o valor é o próprio agente via `$fromAI`, mesmo padrão de `motivo`/`resumo` de `02 - Escalar Humano.json`). A Story 8 (CAP-4) passou a chamar este mesmo sub-workflow também para `setor=\"Consultas\"` e `setor=\"Vacinas\"` (Seções 4/5 do SOP em `01 - Agente.json`), sem nenhuma mudança de `nodes`/`connections` aqui -- Story 9 (Exames) reutiliza da mesma forma, nunca duplica.",
+        "content": "## 03. Buscar Info Setor\n\nSub-workflow de leitura (CAP-3/Story 7) -- ferramenta chamada pelo próprio `Agente Nouvet` via `toolWorkflow` (`01 - Agente.json`), sempre depois de o turno corrente já ter classificado o setor (Seção 2 do SOP). Implementa a montagem seletiva por setor \"não cumulativa\" (AD-1) sem o workflow persistir o setor classificado (decisão da Story 6): cada chamada busca só a fatia `setor` de `atendimento_config_ler(p_fase, p_setor)` (migrations 0004/0008/0010) para o `setor` recebido, nunca os 5 setores de uma vez. Devolve `catalogo_servicos` e `profissionais` já filtrados pelo setor -- nenhuma tool de agenda (AD-4), nenhuma escrita.\n\nScoped inicialmente (Story 7) só a `setor=\"Care Center\"` (quem decide o valor é o próprio agente via `$fromAI`, mesmo padrão de `motivo`/`resumo` de `02 - Escalar Humano.json`). A Story 8 (CAP-4) passou a chamar este mesmo sub-workflow também para `setor=\"Consultas\"` e `setor=\"Vacinas\"` (Seções 4/5 do SOP em `01 - Agente.json`), sem nenhuma mudança de `nodes`/`connections` aqui. A Story 9 (CAP-5, Exames) reutiliza da mesma forma, nunca duplica -- só acrescentou a terceira projeção `exames_exigem_anestesia` (passthrough direto de `atendimento_config_ler`, vazio para os demais setores, já tratado pela função Postgres), consumida pela Seção 6 do SOP em `01 - Agente.json` para decidir quando perguntar sobre exames pré-anestésicos (FR-16/AD-1).",
         "height": 320,
         "width": 460
       },
@@ -72,6 +72,12 @@
               "id": "2f069488-d963-414c-80cb-264857dd8216",
               "name": "profissionais",
               "value": "={{ $json.config.profissionais }}",
+              "type": "array"
+            },
+            {
+              "id": "8a4e9d3f-6b1a-4c3d-9e2f-1d5c7a8b0f4e",
+              "name": "exames_exigem_anestesia",
+              "value": "={{ $json.config.exames_exigem_anestesia }}",
               "type": "array"
             }
           ]
