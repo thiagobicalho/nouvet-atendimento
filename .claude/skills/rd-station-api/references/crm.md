@@ -53,8 +53,23 @@ Campos do `Contact`: `name`, `job_title`, `emails` (array de `{"email": "..."}`)
 
 Não existe endpoint dedicado de "buscar por telefone" como no Conversas (`GET /v2/contacts/phone/{phone}`) — aqui é sempre `GET /contacts?filter=phone:<numero>`. **O formato do número pode não bater entre os dois produtos**: o exemplo oficial do CRM usa E.164 limpo (`+5511999999999`), enquanto o exemplo oficial do Conversas usa o número com espaços e traços (`+55 11 999-888-777`). Ao casar contato por telefone entre Conversas e CRM, normalizar o número (remover espaços/traços, garantir `+55`) antes de comparar ou filtrar — não assumir que o mesmo string funciona nos dois lados.
 
+## Tarefas (Tasks)
+
+| Ação | Método | Path | Notas |
+|---|---|---|---|
+| Criar | POST | `/tasks` | Body `{"data": {...Task}}`. |
+
+Campos do `Task`: `name`, `description`, `type`, `status` (**só aceita `"open"` na criação** — não dá para criar uma Task já concluída/atrasada por este endpoint), `due_date`, `deal_id` (associa a Task a um card específico), `owner_ids` (array de responsáveis). `deal_id` é o vínculo relevante para o Piloto — a Task de cadastro pendente no SimplesVet e/ou alerta de duplicidade familiar (AD-11, CAP-7/Story 11) é criada com `deal_id` do card do cliente, `status="open"`, sem `type`/`due_date`/`owner_ids` (nenhum desses campos tem dado configurado/confirmado com o Nouvet ainda — mesmo padrão "não inventa" já usado em outras integrações deste projeto).
+
+## Notas (Notes)
+
+| Ação | Método | Path | Notas |
+|---|---|---|---|
+| Criar | POST | `/deals/{deal_id}/notes` | Body `{"data": {...Note}}`. |
+
+Campos do `Note`: `description` (texto da nota), `user_id` (autor da nota, opcional). **Não existe endpoint de edição/atualização de nota** — toda chamada cria uma nota nova; o histórico de notas de um deal é append-only por natureza da API (nunca sobrescreve uma nota anterior). É o mecanismo usado pelo Piloto (CAP-7/Story 11) para registrar o histórico de atendimentos de um card ao longo do tempo (setor + preferências coletadas + estado + timestamp), enquanto o `stage_id` do deal reflete só o setor do atendimento corrente.
+
 ## Outros recursos disponíveis (puxar a página com `.md` no fim da URL quando for usar)
 
 - Empresas: `crm-v2-organizations` e variantes list/create/get/update
-- Tarefas: `crm-v2-tasks` e variantes
 - Webhooks — aqui **existe** API REST de verdade (ao contrário do Conversas): `crm-v2-webhooks`, `list-webhooks`, `create-webhook`, `update-webhook`, `delete-webhook`
