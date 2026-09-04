@@ -2,7 +2,7 @@
 title: 'CAP-7 — Registro e Memória no CRM'
 type: 'feature'
 created: '2026-09-03'
-status: 'blocked'
+status: 'in-review'
 review_loop_iteration: 0
 followup_review_recommended: false
 context: ['{project-root}/_bmad-output/planning-artifacts/architecture/architecture-atendimento-2026-09-01/ARCHITECTURE-SPINE.md']
