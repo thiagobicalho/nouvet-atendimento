@@ -556,3 +556,19 @@ source_spec: `9-cap-5-fluxo-exames.md`
 severity: low
 reason: Padrão pré-existente: `catalogo_servicos` e `profissionais` já liam `$json.config.*` sem guarda antes desta story; a Story 9 só acrescentou `exames_exigem_anestesia` seguindo exatamente o mesmo padrão já existente, sem introduzir a falta de guarda.
 status: open
+
+### DW-69: Não há regra simétrica à Validação 16 para quando o cliente muda de assunto saindo da Seção 7 (Orçamentos) em direção a um setor com coleta ativa (ex.: "na verdade, só agenda o banho mesmo").
+origin: spec-deferred ce4d7e06357b
+location: n8n/workflows/01 - Agente.json (systemMessage, Validação 16 / Seção 7)
+source_spec: `10-cap-6-orcamentos-roteamento-puro.md`
+severity: low
+reason: Validação 16 cobre apenas a direção "Seções 3, 4, 5 ou 6 -> Seção 2 -> outro setor"; a Seção 7 nunca existiu antes desta story, então este caminho de saída nunca pôde ocorrer antes. Não há nenhuma outra validação genérica de troca de assunto no restante do systemMessage (confirmado por busca textual). O I/O & Edge-Case Matrix desta story não cobre este cenário, e o comportamento resultante depende inteiramente da competência geral do LLM em retriagem, sem instrução explícita.
+status: open
+
+### DW-70: Typo pré-existente "sigo com o que you já me passou" (deveria ser "eu") no Exemplo 14, não relacionado a esta story.
+origin: spec-deferred 29d32aa8a57f
+location: n8n/workflows/01 - Agente.json (systemMessage, Exemplo 14)
+source_spec: `10-cap-6-orcamentos-roteamento-puro.md`
+severity: low
+reason: Encontrado incidentalmente durante a revisão desta story; o texto do Exemplo 14 não foi tocado por este diff (é de uma story anterior) e continua com o erro.
+status: open
