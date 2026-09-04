@@ -572,3 +572,35 @@ source_spec: `10-cap-6-orcamentos-roteamento-puro.md`
 severity: low
 reason: Encontrado incidentalmente durante a revisão desta story; o texto do Exemplo 14 não foi tocado por este diff (é de uma story anterior) e continua com o erro.
 status: open
+
+### DW-71: A detecção de possível duplicidade familiar (match só por nome de pet, case-insensitive, entre telefones diferentes) pode gerar falso positivo entre famílias sem relação alguma.
+origin: spec-deferred e63dd2217048
+location: n8n/migrations/0006_identidade_porta_unica.sql (CTE `duplicidade`)
+source_spec: `11-cap-7-registro-e-memoria-no-crm.md`
+severity: medium
+reason: Lógica herdada da CTE `duplicidade` de `identidade_cliente_pet_resolver` (Story 4, `n8n/migrations/0006_identidade_porta_unica.sql`, não alterada por esta story): compara só `lower(btrim(nome_pet))` entre linhas de telefones distintos, sem nenhum sinal de nome do dono/endereço. Nomes de pet comuns (Rex, Mel, Bob) entre dois clientes reais e não aparentados disparam o alerta. Já era uma limitação conhecida e documentada desde a Story 4 ("não elimina o caso... só avisa o caller"), mas até esta story o caller (sub-workflow de Task) não existia -- Story 11 é quem ativa esse aviso contra tráfego real pela primeira vez, então o volume de falsos positivos em produção é uma incógnita nova.
+status: open
+
+### DW-72: A Task de "possível duplicidade familiar" não é idempotente entre atendimentos futuros do mesmo cliente -- pode criar uma Task nova a cada fechamento de seção enquanto a duplicidade não for resolvida
+origin: spec-deferred 91cd5b7af3db
+location: n8n/workflows/04 - Registrar Atendimento CRM.json (nodes "Precisa criar Task?" / "Criar Task de Revisão")
+source_spec: `11-cap-7-registro-e-memoria-no-crm.md`
+severity: low
+reason: `possivel_duplicidade_familiar` é recalculado a cada chamada de `identidade_cliente_pet_resolver` (não é um estado persistido/resolvido). O node "Precisa criar Task?" (`n8n/workflows/04 - Registrar Atendimento CRM.json`) só olha a flag da chamada atual, sem checar se já existe uma Task aberta equivalente no deal. Um cliente com duplicidade não resolvida que fecha múltiplas seções no futuro pode acumular várias Tasks repetidas no mesmo card. O `Always` do contrato desta story só exige deduplicar as duas causas (cadastro pendente + duplicidade) *dentro da mesma chamada*, nunca promete idempotência entre chamadas futuras -- por isso não é um intent_gap nem bad_spec desta story, mas vale acompanhar (risco de poluir o card e, em escala, virar ruído percebido -- mesma preocupação de spam que a Story 12/SM-C2 já trata para escalonamento humano).
+status: open
+
+### DW-73: Os `httpRequest` de criação (POST) do novo sub-workflow usam `retryOnFail` sem idempotency key; se a criação suceder no servidor RD CRM mas a resposta expirar/falhar no n8n antes de chegar, o retry au
+origin: spec-deferred a4319f17fad6
+location: n8n/workflows/04 - Registrar Atendimento CRM.json (nodes "Criar Contato RD CRM", "Criar Deal", "Criar Task de Revisão")
+source_spec: `11-cap-7-registro-e-memoria-no-crm.md`
+severity: medium
+reason: `Criar Contato RD CRM`, `Criar Deal` e `Criar Task de Revisão` (`n8n/workflows/04 - Registrar Atendimento CRM.json`) têm `retryOnFail: true` -- exigido pelo `Always` desta story para todo `httpRequest`, sem exceção para chamadas de escrita -- mas nenhum mecanismo de idempotency key ou de verificação pós-retry de que a criação anterior já teve sucesso. `.claude/skills/rd-station-api/references/crm.md` não documenta suporte a idempotency key nesses endpoints. Os guards `Busca de Contato/Deal Bem-sucedida?` desta mesma rodada já mitigam o caso de a *busca* falhar (evitando um 2º contato/deal por busca malsucedida tratada como "não encontrado"), mas não cobrem o caso de a própria *criação* ter sucesso silencioso no servidor seguido de um retry do cliente.
+status: open
+
+### DW-74: Follow-up review still recommended for 11 after the damping cap was spent
+origin: review-budget-followup
+location: n/a
+source_spec: `11-cap-7-registro-e-memoria-no-crm.md`
+severity: low
+reason: The follow-up-review damping cap (limits.max_followup_reviews = 1) was spent with the story finalized (status: done, verify green) while the review pass still recommended an independent follow-up. The work was committed by bmad-loop run 20260904-152116-904f; this entry preserves the lingering recommendation for a deliberate later review.
+status: open
