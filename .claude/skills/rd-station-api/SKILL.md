@@ -32,6 +32,7 @@ RD Station Conversas (mensageria WhatsApp) e RD Station CRM (negociações/funil
 - **Formato de telefone diverge entre os dois produtos**: o exemplo oficial do CRM usa E.164 limpo (`+5511999999999`); o do Conversas usa espaços e traços (`+55 11 999-888-777`). Ao casar contato pelo telefone entre os dois (ver aviso acima sobre tenants separados), normalizar antes de comparar/filtrar — não assumir que a mesma string funciona nos dois lados.
 - **Webhook de mensagem recebida no Conversas não é um endpoint REST** — configura-se pelo painel (Integrações > Webhooks, em `app.tallos.com.br/app/integrations/webhooks`). O CRM, ao contrário, tem uma API REST de webhooks de verdade (`references/crm.md`).
 - **Truque útil da própria doc**: qualquer página em `developers.rdstation.com/reference/...` vira markdown puro só acrescentando `.md` no fim da URL — bom para puxar uma página específica sem ruído de navegação.
+- **Se uma tabela desta skill parecer incompleta pro que você precisa (ex.: um endpoint só lista paginação, sem parâmetros de filtro, mas você precisa filtrar por algo específico), não trate isso como confirmação de que a limitação existe.** As referências aqui são um resumo, não a doc completa — puxe a página oficial via `.md` (truque acima) antes de concluir que a API não suporta o que você precisa. Foi exatamente esse tipo de omissão (tabela de `/deals` não listando o filtro RDQL por `contact_id`, que existe de verdade) que já gerou um intent gap falso-positivo numa story.
 
 ## Conta Nouvet (confirmado com Thiago, 2026-08-31)
 
