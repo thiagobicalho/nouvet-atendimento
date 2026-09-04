@@ -68,7 +68,9 @@
           "id": "SET_IN_N8N_UI",
           "name": "Postgres - Atendimento Nouvet"
         }
-      }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true
     },
     {
       "parameters": {
@@ -89,7 +91,9 @@
           "id": "SET_IN_N8N_UI",
           "name": "Postgres - Atendimento Nouvet"
         }
-      }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true
     },
     {
       "parameters": {
@@ -382,7 +386,9 @@
           "id": "SET_IN_N8N_UI",
           "name": "Postgres - Atendimento Nouvet"
         }
-      }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true
     },
     {
       "parameters": {
@@ -608,7 +614,7 @@
         "options": {},
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ data: { description: 'Setor: ' + $('Receber Solicitação').item.json.setor + '\\nAtendimento: ' + $('Receber Solicitação').item.json.resumo_atendimento + '\\nEstado: ' + ($('Extrair Identidade e Stage').item.json.criado ? 'Cliente novo' : 'Cliente já cadastrado') + ($('Extrair Identidade e Stage').item.json.possivel_duplicidade_familiar ? ' (possível duplicidade familiar)' : '') + '\\nRegistrado em: ' + $now.format('dd/MM/yyyy HH:mm') } }) }}"
+        "jsonBody": "={{ JSON.stringify({ data: { description: 'Setor: ' + $('Receber Solicitação').item.json.setor + '\\nAtendimento: ' + $('Receber Solicitação').item.json.resumo_atendimento + '\\nEstado: ' + ($('Extrair Identidade e Stage').item.json.criado ? 'Cliente novo' : 'Cliente já cadastrado') + ($('Extrair Identidade e Stage').item.json.possivel_duplicidade_familiar ? ' (possível duplicidade familiar)' : '') + '\\nRegistrado em: ' + $now.toFormat('dd/MM/yyyy HH:mm') } }) }}"
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -699,6 +705,119 @@
       ],
       "id": "noop-sem-task",
       "name": "Nenhuma Task Necessária"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2640,
+        620
+      ],
+      "id": "noop-registro-abortado",
+      "name": "Registro CRM Não Realizado"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "if-identidade-resolvida-cond",
+              "leftValue": "={{ $json.identidade !== null && $json.identidade !== undefined }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        650,
+        620
+      ],
+      "id": "if-identidade-resolvida",
+      "name": "Identidade Resolvida?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "if-busca-contato-bem-sucedida-cond",
+              "leftValue": "={{ Array.isArray($json.data) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        620
+      ],
+      "id": "if-busca-contato-bem-sucedida",
+      "name": "Busca de Contato Bem-sucedida?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "if-busca-deal-bem-sucedida-cond",
+              "leftValue": "={{ Array.isArray($json.data) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2860,
+        620
+      ],
+      "id": "if-busca-deal-bem-sucedida",
+      "name": "Busca de Deal Bem-sucedida?"
     }
   ],
   "connections": {
@@ -717,7 +836,7 @@
       "main": [
         [
           {
-            "node": "Buscar Mapeamento de Stage CRM",
+            "node": "Identidade Resolvida?",
             "type": "main",
             "index": 0
           }
@@ -768,7 +887,7 @@
       "main": [
         [
           {
-            "node": "Contato encontrado por telefone?",
+            "node": "Busca de Contato Bem-sucedida?",
             "type": "main",
             "index": 0
           }
@@ -874,7 +993,7 @@
       "main": [
         [
           {
-            "node": "Deal existente?",
+            "node": "Busca de Deal Bem-sucedida?",
             "type": "main",
             "index": 0
           }
@@ -982,6 +1101,60 @@
           }
         ]
       ]
+    },
+    "Identidade Resolvida?": {
+      "main": [
+        [
+          {
+            "node": "Buscar Mapeamento de Stage CRM",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Registro CRM Não Realizado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca de Contato Bem-sucedida?": {
+      "main": [
+        [
+          {
+            "node": "Contato encontrado por telefone?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Registro CRM Não Realizado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca de Deal Bem-sucedida?": {
+      "main": [
+        [
+          {
+            "node": "Deal existente?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Registro CRM Não Realizado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "pinData": {},
@@ -992,10 +1165,10 @@
     "callerPolicy": "workflowsFromSameOwner",
     "availableInMCP": false
   },
-  "versionId": "a1b2c3d4-1111-2222-3333-444455556666",
+  "versionId": "80a46bbb-a796-485e-a4d6-170044e94797",
   "meta": {
     "instanceId": "atendimento-nouvet-piloto"
   },
-  "id": "04regcrm0000000000000001",
+  "id": "c98cf441-d0b6-484d-94b2-857b9f8461a1",
   "tags": []
 }

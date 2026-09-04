@@ -2,12 +2,47 @@
 title: 'CAP-7 — Registro e Memória no CRM'
 type: 'feature'
 created: '2026-09-03'
-status: 'in-review'
+status: 'done'
 review_loop_iteration: 0
-followup_review_recommended: false
+followup_review_recommended: true
 context: ['{project-root}/_bmad-output/planning-artifacts/architecture/architecture-atendimento-2026-09-01/ARCHITECTURE-SPINE.md']
 warnings: ['oversized']
-deferred: []
+deferred:
+  - summary: >-
+      A detecção de possível duplicidade familiar (match só por nome de pet, case-insensitive,
+      entre telefones diferentes) pode gerar falso positivo entre famílias sem relação alguma.
+    evidence: |-
+      Lógica herdada da CTE `duplicidade` de `identidade_cliente_pet_resolver` (Story 4,
+      `n8n/migrations/0006_identidade_porta_unica.sql`, não alterada por esta story): compara
+      só `lower(btrim(nome_pet))` entre linhas de telefones distintos, sem nenhum sinal de
+      nome do dono/endereço. Nomes de pet comuns (Rex, Mel, Bob) entre dois clientes reais e
+      não aparentados disparam o alerta. Já era uma limitação conhecida e documentada desde a
+      Story 4 ("não elimina o caso... só avisa o caller"), mas até esta story o caller
+      (sub-workflow de Task) não existia -- Story 11 é quem ativa esse aviso contra tráfego
+      real pela primeira vez, então o volume de falsos positivos em produção é uma incógnita
+      nova.
+    location: >-
+      n8n/migrations/0006_identidade_porta_unica.sql (CTE `duplicidade`)
+    severity: medium
+  - summary: >-
+      A Task de "possível duplicidade familiar" não é idempotente entre atendimentos futuros
+      do mesmo cliente -- pode criar uma Task nova a cada fechamento de seção enquanto a
+      duplicidade não for resolvida por um humano.
+    evidence: |-
+      `possivel_duplicidade_familiar` é recalculado a cada chamada de
+      `identidade_cliente_pet_resolver` (não é um estado persistido/resolvido). O node
+      "Precisa criar Task?" (`n8n/workflows/04 - Registrar Atendimento CRM.json`) só olha a
+      flag da chamada atual, sem checar se já existe uma Task aberta equivalente no deal. Um
+      cliente com duplicidade não resolvida que fecha múltiplas seções no futuro pode acumular
+      várias Tasks repetidas no mesmo card. O `Always` do contrato desta story só exige
+      deduplicar as duas causas (cadastro pendente + duplicidade) *dentro da mesma chamada*,
+      nunca promete idempotência entre chamadas futuras -- por isso não é um intent_gap nem
+      bad_spec desta story, mas vale acompanhar (risco de poluir o card e, em escala, virar
+      ruído percebido -- mesma preocupação de spam que a Story 12/SM-C2 já trata para
+      escalonamento humano).
+    location: >-
+      n8n/workflows/04 - Registrar Atendimento CRM.json (nodes "Precisa criar Task?" / "Criar Task de Revisão")
+    severity: low
 baseline_revision: '630459b499e4c8d0fcaeffd7bc3970168e4ff112'
 ---
 
@@ -79,8 +114,9 @@ A Task cobre dois motivos possíveis com o mesmo mecanismo nativo (nunca etiquet
 ## Verification
 
 **Commands:**
-- `python3 -c "content = open('n8n/migrations/0011_registro_crm.sql').read(); up = content.upper(); assert 'ADD COLUMN SIMPLESVET_STATUS' in up; assert \"CHECK (SIMPLESVET_STATUS IN ('PENDENTE', 'CADASTRADO')\" in up.replace('  ',' ') or 'PENDENTE' in up and 'CADASTRADO' in up; assert 'CREATE OR REPLACE FUNCTION IDENTIDADE_CLIENTE_PET_RESOLVER' in up; ins = up[up.find('INSERT INTO IDENTIDADE_CLIENTE_PET'):up.find('DO UPDATE')]; assert 'SIMPLESVET_STATUS' in ins; do_update = up[up.find('DO UPDATE'):up.find('RETURNING')]; assert 'SIMPLESVET_STATUS' not in do_update, 'simplesvet_status nunca pode ser sobrescrito no UPDATE'; print('OK')"` -- expected: `OK` (checagem estática de que a coluna/domínio existem, que `simplesvet_status` é gravado no `INSERT` e nunca aparece no `SET` do `DO UPDATE`).
-- `python3 -c "import json; d = json.load(open('n8n/workflows/04 - Registrar Atendimento CRM.json')); assert 'nodes' in d and 'connections' in d; trg = [n for n in d['nodes'] if n.get('type') == 'n8n-nodes-base.executeWorkflowTrigger'][0]; inputs = [v['name'] for v in trg['parameters']['workflowInputs']['values']]; assert set(inputs) == {'telefone','nome_cliente','nome_pet','setor','resumo_atendimento'}; http_nodes = [n for n in d['nodes'] if n.get('type') == 'n8n-nodes-base.httpRequest']; assert http_nodes and all(n['parameters'].get('onError') or n.get('onError') or n['parameters'].get('retryOnFail') or n.get('retryOnFail') for n in http_nodes); import re; assert not re.search(r'(Bearer |api[_-]?key|token\\s*[:=]|secret|senha\\s*[:=])', json.dumps(d), re.I); print('OK')"` -- expected: `OK`.
+- `python3 -c "content = open('n8n/migrations/0011_registro_crm.sql').read(); up = content.upper(); assert 'ADD COLUMN SIMPLESVET_STATUS' in up; import re; assert re.search(r\"CHECK\\s*\\(\\s*SIMPLESVET_STATUS\\s+IN\\s*\\(\\s*'PENDENTE'\\s*,\\s*'CADASTRADO'\\s*\\)\\s*\\)\", up), 'CHECK do domínio simplesvet_status ausente ou incorreto'; assert 'CREATE OR REPLACE FUNCTION IDENTIDADE_CLIENTE_PET_RESOLVER' in up; ins = up[up.find('INSERT INTO IDENTIDADE_CLIENTE_PET'):up.find('DO UPDATE')]; assert 'SIMPLESVET_STATUS' in ins; do_update = up[up.find('DO UPDATE'):up.find('RETURNING')]; assert 'SIMPLESVET_STATUS' not in do_update, 'simplesvet_status nunca pode ser sobrescrito no UPDATE'; print('OK')"` -- expected: `OK` (checagem estática de que a coluna/domínio existem com o `CHECK` real do domínio — não só palavras soltas em comentário —, que `simplesvet_status` é gravado no `INSERT` e nunca aparece no `SET` do `DO UPDATE`).
+- `python3 -c "import json; d = json.load(open('n8n/workflows/04 - Registrar Atendimento CRM.json')); assert 'nodes' in d and 'connections' in d; trg = [n for n in d['nodes'] if n.get('type') == 'n8n-nodes-base.executeWorkflowTrigger'][0]; inputs = [v['name'] for v in trg['parameters']['workflowInputs']['values']]; assert set(inputs) == {'telefone','nome_cliente','nome_pet','setor','resumo_atendimento'}; http_nodes = [n for n in d['nodes'] if n.get('type') == 'n8n-nodes-base.httpRequest']; assert http_nodes and all((n['parameters'].get('onError') or n.get('onError')) and (n['parameters'].get('retryOnFail') or n.get('retryOnFail')) for n in http_nodes); import re; assert not re.search(r'(Bearer |api[_-]?key|token\\s*[:=]|secret|senha\\s*[:=])', json.dumps(d), re.I); print('OK')"` -- expected: `OK` (exige `onError` **e** `retryOnFail` juntos em todo `httpRequest`, não um ou outro).
+- `python3 -c "import json; d = json.load(open('n8n/workflows/04 - Registrar Atendimento CRM.json')); nodes = {n['name']: n for n in d['nodes']}; postgres = [n for n in d['nodes'] if n.get('type') == 'n8n-nodes-base.postgres']; assert postgres and all((n.get('onError') or n['parameters'].get('onError')) and (n.get('retryOnFail') or n['parameters'].get('retryOnFail')) for n in postgres), 'todo node Postgres precisa de onError+retryOnFail (erro de banco nunca pode propagar ao Agente Nouvet)'; conns = d['connections']; abort = 'Registro CRM Não Realizado'; guards = {'Identidade Resolvida?', 'Busca de Contato Bem-sucedida?', 'Busca de Deal Bem-sucedida?'}; assert guards <= set(nodes), 'guard nodes de identidade/busca ausentes'; routed_to_abort = {src for src, out in conns.items() if any(c['node'] == abort for group in out.get('main', []) for c in group)}; assert guards <= routed_to_abort, 'todo guard precisa ter um caminho de saída para o NoOp de aborto'; print('OK')"` -- expected: `OK` (garante que a mitigação desta rodada de review -- identidade nula do resolver e falha de busca no RD CRM tratadas como \"não encontrado\" -- não regride silenciosamente: todo Postgres tem `onError`/`retryOnFail`, e os 3 guards adicionados têm rota de saída para o NoOp de aborto em vez de prosseguir com dado inválido).
 - `python3 -c "import json; d = json.load(open('n8n/workflows/01 - Agente.json')); agent = [n for n in d['nodes'] if n.get('type') == '@n8n/n8n-nodes-langchain.agent'][0]; sm = agent['parameters']['options']['systemMessage']; assert sm.count('Registrar_atendimento_crm') >= 5; tools = [n for n in d['nodes'] if n.get('type') == '@n8n/n8n-nodes-langchain.toolWorkflow']; names = {t['name'] for t in tools}; assert names == {'Escalar Humano', 'Buscar Info Setor', 'Registrar Atendimento CRM'}; ai_tool_sources = {src for src, out in d['connections'].items() if any(c['node'] == 'Agente Nouvet' for group in out.get('ai_tool', []) for c in group)}; assert ai_tool_sources == {'Refletir', 'Escalar Humano', 'Buscar Info Setor', 'Registrar Atendimento CRM'}; crm = [t for t in tools if t['name'] == 'Registrar Atendimento CRM'][0]; crm_inputs = crm['parameters']['workflowInputs']['value']; assert \"Info').item.json.telefone_normalizado\" in crm_inputs['telefone'] and 'fromAI' not in crm_inputs['telefone']; assert 'fromAI' in crm_inputs['nome_cliente'] and 'fromAI' in crm_inputs['nome_pet']; print('OK')"` -- expected: `OK` (inclui a asserção da resolução do intent gap: `telefone` sempre de `Info`, `nome_cliente`/`nome_pet` sempre via `$fromAI`).
 
 **Manual checks (if no CLI):**
@@ -98,26 +134,57 @@ A Task cobre dois motivos possíveis com o mesmo mecanismo nativo (nunca etiquet
 - addressed_findings:
   - none
 
+### 2026-09-04 — Review pass
+- intent_gap: 0
+- bad_spec: 0
+- patch: 7: (high 4, medium 2, low 1)
+- defer: 2: (high 0, medium 1, low 1)
+- reject: 8
+- addressed_findings:
+  - `[high]` `[patch]` `$now.format('dd/MM/yyyy HH:mm')` no node "Criar Note no Deal" corrigido para `$now.toFormat(...)` — Luxon (`$now` no n8n) não tem `.format()`; sem o fix, a Note (histórico append-only, entregável central da story) falharia silenciosamente em toda chamada.
+  - `[high]` `[patch]` Adicionado `onError: continueRegularOutput` + `retryOnFail: true` aos 3 nodes Postgres do novo sub-workflow ("Resolver Identidade (1ª chamada)", "Buscar Mapeamento de Stage CRM", "Persistir rd_crm_contact_id") — fechava lacuna do próprio AC/I-O Matrix da story ("erro no sub-workflow nunca derruba o turno"), que antes só cobria os nodes `httpRequest`.
+  - `[high]` `[patch]` Novo guard node "Identidade Resolvida?" logo após "Resolver Identidade (1ª chamada)": quando o resolver retorna `identidade` nulo/ausente (falha de query ou rejeição de validação), a rota desvia para um NoOp de aborto ("Registro CRM Não Realizado") em vez de desreferenciar `.identidade.id` sobre `null` e quebrar o sub-workflow.
+  - `[high]` `[patch]` Novos guards "Busca de Contato Bem-sucedida?"/"Busca de Deal Bem-sucedida?" logo após as buscas por telefone/`contact_id`: com `onError: continueRegularOutput` a falha de busca reaproveita o "último dado válido" (sem `.data`) e antes caía na branch "não encontrado", criando um 2º contato/deal duplicado — violação direta do `Always` ("nunca cria 2º contato", "nunca mais de 1 card por cliente"); agora desvia para o mesmo NoOp de aborto.
+  - `[medium]` `[patch]` Apertada a asserção de `CHECK` do `simplesvet_status` no comando de verificação da própria story (constraint real via regex, não mais um `or` satisfeito por palavras soltas em comentário).
+  - `[medium]` `[patch]` Apertada a asserção de `onError`/`retryOnFail` dos `httpRequest` para exigir os dois juntos por node (antes: OR de 4 alternativas, que uma regressão futura removendo uma delas ainda passaria).
+  - `[low]` `[patch]` `id`/`versionId` placeholder não-UUID do novo workflow substituídos por UUIDs reais, alinhando com a convenção de `01`/`02`/`03 - *.json`.
+  - `[medium]` `[defer]` Falso positivo de duplicidade familiar entre famílias não aparentadas (lógica pré-existente da Story 4, ativada ao vivo pela 1ª vez por esta story) — registrado em `deferred`.
+  - `[low]` `[defer]` Task de duplicidade familiar não é idempotente entre atendimentos futuros do mesmo cliente — registrado em `deferred`.
+  - Acrescentado 1 novo comando de verificação cobrindo os guards recém-criados (onError/retryOnFail em todo Postgres + rota de aborto dos 3 guards), para a mitigação não regredir silenciosamente em passadas futuras.
+
 ## Auto Run Result
 
-Status: `blocked`
-Blocking condition: `intent gap`.
+Status: `done`
 
-**Resumo:** Dispatch pasta+id para a Story 11, arquivo já existente com `status: in-review` (implementação recuperada na sessão anterior, commit `a14a445`, diff contra `baseline_revision` `630459b499e4c8d0fcaeffd7bc3970168e4ff112`). EARLY EXIT direto para o step 4 (Review) por já estar `in-review`. Rodados em paralelo os 4 revisores síncronos (blind-hunter, edge-case-hunter, verification-gap, intent-alignment) contra o diff completo (6 arquivos, ~1350 linhas). Achados verificados diretamente no código (não só confiados aos relatórios dos revisores) antes de triar.
+**Resumo:** Dispatch pasta+id para a Story 11. Arquivo já existente com `status: in-review` — intent gap da passada anterior (nome/pet de cliente novo; confirmação de `GET /deals?filter=contact_id:`) já havia sido resolvido pelo Thiago fora deste run (commits `8f373f4`/`705d692`: `<intent-contract>` atualizado com a decisão de 2026-09-04 sobre `Info`/`$fromAI`, `.claude/skills/rd-station-api/references/crm.md` atualizado confirmando `contact_id` como filtro RDQL válido em `/deals`, implementação de `n8n/migrations/0011_registro_crm.sql` e `n8n/workflows/04 - Registrar Atendimento CRM.json` re-derivada, spec rearmada para `in-review`). EARLY EXIT direto para o step 4 (Review) por já estar `in-review`. Rodados em paralelo os 4 revisores síncronos (blind-hunter, edge-case-hunter, verification-gap, intent-alignment) contra o diff completo desde `baseline_revision` (8 arquivos, ~2800 linhas). Todo achado relevante foi verificado diretamente no código (inspeção de nodes/conexões via `python3`/`json`, leitura das migrations 0006/0011, consulta à documentação oficial do n8n para o comportamento real de `onError`) antes de triar — vários achados dos revisores automáticos não se confirmaram (ver `reject` abaixo).
 
-**Intent gap encontrado (raiz dentro do `<intent-contract>`, cascata torna os demais achados moot nesta passada):**
+**Achados `patch` (aplicados nesta passada, ver diff em `n8n/workflows/04 - Registrar Atendimento CRM.json` e no `## Verification` desta spec):**
+1. `[high]` `$now.format('dd/MM/yyyy HH:mm')` no node "Criar Note no Deal" — `$now` do n8n é um `DateTime` do Luxon, que não tem `.format()` (API do Moment.js); corrigido para `$now.toFormat(...)`, mesmo padrão que `.toISO()` já usado em `01 - Agente.json`. Sem o fix, a Note (histórico append-only, entregável central do CAP-7) falharia silenciosamente em toda chamada.
+2. `[high]` Nenhum dos 3 nodes Postgres do novo sub-workflow ("Resolver Identidade (1ª chamada)", "Buscar Mapeamento de Stage CRM", "Persistir rd_crm_contact_id") tinha `onError`/`retryOnFail`, ao contrário de todo `httpRequest` do mesmo arquivo — uma falha de banco quebrava o turno do `Agente Nouvet`, violando a garantia já exigida pela própria I/O & Edge-Case Matrix da story ("erro contido, nunca propaga ao Agente Nouvet"), que não é escopada só a falhas da API RD CRM. Corrigido adicionando `onError: continueRegularOutput` + `retryOnFail: true` aos 3.
+3. `[high]` "Extrair Identidade e Stage" desreferenciava `.identidade.id`/`.nome_cliente`/etc. sem guarda contra `identidade` nulo (quando o resolver rejeita a linha, ex. `$fromAI` genuinamente falha em extrair nome/pet) — mesma classe de crash do intent gap anterior, agora só residual (a causa raiz — `Info` vs `$fromAI` — já foi resolvida no `<intent-contract>`). Corrigido com um novo guard node "Identidade Resolvida?" logo após o resolver: `identidade` nulo/ausente desvia para um NoOp de aborto ("Registro CRM Não Realizado") em vez de prosseguir.
+4. `[high]` As IFs "Contato encontrado por telefone?"/"Deal existente?" (`{{ ($json.data || []).length > 0 }}`) não distinguiam uma busca que falhou (com `onError: continueRegularOutput`, o n8n reaproveita o "último dado válido" — o item de entrada, que não tem `.data` — em vez de expor um campo de erro) de uma busca que genuinamente não encontrou nada; as duas caem no mesmo `false` e criam um 2º contato/deal duplicado, violando o `Always` ("nunca cria 2º contato", "nunca mais de 1 card por cliente" / AD-6/AD-11). Confirmado o comportamento real de `onError` na doc oficial do n8n (`docs.n8n.io` — "Continue": *"proceeds to next node despite error, using last valid data"*, distinto de "Continue using error output"). Corrigido com guards "Busca de Contato Bem-sucedida?"/"Busca de Deal Bem-sucedida?" (`{{ Array.isArray($json.data) }}`) logo após cada busca, desviando falha para o mesmo NoOp de aborto.
+5. `[medium]` A própria asserção de verificação da story para o `CHECK` de `simplesvet_status` (migration 0011) tinha um `or` satisfeito por palavras soltas em comentário, passando mesmo sem o `CHECK` real presente/correto. Apertada para exigir o `CHECK` de fato via regex.
+6. `[medium]` A própria asserção de verificação para `onError`/`retryOnFail` dos `httpRequest` aceitava só um dos dois (OR de 4 alternativas) quando o `Always`/AC exigem os dois juntos; uma regressão futura removendo um dos dois ainda passaria. Apertada para exigir ambos por node.
+7. `[low]` `id`/`versionId` do novo workflow eram placeholders não-UUID (`04regcrm...`), inconsistentes com `01`/`02`/`03 - *.json`. Substituídos por UUIDs reais.
 
-1. **Cliente novo nunca é registrado — nome/pet do cliente chegam sempre vazios em `Registrar_atendimento_crm`.** O `Always` do contrato exige `telefone/nome_cliente/nome_pet de Info, nunca $fromAI`. Mas `Info.nome_cliente`/`Info.nome_pet` (`01 - Agente.json`, nó `Info`) vêm de `Buscar Identidade` — uma consulta só por telefone, executada **antes** do agente rodar no turno — e caem para string vazia (`''`) quando não há linha prévia em `identidade_cliente_pet`. Não existe nenhum outro tool/nó que grave nome/pet no Postgres antes desta chamada (as únicas tools do agente são `Escalar Humano`, `Buscar Info Setor` e `Registrar Atendimento CRM`). Logo, para **todo** cliente genuinamente novo, em **toda** a conversa, `Info.nome_cliente`/`Info.nome_pet` permanecem `''` até o exato momento desta chamada — que é a primeira e única oportunidade de gravar esses dados. `identidade_cliente_pet_resolver` aplica `NULLIF(btrim(...), '')`, então `''` vira `NULL`, a CTE `valida` rejeita a linha (exige `nome_cliente`/`nome_pet` `NOT NULL`) e a função retorna `NULL`. O próximo nó (`Extrair Identidade e Stage`) desreferencia `.identidade.id` sobre `null` e quebra a sub-workflow — nem esse nó Postgres, nem o `Set` seguinte, nem o nó `toolWorkflow` que chama tudo isso têm `onError`/`retryOnFail`, então a falha propaga e quebra o turno do `Agente Nouvet`, violando a garantia central do produto ("erro nunca propaga ao Agente Nouvet") e o próprio cenário nº1 da I/O & Edge-Case Matrix da story ("Cliente novo, 1ª coleta completa"). Não há uma única leitura possível de correção sem decisão humana: (a) permitir `$fromAI` como fallback só quando `Info` vier vazio (contraria a letra do `Always`); (b) criar um mecanismo separado, fora do escopo desta story, para persistir nome/pet no Postgres assim que capturados em conversa, antes do fechamento de seção; (c) outra abordagem ainda não considerada. Qualquer uma dessas altera o texto do `<intent-contract>` — por isso é `intent_gap`, não `bad_spec`/`patch`.
-2. **`GET /deals?filter=contact_id:` (prescrito literalmente no `Always` do contrato) não é uma API confirmada.** `.claude/skills/rd-station-api/references/crm.md` documenta `/deals` como suportando só paginação (`page[number]`/`page[size]`) — o `filter` por RDQL só está documentado para `/contacts` (`filter=phone:`, `email`, `name`, etc.), nunca para `/deals`. Se o endpoint real ignorar/rejeitar esse `filter`, `Buscar Deal Existente` pode devolver todos os deals (não só os do contato) e `data[0].id` seria um deal arbitrário de outro cliente — quebrando a invariante "nunca mais de 1 card por cliente" e podendo mover/anotar o card errado. Como o `Always` prescreve essa chamada como fato assumido, a raiz também está dentro do `<intent-contract>`.
+Acrescentado 1 novo comando de `## Verification` cobrindo os guards recém-criados (onError/retryOnFail em todo Postgres + rota de saída para o NoOp de aborto nos 3 guards), para a mitigação não regredir silenciosamente numa passada futura.
 
-**Perguntas em aberto para o Thiago (bloqueantes):**
-- Como o nome do cliente/pet de um cliente genuinamente novo deve chegar ao Postgres antes/durante o fechamento de seção, já que `Info` só reflete estado pré-turno e o `Always` proíbe `$fromAI` para esses campos?
-- `GET /deals` do RD CRM realmente aceita `filter=contact_id:<id>` (RDQL)? Se não aceitar, qual é o mecanismo real de busca de deal por contato (paginar e filtrar client-side por `contact_ids`? outro parâmetro?)?
+**Achados `defer` (registrados em `deferred` no frontmatter, não corrigidos nesta passada):**
+- `[medium]` Falso positivo de duplicidade familiar entre famílias não aparentadas — a CTE `duplicidade` (`identidade_cliente_pet_resolver`, Story 4/`0006`, não alterada por esta story) casa só por nome de pet case-insensitive entre telefones diferentes, sem sinal de dono/endereço; Story 11 é quem ativa esse aviso contra tráfego real pela 1ª vez.
+- `[low]` Task de duplicidade familiar não é idempotente entre atendimentos futuros do mesmo cliente — `possivel_duplicidade_familiar` é recalculado a cada chamada, sem checar Task já aberta equivalente no deal; o `Always` só exige dedup dentro da mesma chamada, não entre chamadas futuras.
 
-**Patch salvo para referência/retomada:** `_bmad-output/implementation-artifacts/story-11-cap-7-intent-gap-patch.md` (diff completo da implementação tentada nos 5 arquivos de código, antes da reversão).
+**Achados `reject` (verificados e descartados — não são bugs):**
+- `setor` aceito via `$fromAI` sem validação contra os 5 valores canônicos: risco genérico já compartilhado por todo uso de `$fromAI` no projeto; o fallback de `mapeamento_stage_crm[setor]` ausente já é o comportamento gracioso documentado no `Block If`.
+- Risco de descompasso de formato de telefone entre `Info.telefone_normalizado` e o filtro `phone:` do RD CRM: verificado que `telefone_normalizar` (`0006`) já produz E.164 limpo (`+55...`), idêntico ao formato oficial documentado para o filtro do CRM — falso positivo do revisor.
+- `nome_cliente`/`nome_pet` sobrescritos sem `COALESCE` no `DO UPDATE` (ao contrário de `especie_pet`/`raca_pet`): verificado que é o mesmo comportamento documentado e deliberado desde a Story 4 (FR-4, correção dinâmica de identificação — cônjuge corrigindo nome no mesmo telefone/pet), não uma regressão desta story.
+- `SELECT mapeamento_stage_crm FROM atendimento_config` direto (bypass de `atendimento_config_ler`) e preocupação de grant: já é decisão justificada no `Code Map`; verificado que `app_role` tem `GRANT SELECT` direto em `atendimento_config` desde a Story 1 (`0002_schema_operacional.sql`) — a query funciona.
+- Confirmação de `GET /deals?filter=contact_id:`: já resolvida nesta mesma diff (`.claude/skills/rd-station-api/references/crm.md` agora documenta `contact_id` como propriedade RDQL filtrável em `/deals`, citando a doc oficial) — não é mais um gap.
+- Mecanismo de transição `simplesvet_status` `pendente`→`cadastrado`: fora de escopo explícito desta story (`Always`: "nunca alterado por chamada seguinte do resolver") — problema de uma story futura.
+- `identidade_cliente_pet_resolver` chamado duas vezes por invocação da tool: é exatamente o padrão de 2 chamadas prescrito pelo `Always` do contrato, não uma ineficiência de implementação.
+- Falta de orientação específica para `resumo_atendimento`/nomes no fechamento de Orçamentos: sem comportamento negativo concreto demonstrado — a seção já roteia a um humano com todo o contexto (Story 10).
 
-**Ação tomada nesta passada:** implementação revertida para o estado da `baseline_revision` nos arquivos de código (`n8n/migrations/0011_registro_crm.sql` e `n8n/workflows/04 - Registrar Atendimento CRM.json` removidos; `.claude/skills/rd-station-api/references/crm.md`, `n8n/migrations/README.md` e `n8n/workflows/01 - Agente.json` restaurados ao conteúdo da baseline); nenhuma alteração feita dentro do `<intent-contract>` desta story. `review_loop_iteration` não incrementado (loopback de `bad_spec` não se aplica a `intent_gap`).
+**Verificação executada:** os 3 comandos originais de `## Verification` (SQL da migration 0011, shape/onError do novo workflow, wiring de `01 - Agente.json`) re-executados após os patches — `OK` nos três. O novo 4º comando (guards de identidade/busca) também `OK`. Nenhuma verificação manual (VPS de dev/RD CRM real) foi possível nesta sessão — mesma limitação estrutural já documentada nas Stories 1-10 (sem ambiente n8n/RD CRM ao vivo disponível).
 
-**Achados moot nesta passada (cascata de `intent_gap`, não corrigidos nem descartados — ficam registrados só no `## Review Triage Log` acima, sem ação):** nós `Usar Contato Criado`/`Deal ID (Criado)` desreferenciam `data.id` sem guarda após `httpRequest` com `onError: continueRegularOutput` (quebra a mesma garantia de "erro nunca propaga"); IFs `Contato encontrado por telefone?`/`Deal existente?` tratam falha de busca como "não encontrado" (risco de contato/deal duplicado); demais nós Postgres/Set/`toolWorkflow` do novo sub-workflow sem `onError`/`retryOnFail`; `Buscar Mapeamento de Stage CRM` sem `onError` e sem tratar ausência da linha de config; `setor` vindo de `$fromAI` usado sem validação contra os 5 valores canônicos; Task de duplicidade familiar não é idempotente entre atendimentos futuros do mesmo cliente.
+**Riscos residuais explícitos:** primeira story do projeto a integrar de fato com a API do RD CRM (OAuth2, Contacts/Deals/Notes/Tasks) — toda a verificação desta sessão foi estática (JSON/regex/SQL + doc oficial do n8n); validação end-to-end contra o RD CRM real (os 5 cenários da I/O Matrix, incl. os caminhos de erro agora endurecidos) fica para a VPS de dev. Os 2 itens em `deferred` (falso positivo de duplicidade familiar, Task não-idempotente) e os itens `reject` documentados acima ficam para acompanhamento/decisão futura se algum se mostrar impactante em produção.
 
-**Riscos residuais explícitos (herdados da implementação revertida, para quando o intent gap for resolvido):** primeira story do projeto a integrar de fato com a API do RD CRM (OAuth2, Contacts/Deals/Notes/Tasks) — toda a verificação prevista era estática (JSON/regex/SQL); validação end-to-end contra o RD CRM real fica para a VPS de dev, mesma limitação documentada nas Stories 1-10.
+**Followup review recomendado:** `true` — esta passada teve achados `patch` de severidade `high` (4 de 7; `3×medium + 1×low` também já soma 7, acima do limiar de 5).
