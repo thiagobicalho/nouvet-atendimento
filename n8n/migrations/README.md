@@ -63,14 +63,3 @@ nas duas fatias (`triagem`/`setor`) — mesma classe de campo operacional que
 `atendimento_config` (o campo já existe desde a `0002`). Consumida por
 `n8n/workflows/01 - Agente.json` (Story 5/CAP-1) para passar o TTL a
 `lock_conversa_adquirir` sem hardcode.
-
-A `0011` entrega o pré-requisito de schema do Registro e Memória no CRM (CAP-7/Story
-11, AD-11): `identidade_cliente_pet` ganha `simplesvet_status` (`'pendente'` ou
-`'cadastrado'`), derivado de `origem` só no momento do `INSERT` (`'cadastrado'` para
-`origem='import_simplesvet'`, `'pendente'` para `'cadastro_direto'`) e nunca alterado
-por uma chamada seguinte do `identidade_cliente_pet_resolver` — mesmo padrão já usado
-para a própria coluna `origem` desde a `0006`. `identidade_cliente_pet_resolver` é
-reestendido via `CREATE OR REPLACE FUNCTION` (mesmo padrão da `0010`) para calcular e
-gravar essa coluna no `INSERT`, incluí-la no `RETURNING`/JSON de saída, e nunca no
-`SET` do `UPSERT`. É o sinal que `n8n/workflows/04 - Registrar Atendimento CRM.json`
-usa para decidir se cria a Task de cadastro pendente no SimplesVet no card do RD CRM.
