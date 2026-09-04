@@ -920,6 +920,74 @@
       ],
       "id": "if-deal-criado-sucesso",
       "name": "Deal Criado Com Sucesso?"
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "SET_IN_N8N_UI",
+          "cachedResultName": "05 - Gerenciar Task SLA"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "deal_id": "={{ $('Deal ID Final').item.json.deal_id_final }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "deal_id",
+              "displayName": "deal_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        4180,
+        460
+      ],
+      "id": "97e4d29a-f085-4eb5-8e13-323d078fc4ae",
+      "name": "Gerenciar Task SLA (CAP-8)",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT atendimento_estado_espera_marcar($1, 'aguardando_atendimento_humano')",
+        "options": {
+          "queryReplacement": "={{ [$('Receber Solicitação').item.json.telefone] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        4180,
+        620
+      ],
+      "id": "f4bb2829-2e5c-45b8-9195-038c6913157b",
+      "name": "Marcar Aguardando Atendimento Humano (CAP-8)",
+      "credentials": {
+        "postgres": {
+          "id": "SET_IN_N8N_UI",
+          "name": "Postgres - Atendimento Nouvet"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true
     }
   ],
   "connections": {
@@ -1182,6 +1250,16 @@
             "node": "Precisa criar Task?",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Gerenciar Task SLA (CAP-8)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Marcar Aguardando Atendimento Humano (CAP-8)",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -1321,7 +1399,7 @@
     "callerPolicy": "workflowsFromSameOwner",
     "availableInMCP": false
   },
-  "versionId": "4c3db2ce-c17f-4548-b70d-4ef27ac975f8",
+  "versionId": "65008b33-beac-48bc-8297-c3e39a681f55",
   "meta": {
     "instanceId": "atendimento-nouvet-piloto"
   },

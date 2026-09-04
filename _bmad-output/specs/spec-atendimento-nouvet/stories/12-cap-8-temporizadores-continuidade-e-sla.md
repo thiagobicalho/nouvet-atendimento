@@ -2,12 +2,60 @@
 title: 'CAP-8 — Temporizadores, Continuidade e SLA'
 type: 'feature'
 created: '2026-09-04'
-status: 'ready-for-dev'
+status: 'done'
 review_loop_iteration: 0
-followup_review_recommended: false
+followup_review_recommended: true
+baseline_revision: '42c5bd40c6c95789e938cbf9fffa3119a956ade1'
 context: ['{project-root}/_bmad-output/planning-artifacts/architecture/architecture-atendimento-2026-09-01/ARCHITECTURE-SPINE.md']
 warnings: ['oversized']
-deferred: []
+deferred:
+  - summary: >-
+      Se a criação da Task de SLA falhar em `04` enquanto `estado_espera` ainda é
+      marcado `aguardando_atendimento_humano`, o handoff fica sem SLA rastreado.
+    evidence: |-
+      "Gerenciar Task SLA (CAP-8)" e "Marcar Aguardando Atendimento Humano (CAP-8)"
+      rodam em branches independentes a partir de "Criar Note no Deal", ambas com
+      onError: continueRegularOutput. Se a primeira falhar (mesmo após retry) e a
+      segunda suceder, nenhuma Task de SLA existe para aquele deal, e o Sweep B do
+      cron (06) só varre Tasks já existentes -- o handoff fica permanentemente sem
+      monitoramento de SLA. Mesmo padrão de branches paralelos tolerantes a falha
+      parcial já usado em `04` desde a Story 11, não é um padrão novo desta story,
+      mas o risco concreto (SLA nunca rastreado) é novo.
+    location: >-
+      n8n/workflows/04 - Registrar Atendimento CRM.json (nós "Gerenciar Task SLA
+      (CAP-8)" e "Marcar Aguardando Atendimento Humano (CAP-8)")
+    severity: medium
+  - summary: >-
+      Branches terminais novas (Task/deal/contato/identidade não encontrados) em
+      `05`/`06` não têm log, alerta nem limite de tentativas.
+    evidence: |-
+      "Task SLA Não Gerenciada", "Deal da Task Não Encontrado", "Contato do Deal
+      Ausente", "Identidade Não Encontrada (tenta próximo ciclo)" e "Busca de Tasks
+      SLA Falhou" são todos noOp puros -- uma Task irrecuperável (ex. contato
+      deletado no CRM) é reprocessada todo tick do cron (1 min) para sempre, sem
+      visibilidade. Mesma convenção de branches terminais silenciosos já usada em
+      workflows anteriores do projeto (não é um padrão novo desta story), mas é uma
+      lacuna de observabilidade que vale atenção dedicada no nível do projeto.
+    location: >-
+      n8n/workflows/05 - Gerenciar Task SLA.json e n8n/workflows/06 - Lembretes e
+      Escalonamento SLA.json (branches noOp terminais)
+    severity: medium
+  - summary: >-
+      Comparação entre timestamp Postgres sem timezone e string ISO do Luxon via
+      `new Date()` depende de tratamento implícito de timezone do node Postgres do
+      n8n.
+    evidence: |-
+      "Lead Ativo Desde o Início do Ciclo?" (06) compara
+      `n8n_status_atendimento.updated_at` (TIMESTAMP WITHOUT TIME ZONE) contra
+      `inicio_ciclo_atual` (ISO construído via Luxon) usando `new Date(...)` puro em
+      JS, sem normalização explícita de UTC em nenhum dos dois lados. Mesma classe
+      de risco já presente onde quer que este projeto compare timestamps através da
+      fronteira driver-pg/JS (ex. recuperação de lock por TTL da Story 3), não é
+      exclusivo desta story.
+    location: >-
+      n8n/workflows/06 - Lembretes e Escalonamento SLA.json (nó "Lead Ativo Desde o
+      Início do Ciclo?")
+    severity: low
 ---
 
 <intent-contract>
@@ -87,14 +135,45 @@ Reconciliação com `glossary.md` ("Aguardando Cliente/Aguardando Atendimento Hu
 **Manual checks (if no CLI):**
 - Na VPS de dev: fechar um fluxo de setor de teste, confirmar no RD CRM que a Task "Acompanhamento SLA" nasce com `due_date` = agora+5min; aguardar sem responder e confirmar que o cron envia a atualização ao cliente e o alerta ao gestor após o vencimento, e que marcar a Task como `completed` no RD CRM impede o próximo disparo.
 - Confirmar que mandar uma mensagem do telefone de teste enquanto a Task está vencida renova o `due_date` sem gerar mensagem duplicada de escalonamento.
+- Invocar `05 - Gerenciar Task SLA.json` duas vezes em sequência rápida para o mesmo `deal_id` (ex.: duas execuções manuais quase simultâneas, ou `04` e um ciclo do cron `06` disparando para o mesmo deal) e confirmar no RD CRM que existe exatamente uma Task "Acompanhamento SLA" aberta no deal ao final (nunca duas) — valida o lock de concorrência por `deal_id` (`task_sla_lock_adquirir`/`task_sla_lock_liberar`, `n8n_task_sla_lock`) contra o Acceptance Criterion de não-duplicação.
+
+## Review Triage Log
+
+### 2026-09-04 — Review pass
+- intent_gap: 0
+- bad_spec: 0
+- patch: 7: (high 6, medium 0, low 1)
+- defer: 3: (high 0, medium 2, low 1)
+- reject: 10: (high 0, medium 0, low 10)
+- addressed_findings:
+  - `[high]` `[patch]` Sweep B (`06`, "Buscar Tasks de SLA Vencidas") lê `GET /tasks?filter=status:open+due_date:<agora` sem paginação e sem escopo por `deal_id` — em volume real pode deixar Tasks vencidas fora da primeira página sem disparar (risco a SM-3). Ação: paginar a busca.
+  - `[high]` `[patch]` Filtro `due_date:<' + $now.toISO()` (06) usa ISO padrão do Luxon (milissegundos + offset numérico), nunca validado contra a RDQL real do RD CRM e com risco de colidir com o `+` que a própria RDQL usa como combinador de filtros. Ação: forçar `$now.toUTC().toISO({ suppressMilliseconds: true })` (sufixo `Z`, sem offset).
+  - `[high]` `[patch]` `05 - Gerenciar Task SLA.json` não tem trava de concorrência no branch buscar-então-criar/renovar — chamadas concorrentes (hook do `04` e um tick do cron `06` para o mesmo `deal_id`, ou dois ticks do `06` sobrepostos) podem criar duas Tasks "Acompanhamento SLA" no mesmo deal, violando o próprio AC da story ("nunca duplicada entre execuções"). Ação: lock consultivo do Postgres por `deal_id` (mesmo padrão de `lock_conversa_adquirir`) ao redor do branch, mais nota de verificação manual confirmando Task única sob invocação repetida/concorrente.
+  - `[high]` `[patch]` A reconfirmação ao vivo em Sweep B (06) acontece uma vez por lote (na busca inicial), não imediatamente antes de cada envio individual — uma Task resolvida por humano no meio do processamento do lote ainda pode receber lembrete/escalonamento obsoleto, o que fragiliza a condição obrigatória de Murat (SM-C2) citada explicitamente na invocação desta story. Ação: reconferir a Task individualmente (`GET /tasks/{id}` ou equivalente) imediatamente antes de "Enviar Atualização ao Cliente" e "Escalar ao Gestor (SLA)".
+  - `[high]` `[patch]` `GET /v2/contacts/phone/{phone}` (RD Conversas) é usado pela primeira vez no projeto em `05`/`06`, assumindo campo `.id` na resposta sem confirmação — `02 - Escalar Humano.json` sempre usou `contact_id` pré-armazenado, nunca essa busca ao vivo; `crm.md` já registra que o formato de telefone do Conversas pode não bater com E.164 limpo. Ação: confirmar contra a documentação oficial do Conversas, corrigir campo/formato se necessário, documentar em `conversas.md` (mesma prática já aplicada a Tasks nesta mesma story do lado CRM).
+  - `[high]` `[patch]` Em `06`, "Enviar Lembrete ao Cliente" tem `onError: continueRegularOutput` e seu output alimenta incondicionalmente "Renovar Janela de Espera do Cliente" — um envio que falha ainda assim renova `updated_at`, suprimindo silenciosamente o próximo lembrete por uma janela inteira de SLA mesmo sem o cliente ter recebido nada (ameaça direta a SM-3). Ação: só renovar a janela no branch de sucesso do envio.
+  - `[low]` `[patch]` `destinatarios_gestor_sla` está tipado `"string"` no schema de input do `executeWorkflow` de "Escalar ao Gestor (SLA)", apesar de ser array JSONB (mesmo formato de `destinatarios_emergencia`) — inofensivo hoje só porque `attemptToConvertTypes` é `false`. Ação: corrigir o tipo do schema.
 
 ## Auto Run Result
 
-Status: `ready-for-dev`
+Status: `done`
 Blocking condition: nenhuma.
 
-**Resumo:** Dispatch pasta+id para a Story 12 (`CAP-8 — Temporizadores, Continuidade e SLA`), primeiro despacho para este id (nenhum arquivo prévio em `stories/12-*.md`). Investigação cobriu `SPEC.md`, `user-journeys.md`, `glossary.md`, `ARCHITECTURE-SPINE.md` (AD-1), as 11 stories anteriores completas (Code Map/Design Notes/Auto Run Result/deferred de cada uma), `deferred-work.md` (DW-47/DW-50, ambos candidatos explícitos a esta story), o estado real dos workflows (`01`-`04`) e migrations (`0001`-`0011`) via inspeção direta (`python3`/`json`), e a documentação oficial da RD Station (`developers.rdstation.com`) para preencher uma lacuna real encontrada na skill `rd-station-api` (Tasks só documentava `POST /tasks`; `GET /tasks` e `PUT /tasks/{id}` confirmados nesta sessão, incluindo o enum `status` e os filtros RDQL necessários). Instrução extra do invocador (reconferência obrigatória de resolução antes do disparo do cron, condição de Murat contra spam/SM-C2) incorporada como invariante `Always` central do spec.
+**Resumo da implementação:** Story 12 (CAP-8 — Temporizadores, Continuidade e SLA) implementada de ponta a ponta: estado de espera por sessão (`estado_espera`/`numero_ciclo_escalonamento`), Task dedicada de SLA no RD CRM criada/renovada por um sub-workflow reutilizável, e um cron independente que varre sessões pré-handoff vencidas (lembrete) e Tasks de SLA pós-handoff vencidas (atualização ao cliente + escalonamento progressivo ao gestor), reconferindo resolução ao vivo antes de disparar (condição de Murat/SM-C2).
 
-**Decisões de escopo tomadas nesta passada (registradas no spec, não fantasiadas):** (1) o mecanismo de SLA/escalonamento desta story cobre só atendimentos que já têm card no RD CRM (fechamento de um dos 5 fluxos de setor via `Registrar_atendimento_crm`) — handoffs via `Escalar_humano` (Sinal de Alerta/fora de escopo/convênio) continuam sem card, gap de SM-1 já registrado e deixado em aberto pela Story 11 (DW-50), não fechado aqui; (2) "resposta relevante do lead" que renova o vencimento é detectada via `n8n_status_atendimento.updated_at` (já tocado a cada turno desde a Story 3), evitando qualquer mudança em `01 - Agente.json` e round-trip novo ao RD CRM no hot path do agente; (3) a reconferência de resolução exigida por Murat é satisfeita estruturalmente pela própria consulta ao vivo `GET /tasks?filter=status:open` no momento do disparo, não por um passo de dupla checagem separado; (4) `sla_resposta_minutos` (já existente, seedado, exposto por `atendimento_config_ler` desde a Story 5, sem consumidor até agora) é reaproveitado como única fonte do intervalo, em vez de introduzir um campo novo; (5) `aguardando_followup`/`numero_followup` (`n8n_status_atendimento`) e `lembretes_horas`/`follow_ups_horas`/`max_followups` (`atendimento_config`) — schema morto desde a Story 1, nunca seedado/exposto/referenciado por nenhum workflow (confirmado por grep) e de granularidade incompatível com o SLA fixo de 5 minutos do SPEC — são removidos e substituídos pelo modelo desta story, em vez de reaproveitados como estão.
+**Arquivos alterados:**
+- `n8n/migrations/0012_temporizadores_sla.sql` (novo) — remove schema morto (`aguardando_followup`/`numero_followup`/`lembretes_horas`/`follow_ups_horas`/`max_followups`); adiciona `estado_espera`, `numero_ciclo_escalonamento`, `destinatarios_gestor_sla`, `atendimento_estado_espera_marcar`; estende `atendimento_config_ler`; adiciona (na rodada de patch) `n8n_task_sla_lock` + `task_sla_lock_adquirir`/`task_sla_lock_liberar` para concorrência.
+- `n8n/workflows/05 - Gerenciar Task SLA.json` (novo) — porta única de criação/renovação da Task de SLA, agora com trava de concorrência por `deal_id`.
+- `n8n/workflows/06 - Lembretes e Escalonamento SLA.json` (novo) — cron `scheduleTrigger` (1 min) com Sweep A (lembrete pré-handoff via Postgres) e Sweep B (escalonamento pós-handoff via RD CRM), com paginação, filtro RDQL seguro, reconferência individual pré-disparo e guarda de envio bem-sucedido antes de renovar a janela.
+- `n8n/workflows/04 - Registrar Atendimento CRM.json` — hook mínimo ao final do fechamento de setor: chama `05` e `atendimento_estado_espera_marcar`.
+- `.claude/skills/rd-station-api/references/crm.md` — documenta `GET /tasks` e `PUT /tasks/{id}`.
+- `.claude/skills/rd-station-api/references/conversas.md` — corrige o endpoint real de busca por telefone (`GET /v2/contacts/{cel_phone}/exists`, não `/v2/contacts/phone/{phone}`) e documenta o contrato de resposta confirmado nesta story.
+- `n8n/migrations/README.md` — changelog da `0012`.
 
-**Riscos residuais explícitos:** primeira story do projeto a fazer `PUT`/`GET` contra a API de Tasks do RD CRM (Stories 11 só usava `POST`) — toda verificação prevista nesta passada é estática (JSON/regex/SQL), sem n8n/RD CRM real disponível neste ambiente de build, mesma limitação já documentada desde a Story 1. O gap de cobertura para handoffs via `Escalar_humano` (item 1 acima) permanece explícito no `Never`/Design Notes, não como item `deferred` formal (nenhuma implementação ainda rodou nesta story para gerar um achado de review).
+**Review findings breakdown:** 7 patches aplicados (6 high, 1 low) — paginação da varredura de Tasks, formato seguro do filtro `due_date` (RDQL), trava de concorrência na criação/renovação da Task de SLA, reconferência individual antes de cada disparo (não só por lote), correção do endpoint real de busca por telefone no RD Conversas, não renovar a janela de espera em envio de lembrete que falhou, e tipo de schema do campo `destinatarios_gestor_sla`. 3 itens deferidos (2 medium, 1 low, registrados no frontmatter `deferred`). 10 itens rejeitados como ruído (defensáveis pelo desenho já registrado no spec ou de baixa probabilidade/impacto, ex.: sem teto de ciclos de escalonamento — corresponde à urgência crescente pedida pelo Intent).
+
+**Follow-up review recommendation:** `true` (qualquer patch `high` já força `true`; contagem por severidade desta rodada: high=6, medium=0, low=1; score bruto = 3×0 + 1×1 = 1).
+
+**Verificação realizada:** os 5 comandos de `## Verification` da story rodaram e passaram (`OK`) antes e depois da rodada de patches. Checagem adicional de integridade de grafo (sem nós órfãos, sem conexões pendentes, sem nomes duplicados) nos três workflows tocados/criados. Auditoria da I/O & Edge-Case Matrix (5 cenários) contra a topologia final — todos batem, com os cenários 2/3/5 (não-resposta humana/já resolvido/escalonamento repetido) mais robustos após a reconferência individual pré-disparo (achado 4) e o cenário 4 (lembrete ao cliente) protegido contra perda silenciosa de ciclo em falha de envio (achado 6). Sem n8n/RD CRM real disponível neste ambiente de build — mesma limitação estática já documentada desde a Story 1.
+
+**Riscos residuais explícitos:** (1) os 3 itens `deferred` no frontmatter (falha parcial entre os dois branches novos do hook em `04`, branches terminais silenciosos sem log/alerta em `05`/`06`, comparação de timestamp sem normalização explícita de UTC); (2) a forma exata do JSON de paginação HTTP Request do n8n (feature nativa usada pela primeira vez neste projeto) não foi validada contra uma instância real — vale conferência na VPS de dev antes do go-live; (3) primeira story do projeto a fazer `PUT`/`GET` contra Tasks do RD CRM e a primeira a usar a busca por telefone do RD Conversas — ambos os contratos foram confirmados contra a documentação oficial nesta sessão, mas nunca contra tráfego real. O gap de cobertura para handoffs via `Escalar_humano` (SM-1/DW-50) permanece explícito no `Never`/Design Notes, não fechado por esta story.

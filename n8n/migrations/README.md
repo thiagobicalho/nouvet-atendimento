@@ -74,3 +74,30 @@ reestendido via `CREATE OR REPLACE FUNCTION` (mesmo padrão da `0010`) para calc
 gravar essa coluna no `INSERT`, incluí-la no `RETURNING`/JSON de saída, e nunca no
 `SET` do `UPSERT`. É o sinal que `n8n/workflows/04 - Registrar Atendimento CRM.json`
 usa para decidir se cria a Task de cadastro pendente no SimplesVet no card do RD CRM.
+
+A `0012` entrega Temporizadores, Continuidade e SLA (CAP-8/Story 12). Remove
+`aguardando_followup`/`numero_followup` (`n8n_status_atendimento`) e
+`lembretes_horas`/`follow_ups_horas`/`max_followups` (`atendimento_config`) — schema
+morto desde a `0002`, nunca seedado/exposto/referenciado por nenhum workflow — e os
+substitui por: `estado_espera` (`n8n_status_atendimento`, `'aguardando_cliente'`
+default/`'aguardando_atendimento_humano'`) e `numero_ciclo_escalonamento`
+(`n8n_status_atendimento`); `destinatarios_gestor_sla` (`atendimento_config`, mesmo
+formato de `destinatarios_emergencia`, público distinto); e a função
+`atendimento_estado_espera_marcar(p_session_id, p_estado)`, único ponto de escrita de
+`estado_espera` — correlaciona por `telefone_normalizar(session_id) =
+telefone_normalizar(p_session_id)` (nunca igualdade crua de string), porque
+`n8n_status_atendimento.session_id` é sempre o telefone bruto do webhook (mesmo valor
+de `lock_conversa_adquirir`/`sessionKey`), enquanto quem chama a função de dentro de
+`04 - Registrar Atendimento CRM.json` só tem o telefone já normalizado
+(`Info.telefone_normalizado`) — reaproveita `telefone_normalizar` (AD-8) em vez de
+tocar `01 - Agente.json` (vedado pelo `Never` da story) para propagar o telefone bruto.
+`atendimento_config_ler` é reestendida (mesmo padrão da `0010`) para expor
+`destinatarios_gestor_sla` na fatia `triagem`. `sla_resposta_minutos` (já existente
+desde a `0002`, seedado, exposto por `atendimento_config_ler` desde a `0010`, sem
+consumidor até esta story) passa a ser a única fonte do intervalo de SLA, lida por
+`n8n/workflows/05 - Gerenciar Task SLA.json` (porta única de criação/renovação da Task
+de SLA no deal, chamada por `04` e pelo cron `06`) e por
+`n8n/workflows/06 - Lembretes e Escalonamento SLA.json` (cron `scheduleTrigger`
+independente do `Agente Nouvet`, varre sessões `aguardando_cliente` vencidas e Tasks de
+SLA `status:open` vencidas, reconferindo ao vivo a resolução antes de disparar
+lembrete/escalonamento, AD-1).

@@ -1,0 +1,1734 @@
+{
+  "name": "06 - Lembretes e Escalonamento SLA",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 06. Lembretes e Escalonamento SLA\n\nWorkflow cron independente (AD-1: gatilho `scheduleTrigger` confirmado + condição obrigatória de reconferir resolução antes de disparar) -- separado do `Agente Nouvet`. Duas varreduras a partir da mesma leitura de config:\n\n**Sweep A (Postgres-only, pré-handoff):** sessões `n8n_status_atendimento.estado_espera='aguardando_cliente'` vencidas (`updated_at` mais antigo que `sla_resposta_minutos`) -> lembrete ao cliente via RD Conversas -- rastreado inteiramente em Postgres, sem card/Task no CRM (nenhum card existe ainda nesta fase).\n\n**Sweep B (RD CRM, pós-handoff):** `GET /tasks?filter=status:open+due_date:<agora` -- a própria consulta ao vivo no momento do disparo já satisfaz a reconferência obrigatória de Murat (nenhuma Task `completed`/`canceled` aparece neste filtro, SM-C2); filtra em memória pelo `name` fixo \"Acompanhamento SLA\" (nunca toca a Task de cadastro pendente/duplicidade da Story 11, mesmo deal). Para cada Task, resolve deal -> contato CRM -> telefone/sessão (Postgres) e decide: lead respondeu desde o início do ciclo atual (`n8n_status_atendimento.updated_at` >= `due_date - sla_resposta_minutos`) -> renova `due_date` em silêncio, sem mensagem, sem incrementar ciclo; senão -> atualiza o cliente, escalona ao gestor (`02 - Escalar Humano.json`, `destinatarios_gestor_sla`) com urgência crescente (ciclo + minutos totais), incrementa `numero_ciclo_escalonamento` e renova `due_date` (`05 - Gerenciar Task SLA.json`).",
+        "height": 460,
+        "width": 900
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -520
+      ],
+      "id": "d1e411c1-affd-4b76-9703-69ff97b944cd",
+      "name": "Sticky Note - Visão geral do cron"
+    },
+    {
+      "parameters": {
+        "content": "Granularidade de referência (Block If desta story): 1 minuto. Ajustar no build/deploy conforme volume real observado na VPS de dev -- não é uma invariante travada.",
+        "height": 160,
+        "width": 300
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        260
+      ],
+      "id": "f3891978-7d91-4dc7-a7b3-421a5403b5fb",
+      "name": "Sticky Note - Granularidade do cron"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        220,
+        260
+      ],
+      "id": "6a33c72a-b8e1-4e79-92e1-9a8a825d4e0c",
+      "name": "Agendamento (a cada 1 minuto)"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT sla_resposta_minutos, destinatarios_gestor_sla FROM atendimento_config WHERE id = 1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        440,
+        260
+      ],
+      "id": "0829285c-76d3-4950-b444-7aa12b6d115a",
+      "name": "Buscar Config SLA",
+      "credentials": {
+        "postgres": {
+          "id": "SET_IN_N8N_UI",
+          "name": "Postgres - Atendimento Nouvet"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT s.session_id, s.updated_at\nFROM n8n_status_atendimento s\nWHERE s.estado_espera = 'aguardando_cliente'\n  AND s.updated_at <= now() - make_interval(mins => $1)",
+        "options": {
+          "queryReplacement": "={{ [$('Buscar Config SLA').item.json.sla_resposta_minutos] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        660,
+        100
+      ],
+      "id": "b64aa7a3-610a-4480-a694-b607523a9884",
+      "name": "Buscar Sessões Aguardando Cliente Vencidas",
+      "credentials": {
+        "postgres": {
+          "id": "SET_IN_N8N_UI",
+          "name": "Postgres - Atendimento Nouvet"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://api.tallos.com.br/v2/contacts/' + String($json.session_id).replace(/\\D/g, '') + '/exists' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {},
+        "sendHeaders": false
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        100
+      ],
+      "id": "7f158a19-12bd-46e1-b59c-20d13d86e47e",
+      "name": "Buscar Contato Conversas (Sessão)",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "SET_IN_N8N_UI",
+          "name": "RD Station Conversas - Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "089e5b33-e438-4114-bc76-916eece90fdf",
+              "leftValue": "={{ $json.data !== null && $json.data !== undefined && $json.data._id !== null && $json.data._id !== undefined }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1100,
+        100
+      ],
+      "id": "f1ab7355-5342-4ea9-b044-68a790469d96",
+      "name": "Contato Conversas (Sessão) Encontrado?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        220
+      ],
+      "id": "b4d8b192-cc00-41fe-a6d7-02f7f75020c0",
+      "name": "Contato Conversas (Sessão) Não Encontrado"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.tallos.com.br/v2/messages/' + $json.data._id + '/send' }}",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "Olá! Ainda estamos por aqui, aguardando seu retorno para continuarmos o atendimento. Quando puder, é só responder por aqui que seguimos com você."
+            },
+            {
+              "name": "sent_by",
+              "value": "bot"
+            }
+          ]
+        },
+        "sendHeaders": false,
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        20
+      ],
+      "id": "3d5903ae-d4ad-4f1d-94f7-6934e022363b",
+      "name": "Enviar Lembrete ao Cliente",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "SET_IN_N8N_UI",
+          "name": "RD Station Conversas - Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE n8n_status_atendimento SET updated_at = now() WHERE session_id = $1",
+        "options": {
+          "queryReplacement": "={{ [$('Buscar Sessões Aguardando Cliente Vencidas').item.json.session_id] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1650,
+        -60
+      ],
+      "id": "e5cbef4b-0736-4646-a32f-b3fb049cd2bc",
+      "name": "Renovar Janela de Espera do Cliente",
+      "credentials": {
+        "postgres": {
+          "id": "SET_IN_N8N_UI",
+          "name": "Postgres - Atendimento Nouvet"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.rd.services/crm/v2/tasks",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {
+          "pagination": {
+            "pagination": {
+              "paginationMode": "updateAParameter",
+              "parameters": {
+                "parameters": [
+                  {
+                    "type": "query",
+                    "name": "page[number]",
+                    "value": "={{ $pageCount + 1 }}"
+                  }
+                ]
+              },
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ !$response.body.data || $response.body.data.length === 0 }}",
+              "limitPagesFetched": false,
+              "requestInterval": 0
+            }
+          }
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "filter",
+              "value": "={{ 'status:open+due_date:<' + $now.toUTC().toISO({ suppressMilliseconds: true }) }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        460
+      ],
+      "id": "d424a42f-b651-4cc7-be01-f10a3ab52a7c",
+      "name": "Buscar Tasks de SLA Vencidas",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "credentials": {
+        "oAuth2Api": {
+          "id": "SET_IN_N8N_UI",
+          "name": "RD Station CRM - OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "60a70e78-1c69-4680-aa8d-7760bc87de7a",
+              "leftValue": "={{ Array.isArray($json.data) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        460
+      ],
+      "id": "cbf82e76-19e4-45bf-a95e-ab1d915e5937",
+      "name": "Busca de Tasks SLA Bem-sucedida?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        620
+      ],
+      "id": "ac72980a-7677-4a1d-b8dc-63b28084911c",
+      "name": "Busca de Tasks SLA Falhou"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        460
+      ],
+      "id": "6812112c-d922-4ce5-870e-f77cec7c6ded",
+      "name": "Separar Tasks Vencidas"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7911b448-5aa1-4150-a03a-ee36afad5bf6",
+              "leftValue": "={{ $json.data.name }}",
+              "rightValue": "Acompanhamento SLA",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1320,
+        460
+      ],
+      "id": "642480b1-6a31-476c-b72a-dc2385eadf9a",
+      "name": "É Task de Acompanhamento SLA?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1540,
+        620
+      ],
+      "id": "baf84f74-4c53-4f05-ac33-2f6f7883ab16",
+      "name": "Task Não é de SLA (Ignorada)"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "499afbf2-d8a2-45d5-9bf6-9883e0e295bf",
+              "name": "task_id",
+              "value": "={{ $json.data.id }}",
+              "type": "string"
+            },
+            {
+              "id": "28634fe5-79ae-443e-9a6b-27dd941b75df",
+              "name": "deal_id",
+              "value": "={{ $json.data.deal_id }}",
+              "type": "string"
+            },
+            {
+              "id": "fdb16dda-4b6e-40d3-96b8-95d149ef1d10",
+              "name": "due_date",
+              "value": "={{ $json.data.due_date }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1540,
+        460
+      ],
+      "id": "4a6d8695-07c5-4398-b687-6ef935d7d450",
+      "name": "Extrair Task e Deal"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://api.rd.services/crm/v2/deals/' + $json.deal_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        460
+      ],
+      "id": "408640c8-3cd2-4b7c-9f92-29e0ef44830a",
+      "name": "Buscar Deal da Task",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "credentials": {
+        "oAuth2Api": {
+          "id": "SET_IN_N8N_UI",
+          "name": "RD Station CRM - OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6ed11297-c7c8-4b78-83c4-a64867c7cbc9",
+              "leftValue": "={{ $json.data !== null && $json.data !== undefined }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1980,
+        460
+      ],
+      "id": "13f534ab-6a71-4f3d-ac73-f0bdb98d49fc",
+      "name": "Deal da Task Encontrado?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2200,
+        620
+      ],
+      "id": "334217f3-7615-4cca-a6b4-3e6f927a5448",
+      "name": "Deal da Task Não Encontrado"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "efc50567-6f48-4951-9c29-bfb986e8d0ad",
+              "name": "contact_id_crm",
+              "value": "={{ ($json.data.contact_ids || [])[0] || null }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2200,
+        460
+      ],
+      "id": "dd3c72c9-176a-42be-90e3-f2c7c60e79e9",
+      "name": "Extrair Contato do Deal"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "82f49875-9fa6-473e-884a-e7bcc1a6fb45",
+              "leftValue": "={{ $json.contact_id_crm !== null && $json.contact_id_crm !== undefined }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2420,
+        460
+      ],
+      "id": "6157269b-729d-4809-b19e-5f2777e457f2",
+      "name": "Contato do Deal Presente?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2640,
+        620
+      ],
+      "id": "bcd36a2a-16f2-4978-bca5-b1ef62358630",
+      "name": "Contato do Deal Ausente"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  i.telefone,\n  i.nome_cliente,\n  i.nome_pet,\n  s.session_id,\n  s.updated_at,\n  s.numero_ciclo_escalonamento\nFROM identidade_cliente_pet i\nLEFT JOIN n8n_status_atendimento s\n  ON telefone_normalizar(s.session_id) = i.telefone\nWHERE i.rd_crm_contact_id = $1\nORDER BY i.updated_at DESC\nLIMIT 1",
+        "options": {
+          "queryReplacement": "={{ [$('Extrair Contato do Deal').item.json.contact_id_crm] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2640,
+        460
+      ],
+      "id": "a55da535-58a2-4008-9319-47ebd384dacc",
+      "name": "Buscar Identidade e Status por Contato",
+      "credentials": {
+        "postgres": {
+          "id": "SET_IN_N8N_UI",
+          "name": "Postgres - Atendimento Nouvet"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "09d94d33-b41f-4680-a4a7-3764d233baa9",
+              "leftValue": "={{ $json.telefone !== null && $json.telefone !== undefined }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2860,
+        460
+      ],
+      "id": "1a9ceb90-72ec-4103-875b-e66519a1fc76",
+      "name": "Identidade Encontrada?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        3080,
+        620
+      ],
+      "id": "770f2047-2ee3-4e94-bfb7-8fdcaacf3fbe",
+      "name": "Identidade Não Encontrada (tenta próximo ciclo)"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fe4afdb6-9cbf-4cc0-8f14-3284ec98fbee",
+              "name": "inicio_ciclo_atual",
+              "value": "={{ DateTime.fromISO($('Extrair Task e Deal').item.json.due_date).minus({ minutes: $('Buscar Config SLA').item.json.sla_resposta_minutos }).toISO() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3080,
+        460
+      ],
+      "id": "71fd4375-7ce8-4489-906d-285d4d529b9f",
+      "name": "Calcular Início do Ciclo Atual"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b71766c8-5300-422b-88e2-4564047ee0d9",
+              "leftValue": "={{ $('Buscar Identidade e Status por Contato').item.json.updated_at != null && new Date($('Buscar Identidade e Status por Contato').item.json.updated_at) >= new Date($json.inicio_ciclo_atual) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3300,
+        460
+      ],
+      "id": "efcc2030-7e3f-438b-9eb6-93b3717e97e6",
+      "name": "Lead Ativo Desde o Início do Ciclo?"
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "SET_IN_N8N_UI",
+          "cachedResultName": "05 - Gerenciar Task SLA"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "deal_id": "={{ $('Extrair Task e Deal').item.json.deal_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "deal_id",
+              "displayName": "deal_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        3520,
+        320
+      ],
+      "id": "56008257-ba1b-41ba-aad7-486515a30fe4",
+      "name": "Renovar Task de SLA (Silencioso)",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE n8n_status_atendimento\nSET numero_ciclo_escalonamento = numero_ciclo_escalonamento + 1\nWHERE telefone_normalizar(session_id) = $1",
+        "options": {
+          "queryReplacement": "={{ [$('Buscar Identidade e Status por Contato').item.json.telefone] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        4420,
+        620
+      ],
+      "id": "59753f2e-30d7-43ab-8e9b-768a3a5f4c87",
+      "name": "Incrementar Ciclo de Escalonamento",
+      "credentials": {
+        "postgres": {
+          "id": "SET_IN_N8N_UI",
+          "name": "Postgres - Atendimento Nouvet"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ee965fff-7d43-4ea8-a3c6-67e6fd217bac",
+              "name": "numero_ciclo_atual",
+              "value": "={{ (Number($('Buscar Identidade e Status por Contato').item.json.numero_ciclo_escalonamento) || 0) + 1 }}",
+              "type": "number"
+            },
+            {
+              "id": "5c870f38-8c1e-44a6-be2e-cb3baab81450",
+              "name": "minutos_atraso_total",
+              "value": "={{ ((Number($('Buscar Identidade e Status por Contato').item.json.numero_ciclo_escalonamento) || 0) + 1) * Number($('Buscar Config SLA').item.json.sla_resposta_minutos) }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4420,
+        460
+      ],
+      "id": "a217d75e-5aab-4ac0-8418-236bccc1c951",
+      "name": "Compor Dados de Escalonamento"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://api.tallos.com.br/v2/contacts/' + String($('Buscar Identidade e Status por Contato').item.json.session_id || $('Buscar Identidade e Status por Contato').item.json.telefone).replace(/\\D/g, '') + '/exists' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {},
+        "sendHeaders": false
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4640,
+        300
+      ],
+      "id": "7634721a-1828-444e-ba50-0941b26dec1d",
+      "name": "Buscar Contato Conversas do Cliente",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "SET_IN_N8N_UI",
+          "name": "RD Station Conversas - Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7802b64e-7604-4b4b-b5d1-c5776b957323",
+              "leftValue": "={{ $json.data !== null && $json.data !== undefined && $json.data._id !== null && $json.data._id !== undefined }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4860,
+        300
+      ],
+      "id": "e4000ab2-f433-463e-8d6d-4bb37dd33664",
+      "name": "Contato Conversas do Cliente Encontrado?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        5080,
+        380
+      ],
+      "id": "2dcc25f4-b4b8-4e13-83ea-1ec56d71147f",
+      "name": "Contato Conversas do Cliente Não Encontrado"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.tallos.com.br/v2/messages/' + $json.data._id + '/send' }}",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "=Olá! Seu atendimento segue em andamento -- nossa equipe já foi notificada novamente e vai te responder o quanto antes. Obrigado pela paciência."
+            },
+            {
+              "name": "sent_by",
+              "value": "bot"
+            }
+          ]
+        },
+        "sendHeaders": false,
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5080,
+        200
+      ],
+      "id": "792a8fa1-7c76-4d1a-ab4a-e5c50cfdf704",
+      "name": "Enviar Atualização ao Cliente",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "SET_IN_N8N_UI",
+          "name": "RD Station Conversas - Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "SET_IN_N8N_UI",
+          "cachedResultName": "02 - Escalar Humano"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telefone": "={{ $('Buscar Identidade e Status por Contato').item.json.telefone }}",
+            "nome_cliente": "={{ $('Buscar Identidade e Status por Contato').item.json.nome_cliente }}",
+            "nome_pet": "={{ $('Buscar Identidade e Status por Contato').item.json.nome_pet }}",
+            "mensagem_relevante": "=Task de SLA vencida sem resposta humana (deal {{ $('Extrair Task e Deal').item.json.deal_id }})",
+            "motivo": "={{ 'SLA de resposta estourado (ciclo ' + $('Compor Dados de Escalonamento').item.json.numero_ciclo_atual + ')' }}",
+            "resumo": "={{ 'Atendimento aguardando humano há ' + $('Compor Dados de Escalonamento').item.json.minutos_atraso_total + ' minuto(s) no total (ciclo ' + $('Compor Dados de Escalonamento').item.json.numero_ciclo_atual + ' de escalonamento). Cliente: ' + ($('Buscar Identidade e Status por Contato').item.json.nome_cliente || '(nome não informado)') + '. Telefone: ' + ($('Buscar Identidade e Status por Contato').item.json.telefone || '(telefone não informado)') + '. Deal: ' + $('Extrair Task e Deal').item.json.deal_id }}",
+            "destinatarios_emergencia": "={{ $('Buscar Config SLA').item.json.destinatarios_gestor_sla }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "nome_cliente",
+              "displayName": "nome_cliente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "nome_pet",
+              "displayName": "nome_pet",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "mensagem_relevante",
+              "displayName": "mensagem_relevante",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "motivo",
+              "displayName": "motivo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "resumo",
+              "displayName": "resumo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "destinatarios_emergencia",
+              "displayName": "destinatarios_emergencia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "array",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        4640,
+        640
+      ],
+      "id": "a1919eb1-f34a-4de2-a4a9-5152fafb2474",
+      "name": "Escalar ao Gestor (SLA)",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "SET_IN_N8N_UI",
+          "cachedResultName": "05 - Gerenciar Task SLA"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "deal_id": "={{ $('Extrair Task e Deal').item.json.deal_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "deal_id",
+              "displayName": "deal_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        4860,
+        640
+      ],
+      "id": "0f857459-54bd-4c4d-ba56-a7fbffb0c74d",
+      "name": "Renovar Task de SLA (Escalonado)",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "31b9768f-8daa-4f02-b873-9bcf5b37fbd9",
+              "leftValue": "={{ $json.statusCode >= 200 && $json.statusCode < 300 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1430,
+        20
+      ],
+      "id": "99f9e500-9b82-44c2-9d3d-450d510a8781",
+      "name": "Envio de Lembrete Bem-sucedido?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1650,
+        120
+      ],
+      "id": "5c2f3350-7dc4-4433-88f7-a2165581be5d",
+      "name": "Envio de Lembrete Falhou (janela não renovada)"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.rd.services/crm/v2/tasks",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "filter",
+              "value": "={{ 'deal_id:' + $('Extrair Task e Deal').item.json.deal_id + '+status:open' }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3520,
+        780
+      ],
+      "id": "b09d87d6-8f4f-405e-a40f-875761c94ded",
+      "name": "Reconferir Task Ainda Aberta",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "credentials": {
+        "oAuth2Api": {
+          "id": "SET_IN_N8N_UI",
+          "name": "RD Station CRM - OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c7b01fee-46ef-4e93-b373-2940098bcc7c",
+              "leftValue": "={{ Array.isArray($json.data) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3740,
+        780
+      ],
+      "id": "c6ca2984-f8b3-4fb3-8a4e-f781689ff703",
+      "name": "Reconferência de Task Bem-sucedida?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d5964547-edf6-4144-ac52-5bcbecdce284",
+              "name": "task_ainda_aberta",
+              "value": "={{ ($json.data || []).some(t => t.id === $('Extrair Task e Deal').item.json.task_id) }}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3960,
+        700
+      ],
+      "id": "c3e68caa-61a9-42e0-b808-b4caaa4a5e26",
+      "name": "Extrair Resultado da Reconferência"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a0234f72-6666-4237-bd7d-db76dd388145",
+              "leftValue": "={{ $json.task_ainda_aberta === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4180,
+        700
+      ],
+      "id": "39906bb7-7eca-4a38-be26-3a0823eb5c49",
+      "name": "Task de SLA Confirmada Aberta?"
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "SET_IN_N8N_UI",
+          "cachedResultName": "05 - Gerenciar Task SLA"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "deal_id": "={{ $('Extrair Task e Deal').item.json.deal_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "deal_id",
+              "displayName": "deal_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        3960,
+        900
+      ],
+      "id": "44504e94-2912-4f8f-adfd-22efa8328b4a",
+      "name": "Renovar Task de SLA (Reconferência Falhou)",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "SET_IN_N8N_UI",
+          "cachedResultName": "05 - Gerenciar Task SLA"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "deal_id": "={{ $('Extrair Task e Deal').item.json.deal_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "deal_id",
+              "displayName": "deal_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        4400,
+        900
+      ],
+      "id": "b28738ed-25e6-42e2-a12c-369c9662aaa8",
+      "name": "Renovar Task de SLA (Resolvida Durante Reconferência)",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true
+    }
+  ],
+  "connections": {
+    "Agendamento (a cada 1 minuto)": {
+      "main": [
+        [
+          {
+            "node": "Buscar Config SLA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Config SLA": {
+      "main": [
+        [
+          {
+            "node": "Buscar Sessões Aguardando Cliente Vencidas",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Buscar Tasks de SLA Vencidas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Sessões Aguardando Cliente Vencidas": {
+      "main": [
+        [
+          {
+            "node": "Buscar Contato Conversas (Sessão)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Contato Conversas (Sessão)": {
+      "main": [
+        [
+          {
+            "node": "Contato Conversas (Sessão) Encontrado?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contato Conversas (Sessão) Encontrado?": {
+      "main": [
+        [
+          {
+            "node": "Enviar Lembrete ao Cliente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Contato Conversas (Sessão) Não Encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar Lembrete ao Cliente": {
+      "main": [
+        [
+          {
+            "node": "Envio de Lembrete Bem-sucedido?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Tasks de SLA Vencidas": {
+      "main": [
+        [
+          {
+            "node": "Busca de Tasks SLA Bem-sucedida?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca de Tasks SLA Bem-sucedida?": {
+      "main": [
+        [
+          {
+            "node": "Separar Tasks Vencidas",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Busca de Tasks SLA Falhou",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Separar Tasks Vencidas": {
+      "main": [
+        [
+          {
+            "node": "É Task de Acompanhamento SLA?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "É Task de Acompanhamento SLA?": {
+      "main": [
+        [
+          {
+            "node": "Extrair Task e Deal",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Task Não é de SLA (Ignorada)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair Task e Deal": {
+      "main": [
+        [
+          {
+            "node": "Buscar Deal da Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Deal da Task": {
+      "main": [
+        [
+          {
+            "node": "Deal da Task Encontrado?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deal da Task Encontrado?": {
+      "main": [
+        [
+          {
+            "node": "Extrair Contato do Deal",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Deal da Task Não Encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair Contato do Deal": {
+      "main": [
+        [
+          {
+            "node": "Contato do Deal Presente?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contato do Deal Presente?": {
+      "main": [
+        [
+          {
+            "node": "Buscar Identidade e Status por Contato",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Contato do Deal Ausente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Identidade e Status por Contato": {
+      "main": [
+        [
+          {
+            "node": "Identidade Encontrada?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Identidade Encontrada?": {
+      "main": [
+        [
+          {
+            "node": "Calcular Início do Ciclo Atual",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Identidade Não Encontrada (tenta próximo ciclo)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calcular Início do Ciclo Atual": {
+      "main": [
+        [
+          {
+            "node": "Lead Ativo Desde o Início do Ciclo?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Ativo Desde o Início do Ciclo?": {
+      "main": [
+        [
+          {
+            "node": "Renovar Task de SLA (Silencioso)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reconferir Task Ainda Aberta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compor Dados de Escalonamento": {
+      "main": [
+        [
+          {
+            "node": "Buscar Contato Conversas do Cliente",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Escalar ao Gestor (SLA)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Contato Conversas do Cliente": {
+      "main": [
+        [
+          {
+            "node": "Contato Conversas do Cliente Encontrado?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contato Conversas do Cliente Encontrado?": {
+      "main": [
+        [
+          {
+            "node": "Enviar Atualização ao Cliente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Contato Conversas do Cliente Não Encontrado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escalar ao Gestor (SLA)": {
+      "main": [
+        [
+          {
+            "node": "Renovar Task de SLA (Escalonado)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envio de Lembrete Bem-sucedido?": {
+      "main": [
+        [
+          {
+            "node": "Renovar Janela de Espera do Cliente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Envio de Lembrete Falhou (janela não renovada)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reconferir Task Ainda Aberta": {
+      "main": [
+        [
+          {
+            "node": "Reconferência de Task Bem-sucedida?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reconferência de Task Bem-sucedida?": {
+      "main": [
+        [
+          {
+            "node": "Extrair Resultado da Reconferência",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Renovar Task de SLA (Reconferência Falhou)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair Resultado da Reconferência": {
+      "main": [
+        [
+          {
+            "node": "Task de SLA Confirmada Aberta?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Task de SLA Confirmada Aberta?": {
+      "main": [
+        [
+          {
+            "node": "Incrementar Ciclo de Escalonamento",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Compor Dados de Escalonamento",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Renovar Task de SLA (Resolvida Durante Reconferência)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "cebc2903-adac-4363-b826-21da7b29b6bb",
+  "meta": {
+    "instanceId": "atendimento-nouvet-piloto"
+  },
+  "id": "f06f3426-4874-43eb-afef-39fa84d54b49",
+  "tags": []
+}
