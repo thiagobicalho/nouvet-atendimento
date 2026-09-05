@@ -677,3 +677,11 @@ source_spec: `13-cap-9-guardrails-de-ia.md`
 severity: medium
 reason: Achado convergente de dois reviewers independentes (blind-hunter e verification-gap) no review pass de 2026-09-04 da story 13. A tensão é real, mas não é uma correção óbvia: Validação 4 convive com carve-outs mais específicos que já preveem resposta transparente sem escalonamento para casos pontuais dentro de um fluxo já classificado (ex.: profissional não reconhecido na Validação 17, item de catálogo fora da lista na Validação 13) — generalizar Validação 4 para sempre escalar arriscaria contradizer esses carve-outs. Requer uma revisão de design (não uma correção mecânica) para decidir se/como diferenciar "lacuna pontual dentro de um fluxo" de "pergunta institucional/clínica genuinamente fora de escopo" (a distinção que o Motivo 4 já cobre via a frase de fechamento de `<contexto>`, corrigida nesta mesma passada de review).
 status: open
+
+### DW-84: Quando um Sinal de Alerta já acionou Escalar_humano num turno anterior e, em turno posterior, o cliente declara explicitamente que é uma emergência sobre o mesmo evento, não está definido se isso deve
+origin: spec-deferred 77035afc5622
+location: n8n/workflows/01 - Agente.json — systemMessage, seção <sinais-de-alerta> (bloco Emergência Declarada) / <validacoes> item 10
+source_spec: `14-cap-12-emergencias-declaradas-pelo-cliente.md`
+severity: medium
+reason: A Boundaries & Constraints e a I/O & Edge-Case Matrix desta story só tratam o caso de sintoma configurado e declaração explícita coincidindo na MESMA mensagem ("uma única chamada... mesmo invariante da Validação 10"). O cenário de declaração tardia, em turno separado, sobre um evento já escalado como Sinal de Alerta, não é coberto por nenhum Always/Never nem pela Matrix. A leitura defensável mais direta é que a Validação 10 ("nunca chame Escalar_humano duas vezes para o mesmo evento") já resolve isso suprimindo a segunda chamada, mas isso significa que o motivo mais grave e mais específico (Emergência Declarada) nunca chegaria a ser sinalizado para o humano nesse cenário -- mesma família de risco residual já aceita para destinatarios_emergencia vazio (DW-44), não bloqueante para esta story.
+status: open
