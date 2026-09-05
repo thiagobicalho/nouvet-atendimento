@@ -694,3 +694,11 @@ source_spec: `15-cap-11-indicadores-e-visibilidade-gerencial.md`
 severity: low
 reason: Achado do Blind Hunter no review pass desta story. Decisão explícita de Thiago na invocação (Never: "Não estende o registro de card a 'Informação indisponível'/'Emergência Declarada' — fora do escopo nomeado do DW-50"), não uma correção pendente desta story. Registrado aqui só para não perder de vista, ao marcar DW-50 inteiramente `resolved`, que 2 dos 5 motivos originais de `Escalar_humano` seguem sem nenhuma trilha persistida — mesmo tipo de lacuna que DW-50 descrevia, agora restrita a um subconjunto menor. Candidato a uma story futura se a diretoria do Nouvet pedir visibilidade também desses 2 motivos.
 status: open
+
+### DW-86: Follow-up review still recommended for 15 after the damping cap was spent
+origin: review-budget-followup
+location: n/a
+source_spec: `15-cap-11-indicadores-e-visibilidade-gerencial.md`
+severity: low
+reason: The follow-up-review damping cap (limits.max_followup_reviews = 1) was spent with the story finalized (status: done, verify green, 1 high finding already patched — ROUND(double precision) cast) while the review pass still recommended an independent follow-up. The work was committed manually (commit 0600e81) after the dev/review session was interrupted by host memory pressure and required manual tmux recovery (bmad-loop run 20260905-181002-7f8d). This entry preserves the lingering recommendation for a deliberate later review — same pattern as DW-74 (story 11).
+status: open
