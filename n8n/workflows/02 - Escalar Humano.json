@@ -149,6 +149,163 @@
       ],
       "id": "26808c36-2015-4541-b8c8-971ed23ac5c2",
       "name": "Alerta não configurado"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b1c2d3e4-1234-4a5b-8c6d-7e8f9a0b1c02",
+              "leftValue": "={{ ['Sinal de Alerta', 'Fora de escopo', 'Convênio mencionado'].includes($('Receber Solicitação').item.json.motivo) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        460
+      ],
+      "id": "d2e3f4a5-2345-4b6c-9d7e-8f9a0b1c2d03",
+      "name": "Motivo Gera Registro no CRM?"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT telefone_normalizar($1) AS telefone",
+        "options": {
+          "queryReplacement": "={{ [$('Receber Solicitação').item.json.telefone] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        660,
+        460
+      ],
+      "id": "e3f4a5b6-3456-4c7d-ae8f-9a0b1c2d3e04",
+      "name": "Normalizar Telefone (Registro CRM)",
+      "credentials": {
+        "postgres": {
+          "id": "SET_IN_N8N_UI",
+          "name": "Postgres - Atendimento Nouvet"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "SET_IN_N8N_UI",
+          "cachedResultName": "04 - Registrar Atendimento CRM"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "telefone": "={{ $json.telefone }}",
+            "nome_cliente": "={{ $('Receber Solicitação').item.json.nome_cliente }}",
+            "nome_pet": "={{ $('Receber Solicitação').item.json.nome_pet }}",
+            "setor": "={{ $('Receber Solicitação').item.json.motivo }}",
+            "resumo_atendimento": "={{ $('Receber Solicitação').item.json.resumo }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "nome_cliente",
+              "displayName": "nome_cliente",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "nome_pet",
+              "displayName": "nome_pet",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "setor",
+              "displayName": "setor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "resumo_atendimento",
+              "displayName": "resumo_atendimento",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        460
+      ],
+      "id": "f4a5b6c7-4567-4d8e-bf9a-0b1c2d3e4f05",
+      "name": "Registrar Atendimento CRM (Desvio Triagem)",
+      "onError": "continueRegularOutput",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        660,
+        620
+      ],
+      "id": "a5b6c7d8-5678-4e9f-8a0b-1c2d3e4f5a06",
+      "name": "Motivo Não Gera Registro no CRM"
     }
   ],
   "connections": {
@@ -157,6 +314,40 @@
         [
           {
             "node": "Destinatários configurados?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Motivo Gera Registro no CRM?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Motivo Gera Registro no CRM?": {
+      "main": [
+        [
+          {
+            "node": "Normalizar Telefone (Registro CRM)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Motivo Não Gera Registro no CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar Telefone (Registro CRM)": {
+      "main": [
+        [
+          {
+            "node": "Registrar Atendimento CRM (Desvio Triagem)",
             "type": "main",
             "index": 0
           }

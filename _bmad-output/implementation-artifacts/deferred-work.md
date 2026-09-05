@@ -403,7 +403,8 @@ location: n8n/workflows/02 - Escalar Humano.json (sem consumidor de log/tabela)
 source_spec: `6-cap-2-triagem-e-direcionamento.md`
 severity: medium
 reason: Achado do Blind Hunter. Fora do Code Map desta story (que deliberadamente não persiste setor classificado nem introduz coluna nova, ver Boundaries "Never") — potencial candidato a uma story futura de observabilidade/auditoria de handoffs (relacionado a CAP-8/Story 12, que já vai mexer em `n8n_status_atendimento`).
-status: open
+status: resolved
+resolution: Story 15 (CAP-11) fecha o gap — `02 - Escalar Humano.json` ganhou o ramo "Motivo Gera Registro no CRM?" que, para exatamente os 3 motivos nomeados (`Sinal de Alerta`, `Fora de escopo`, `Convênio mencionado`), normaliza o telefone e delega a `04 - Registrar Atendimento CRM.json` (reusa 100% da lógica de card/Note já existente). `04` agora grava toda classificação (setor real ou desvio) em `atendimento_registro_setor` (append-only, `n8n/migrations/0013_indicadores_e_esteira.sql`), servida sob demanda por `atendimento_indicadores_ler` — 2026-09-05.
 
 ### DW-51: Follow-up review still recommended for 6 after the damping cap was spent
 origin: review-budget-followup

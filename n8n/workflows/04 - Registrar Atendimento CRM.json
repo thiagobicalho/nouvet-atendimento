@@ -988,6 +988,31 @@
       },
       "onError": "continueRegularOutput",
       "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO atendimento_registro_setor (telefone, categoria, valor, rd_crm_deal_id)\nSELECT $1, CASE WHEN $2 IN ('Care Center', 'Consultas', 'Vacinas', 'Exames', 'Orçamentos') THEN 'setor' ELSE 'desvio' END, $2, $3",
+        "options": {
+          "queryReplacement": "={{ [$('Receber Solicitação').item.json.telefone, $('Receber Solicitação').item.json.setor, $('Deal ID Final').item.json.deal_id_final] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        4180,
+        780
+      ],
+      "id": "6c1f3a9e-2b7d-4e5f-8a1c-9d4b7e2f5a04",
+      "name": "Registrar Evento de Indicador (CAP-11)",
+      "credentials": {
+        "postgres": {
+          "id": "SET_IN_N8N_UI",
+          "name": "Postgres - Atendimento Nouvet"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true
     }
   ],
   "connections": {
@@ -1258,6 +1283,11 @@
           },
           {
             "node": "Marcar Aguardando Atendimento Humano (CAP-8)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Registrar Evento de Indicador (CAP-11)",
             "type": "main",
             "index": 0
           }

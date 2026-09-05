@@ -77,9 +77,9 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT s.session_id, s.updated_at\nFROM n8n_status_atendimento s\nWHERE s.estado_espera = 'aguardando_cliente'\n  AND s.updated_at <= now() - make_interval(mins => $1)",
+        "query": "SELECT s.session_id, s.updated_at, s.numero_tentativas_esteira, s.esteira_esgotada\nFROM n8n_status_atendimento s\nWHERE s.estado_espera = 'aguardando_cliente'\n  AND s.esteira_esgotada = FALSE\n  AND s.updated_at <= now() - CASE\n    WHEN s.numero_tentativas_esteira = 0 THEN make_interval(mins => $1)\n    ELSE make_interval(hours => ($2::int[])[LEAST(s.numero_tentativas_esteira, array_length($2::int[], 1))])\n  END",
         "options": {
-          "queryReplacement": "={{ [$('Buscar Config SLA').item.json.config.sla_resposta_minutos] }}"
+          "queryReplacement": "={{ [$('Buscar Config SLA').item.json.config.sla_resposta_minutos, $('Buscar Config SLA').item.json.config.intervalos_esteira_horas] }}"
         }
       },
       "type": "n8n-nodes-base.postgres",
@@ -101,6 +101,64 @@
     },
     {
       "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9d7a2b06-3e6a-4d3f-8c8a-8f8d3a7c9a01",
+              "leftValue": "={{ $json.numero_tentativas_esteira }}",
+              "rightValue": "={{ $('Buscar Config SLA').item.json.config.max_tentativas_esteira }}",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        100
+      ],
+      "id": "3a6c9f0e-3f2f-4a4a-9a9a-1c9a2f6c9d02",
+      "name": "Esteira Esgotada Nesta Tentativa?"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE n8n_status_atendimento SET esteira_esgotada = TRUE, updated_at = now() WHERE session_id = $1",
+        "options": {
+          "queryReplacement": "={{ [$('Buscar Sessões Aguardando Cliente Vencidas').item.json.session_id] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1100,
+        220
+      ],
+      "id": "5b8e1d4a-6a2e-4c1b-9f3a-2d7e5b9c1f03",
+      "name": "Marcar Esteira Esgotada (Não Atendido)",
+      "credentials": {
+        "postgres": {
+          "id": "SET_IN_N8N_UI",
+          "name": "Postgres - Atendimento Nouvet"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
         "method": "GET",
         "url": "={{ 'https://api.tallos.com.br/v2/contacts/' + String($json.session_id).replace(/\\D/g, '') + '/exists' }}",
         "authentication": "genericCredentialType",
@@ -111,8 +169,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        880,
-        100
+        1100,
+        20
       ],
       "id": "7f158a19-12bd-46e1-b59c-20d13d86e47e",
       "name": "Buscar Contato Conversas (Sessão)",
@@ -220,7 +278,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "UPDATE n8n_status_atendimento SET updated_at = now() WHERE session_id = $1",
+        "query": "UPDATE n8n_status_atendimento SET updated_at = now(), numero_tentativas_esteira = numero_tentativas_esteira + 1 WHERE session_id = $1",
         "options": {
           "queryReplacement": "={{ [$('Buscar Sessões Aguardando Cliente Vencidas').item.json.session_id] }}"
         }
@@ -1358,6 +1416,24 @@
     },
     "Buscar Sessões Aguardando Cliente Vencidas": {
       "main": [
+        [
+          {
+            "node": "Esteira Esgotada Nesta Tentativa?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Esteira Esgotada Nesta Tentativa?": {
+      "main": [
+        [
+          {
+            "node": "Marcar Esteira Esgotada (Não Atendido)",
+            "type": "main",
+            "index": 0
+          }
+        ],
         [
           {
             "node": "Buscar Contato Conversas (Sessão)",
