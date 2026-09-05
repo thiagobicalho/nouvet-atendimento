@@ -604,3 +604,67 @@ source_spec: `11-cap-7-registro-e-memoria-no-crm.md`
 severity: low
 reason: The follow-up-review damping cap (limits.max_followup_reviews = 1) was spent with the story finalized (status: done, verify green) while the review pass still recommended an independent follow-up. The work was committed by bmad-loop run 20260904-152116-904f; this entry preserves the lingering recommendation for a deliberate later review.
 status: open
+
+### DW-75: Se a criação da Task de SLA falhar em `04` enquanto `estado_espera` ainda é marcado `aguardando_atendimento_humano`, o handoff fica sem SLA rastreado.
+origin: spec-deferred b9cfcb3b3b8b
+location: n8n/workflows/04 - Registrar Atendimento CRM.json (nós "Gerenciar Task SLA (CAP-8)" e "Marcar Aguardando Atendimento Humano (CAP-8)")
+source_spec: `12-cap-8-temporizadores-continuidade-e-sla.md`
+severity: medium
+reason: "Gerenciar Task SLA (CAP-8)" e "Marcar Aguardando Atendimento Humano (CAP-8)" rodam em branches independentes a partir de "Criar Note no Deal", ambas com onError: continueRegularOutput. Se a primeira falhar (mesmo após retry) e a segunda suceder, nenhuma Task de SLA existe para aquele deal, e o Sweep B do cron (06) só varre Tasks já existentes -- o handoff fica permanentemente sem monitoramento de SLA. Mesmo padrão de branches paralelos tolerantes a falha parcial já usado em `04` desde a Story 11, não é um padrão novo desta story, mas o risco concreto (SLA nunca rastreado) é novo.
+status: open
+
+### DW-76: Branches terminais novas (Task/deal/contato/identidade não encontrados) em `05`/`06` não têm log, alerta nem limite de tentativas.
+origin: spec-deferred 54af05f0e1bc
+location: n8n/workflows/05 - Gerenciar Task SLA.json e n8n/workflows/06 - Lembretes e Escalonamento SLA.json (branches noOp terminais)
+source_spec: `12-cap-8-temporizadores-continuidade-e-sla.md`
+severity: medium
+reason: "Task SLA Não Gerenciada", "Deal da Task Não Encontrado", "Contato do Deal Ausente", "Identidade Não Encontrada (tenta próximo ciclo)" e "Busca de Tasks SLA Falhou" são todos noOp puros -- uma Task irrecuperável (ex. contato deletado no CRM) é reprocessada todo tick do cron (1 min) para sempre, sem visibilidade. Mesma convenção de branches terminais silenciosos já usada em workflows anteriores do projeto (não é um padrão novo desta story), mas é uma lacuna de observabilidade que vale atenção dedicada no nível do projeto.
+status: open
+
+### DW-77: Comparação entre timestamp Postgres sem timezone e string ISO do Luxon via `new Date()` depende de tratamento implícito de timezone do node Postgres do n8n.
+origin: spec-deferred ce45bf6dcee2
+location: n8n/workflows/06 - Lembretes e Escalonamento SLA.json (nó "Lead Ativo Desde o Início do Ciclo?")
+source_spec: `12-cap-8-temporizadores-continuidade-e-sla.md`
+severity: low
+reason: "Lead Ativo Desde o Início do Ciclo?" (06) compara `n8n_status_atendimento.updated_at` (TIMESTAMP WITHOUT TIME ZONE) contra `inicio_ciclo_atual` (ISO construído via Luxon) usando `new Date(...)` puro em JS, sem normalização explícita de UTC em nenhum dos dois lados. Mesma classe de risco já presente onde quer que este projeto compare timestamps através da fronteira driver-pg/JS (ex. recuperação de lock por TTL da Story 3), não é exclusivo desta story.
+status: open
+
+### DW-78: `estado_espera` nunca é gravado de volta para `aguardando_cliente` -- uma vez que um telefone é marcado `aguardando_atendimento_humano` por um handoff, fica assim para sempre, mesmo em conversas futur
+origin: spec-deferred 4650cac81bdf
+location: n8n/migrations/0012_temporizadores_sla.sql (função atendimento_estado_espera_marcar) e n8n/workflows/04 - Registrar Atendimento CRM.json (único chamador)
+source_spec: `12-cap-8-temporizadores-continuidade-e-sla.md`
+severity: medium
+reason: `atendimento_estado_espera_marcar` só é chamada por `04` com o literal `'aguardando_atendimento_humano'` -- nenhum ponto do projeto (agente, cron, qualquer sub-workflow) jamais chama com `'aguardando_cliente'`. Como `n8n_status_atendimento.session_id` é `UNIQUE` por telefone (uma única linha por cliente, reaproveitada para sempre, Story 3), qualquer cliente que já passou por um handoff fica permanentemente fora do alcance do Sweep A (que exige `estado_espera='aguardando_cliente'`) em qualquer conversa futura e não relacionada -- mesmo que a Task de SLA daquele handoff antigo já tenha sido concluída no CRM há muito tempo. A leitura literal do Always da story (só `Registrar_atendimento_crm` escreve o estado, nunca especifica retorno) sustenta isso como comportamento monotônico por design, mas o efeito prático (lembrete de inatividade pré-handoff nunca mais dispara para um cliente recorrente) não é mencionado em nenhum lugar do Intent/Edge-Case Matrix.
+status: open
+
+### DW-79: O cron `06` não tem trava contra suas próprias execuções sobrepostas -- só a criação/renovação de Task dentro de `05` é protegida por lock; o envio de mensagem/escalonamento por Task individual, em `0
+origin: spec-deferred 5f03858949f6
+location: n8n/workflows/06 - Lembretes e Escalonamento SLA.json (Sweep B, varredura sequencial de Tasks vencidas)
+source_spec: `12-cap-8-temporizadores-continuidade-e-sla.md`
+severity: medium
+reason: A granularidade de referência do `scheduleTrigger` é de 1 minuto (nota da própria story, não é invariante travada). Se o processamento sequencial de uma leva de Tasks vencidas (deal -> contato -> identidade -> Conversas -> enviar/escalonar, por Task) ultrapassar esse intervalo, o próximo tick pode reprocessar a mesma Task vencida antes que o ciclo anterior tenha concluído sua renovação de `due_date`, gerando mensagem duplicada ao cliente/gestor e incremento duplo de `numero_ciclo_escalonamento` -- risco adjacente a SM-C2 (lembrete não pode virar spam percebido) sob volume real.
+status: open
+
+### DW-80: A correlação Task->telefone via `deal.contact_id -> identidade_cliente_pet` usa `ORDER BY i.updated_at DESC LIMIT 1`, que pode escolher a identidade errada quando mais de um telefone compartilha o mes
+origin: spec-deferred ba3e33c939a0
+location: n8n/workflows/06 - Lembretes e Escalonamento SLA.json (nós "Buscar Identidade e Status por Contato" e "Incrementar Ciclo de Escalonamento")
+source_spec: `12-cap-8-temporizadores-continuidade-e-sla.md`
+severity: medium
+reason: "Buscar Identidade e Status por Contato" (06) faz `SELECT ... FROM identidade_cliente_pet i LEFT JOIN n8n_status_atendimento s ON telefone_normalizar(s.session_id) = i.telefone WHERE i.rd_crm_contact_id = $1 ORDER BY i.updated_at DESC LIMIT 1`. O próprio AD-11 documenta duplicidade familiar (cônjuges com o mesmo pet) como cenário real deste projeto, e a correlação Task->telefone via `deal.contact_id -> identidade_cliente_pet.rd_crm_contact_id` foi deliberadamente deixada a critério de quem implementa pelo "Block If" desta story -- sem outro campo para desambiguar, a heurística de recência pode selecionar o telefone/nome de um familiar que não é quem está de fato naquele atendimento. Quando isso acontece, o `LEFT JOIN` pode não encontrar a sessão do telefone errado, e "Incrementar Ciclo de Escalonamento" (`UPDATE ... WHERE telefone_normalizar(session_id) = $1`) afeta 0 linhas silenciosamente -- toda escalonação subsequente reporta "ciclo 1" mesmo que já tenham ocorrido vários.
+status: open
+
+### DW-81: "Enviar Atualização ao Cliente" (Sweep B) não verifica sucesso/falha do envio, diferente do fix já aplicado a "Enviar Lembrete ao Cliente" (Sweep A) para o mesmo tipo de risco.
+origin: spec-deferred cfa850fcd6b3
+location: n8n/workflows/06 - Lembretes e Escalonamento SLA.json (nó "Enviar Atualização ao Cliente")
+source_spec: `12-cap-8-temporizadores-continuidade-e-sla.md`
+severity: low
+reason: O nó é terminal (`onError: continueRegularOutput`, sem IF de status depois) -- uma falha de envio ao cliente é engolida em silêncio, sem sinal em lugar nenhum. Diferente do caso já corrigido em Sweep A, aqui isso não suprime nenhum mecanismo futuro (a renovação da Task e o alerta ao gestor rodam em um branch paralelo independente, não acoplado ao sucesso desta mensagem) -- o cliente só deixa de saber que a equipe foi notificada novamente, sem efeito colateral em dados/estado.
+status: open
+
+### DW-82: `task_sla_lock_adquirir` não trata `p_ttl_minutos` nulo -- se a leitura de config upstream falhar, um lock preso pode nunca ser reclamado por TTL.
+origin: spec-deferred 5df2faf80a49
+location: n8n/migrations/0012_temporizadores_sla.sql (função task_sla_lock_adquirir)
+source_spec: `12-cap-8-temporizadores-continuidade-e-sla.md`
+severity: low
+reason: `task_sla_lock_adquirir` usa `make_interval(mins => p_ttl_minutos)` sem `COALESCE`. Se "Buscar SLA Config" (05) falhar (`onError: continueRegularOutput`, padrão já usado em todo o projeto) e o valor chegar indefinido, `now() - make_interval(mins => NULL)` é `NULL`, e a condição de reclamo do `DO UPDATE` (`lock_adquirido_em < NULL`) nunca é verdadeira -- um lock preso por essa falha composta (config falha E existe lock preso) só se resolve quando uma leitura de config bem-sucedida ocorrer de novo para aquele `deal_id`.
+status: open
