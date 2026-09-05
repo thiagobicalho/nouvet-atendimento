@@ -219,8 +219,39 @@
   spec_checkpoint: false
   done_checkpoint: false
   invoke_dev_with: >-
-    Mecanismo de leitura/fonte para 3 dos 5 indicadores (leads recebidos,
-    distribuição por setor, tempo de 1ª resposta) ainda não tem fonte nomeada
-    (Deferred na spine) — FR-37 (atendido/não atendido) deriva das esteiras do RD
-    CRM (AD-8). Baixo risco de travar ordem de build, mas precisa de resposta antes
-    de entregar os indicadores.
+    Decisões já tomadas com Thiago (resolução do intent gap da tentativa anterior,
+    2026-09-05) — não reabrir estas três, implementar direto: (1) FR-37
+    (atendido/não atendido) NÃO usa `stage_id`/pipeline do RD CRM — a "esteira" é um
+    mecanismo Postgres+cron que ESTENDE o Sweep A da Story 12 (`estado_espera =
+    'aguardando_cliente'` vencido), trocando o lembrete único com renovação infinita
+    de hoje por um contador de tentativas com intervalos crescentes e um teto, ambos
+    configuráveis em `atendimento_config` (nunca hardcoded) — mesmo espírito dos
+    campos `aguardando_followup`/`numero_followup`/`follow_ups_horas`/`max_followups`
+    que a Story 12 removeu por parecerem mortos (na verdade reservados pra esta
+    story). Estourou o teto → marca "não atendido" pro indicador, para de mandar
+    mensagem, sem escalar a gestor. Cliente responde a qualquer momento → o mesmo
+    ponto que já toca `updated_at` a cada mensagem (`lock_conversa_adquirir`, Story
+    3) também zera o contador — sem hook novo em `01 - Agente.json`. Vale tanto pra
+    quem sumiu no meio de um fluxo de setor quanto pra quem só mandou "bom dia" e
+    nunca foi classificado (mesmo mecanismo único, sem duplicar). (2) Visibilidade
+    pra gestão do Nouvet: construir os indicadores como views/funções SQL reusáveis
+    em Postgres (mesmo padrão de `atendimento_config_ler`, ponto único de leitura) —
+    é a base que o futuro painel de configuração (logo após o Piloto) vai consumir.
+    NENHUMA automação de envio nesta story (sem cron de relatório WhatsApp) —
+    entrega é só Btech consultando a view sob demanda por agora (decisão
+    deliberada, dado o painel vindouro; ver Design Notes do spec). (3) Fecha o
+    `DW-50`: os 3 desvios de triagem que hoje só mandam alerta e não deixam rastro
+    (Sinal de Alerta, Fora de escopo, Convênio mencionado via `Escalar_humano`)
+    passam também a criar/atualizar card no RD CRM, reusando `mapeamento_stage_crm`
+    (mesmo campo JSONB dos 5 setores, 3 chaves novas) — mapeamento real de stage_id
+    continua vazio/pendente pro go-live, mesmo gap já aceito que os 5 setores já
+    têm, não é bloqueio novo. `FR-38` (distribuição por setor) conta só os 5
+    setores reais; os 3 desvios de triagem viram uma categoria própria e separada
+    (nunca misturada em "setor", porque nunca tiveram um). Fora de escopo desta
+    story, não decidir aqui: (a) a IA ganhar usuário próprio no RD e handoff virar
+    transferência nativa de conversa em vez de mensagem de alerta; (b) migrar as
+    chamadas `httpRequest` cruas pros nodes nativos oficiais do RD Station
+    (confirmado que existem e são verificados — Conversas/CRM/Marketing, incl. como
+    AI Tool) — ambos são reconsiderações de arquitetura cross-cutting sobre as 14
+    stories já `done`, não escopo do CAP-11; registrar como follow-up pra uma
+    sessão de arquitetura dedicada, não implementar aqui.
