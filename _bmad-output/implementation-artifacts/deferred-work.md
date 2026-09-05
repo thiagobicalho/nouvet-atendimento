@@ -428,7 +428,8 @@ location: n8n/workflows/01 - Agente.json (Ferramentas Disponíveis / SOP Seção
 source_spec: `6-cap-2-triagem-e-direcionamento.md`
 severity: medium
 reason: Guardrails de prompt injection são CAP-9/Story 13, ainda não construída — risco aceito como fora de escopo desta story, mas deve ser considerado quando a Story 13 for desenhada.
-status: open
+status: resolved
+resolution: Story 13 (CAP-9) adiciona `<guardrails-ia>` ao `systemMessage` de `n8n/workflows/01 - Agente.json`, formalizando que `motivo` permanece restrito aos 4 valores literais fixos (nunca ditado pelo cliente) e que `resumo` é sempre síntese neutra nas palavras do agente, nunca reprodução literal de texto/link/instrução do cliente — reforçado por `<validacoes>` item 23 e Exemplo 17.
 
 ### DW-54: SOP não define comportamento para uma mensagem que combine 2 motivos distintos de `Escalar_humano` no mesmo turno
 origin: independent-review-post-DW51
