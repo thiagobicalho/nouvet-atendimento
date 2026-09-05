@@ -2,12 +2,36 @@
 title: 'CAP-12 — Emergências Declaradas pelo Cliente'
 type: 'feature'
 created: '2026-09-04'
-status: 'in-review'
+status: 'done'
 review_loop_iteration: 0
 followup_review_recommended: false
 context: ['{project-root}/_bmad-output/planning-artifacts/architecture/architecture-atendimento-2026-09-01/ARCHITECTURE-SPINE.md']
 warnings: [oversized]
-deferred: []
+deferred:
+  - summary: >-
+      Quando um Sinal de Alerta já acionou Escalar_humano num turno anterior e,
+      em turno posterior, o cliente declara explicitamente que é uma
+      emergência sobre o mesmo evento, não está definido se isso deve gerar
+      uma segunda chamada com motivo="Emergência Declarada" (mais específico)
+      ou se a Validação 10 (nunca chamar duas vezes pelo mesmo evento) já
+      cobre o caso e suprime a segunda chamada.
+    evidence: |-
+      A Boundaries & Constraints e a I/O & Edge-Case Matrix desta story só
+      tratam o caso de sintoma configurado e declaração explícita coincidindo
+      na MESMA mensagem ("uma única chamada... mesmo invariante da Validação
+      10"). O cenário de declaração tardia, em turno separado, sobre um evento
+      já escalado como Sinal de Alerta, não é coberto por nenhum Always/Never
+      nem pela Matrix. A leitura defensável mais direta é que a Validação 10
+      ("nunca chame Escalar_humano duas vezes para o mesmo evento") já
+      resolve isso suprimindo a segunda chamada, mas isso significa que o
+      motivo mais grave e mais específico (Emergência Declarada) nunca
+      chegaria a ser sinalizado para o humano nesse cenário -- mesma família
+      de risco residual já aceita para destinatarios_emergencia vazio
+      (DW-44), não bloqueante para esta story.
+    location: >-
+      n8n/workflows/01 - Agente.json — systemMessage, seção <sinais-de-alerta>
+      (bloco Emergência Declarada) / <validacoes> item 10
+    severity: medium
 baseline_revision: 'f9b5bb9ed1623fc72fa13b16aa3eef750476c366'
 ---
 
@@ -73,3 +97,33 @@ Emergência Declarada não ganha lista de config própria porque nem `SPEC.md` n
 
 **Manual checks (if no CLI):**
 - Na VPS de dev: simular mensagem com declaração explícita de emergência e confirmar que o alerta chega a todos os contatos de `destinatarios_emergencia` de teste (mais de um), não só ao primeiro.
+
+## Review Triage Log
+
+### 2026-09-05 — Review pass
+- intent_gap: 0
+- bad_spec: 0
+- patch: 1: (high 0, medium 0, low 1)
+- defer: 1: (high 0, medium 1, low 0)
+- reject: 10: (high 0, medium 2, low 8)
+- addressed_findings:
+  - `[low]` `[patch]` `<validacoes>`/Guardrails item 4 ("Reconhecer incerteza aciona handoff") ainda dizia "mesmo mecanismo de handoff já usado para os outros 3 motivos" — contagem relativa ficou desatualizada quando o total foi de 4 para 5 motivos (o critério de busca da story só cobria "4 motivos"/"4 casos"/"4 valores"/"quinto motivo" literais, não a forma relativa "outros N motivos"). Corrigido para "outros 4 motivos" em `n8n/workflows/01 - Agente.json`.
+
+## Auto Run Result
+
+**Resumo da mudança implementada:** `systemMessage` de `01 - Agente.json` ganhou o reconhecimento comportamental de "Emergência Declarada" (distinta de Sinal de Alerta) na seção `<sinais-de-alerta>`, um 5º motivo (`"Emergência Declarada"`) na ferramenta `Escalar_humano` (SOP 2.3, tool `description`/hint, `<validacoes>`, Exemplo 19), reaproveitando 100% do mecanismo já existente (`destinatarios_emergencia` + `02 - Escalar Humano.json` sem alteração). Nesta passada de review, corrigido um residual de contagem que sobrou desatualizado após o bump de 4→5 motivos.
+
+**Arquivos alterados:**
+- `n8n/workflows/01 - Agente.json` — bloco de Emergência Declarada em `<sinais-de-alerta>`, 5º caso em SOP 2.3, tool `Escalar Humano` (`description`/hint) e `<validacoes>` atualizados de 4→5 motivos, Exemplo 19 adicionado; nesta passada, também corrigida a contagem relativa residual "outros 3 motivos"→"outros 4 motivos" no Guardrails item 4.
+- `_bmad-output/specs/spec-atendimento-nouvet/stories/14-cap-12-emergencias-declaradas-pelo-cliente.md` — spec da story (este arquivo).
+
+**Review findings breakdown:** 1 patch aplicado (low), 1 item deferido (medium — ambiguidade de Escalar_humano duas vezes pro mesmo evento quando Emergência Declarada é declarada em turno posterior a um Sinal de Alerta já escalado), 10 rejeitados (achados sem defeito real confirmado após investigação — incluindo o falso-positivo de "Convênio"/byte-preservation, que na verdade é a forma canônica já usada em 9 outros pontos do documento e exigida pelo próprio script de verificação da story, não uma regressão).
+
+**Follow-up review recommendation:** `false` (patch severity: 1 low, 0 medium, 0 high; score = 3×0 + 1×1 = 1, abaixo do limiar de 5).
+
+**Verificação realizada:**
+- Ambos os comandos em `## Verification` → `OK` após o patch.
+- Varredura adicional de todas as ocorrências de `[0-9]+ (motivos|casos|valores|gatilhos)` no `systemMessage`: nenhum residual fora de "5" (e "4" correto no Guardrails item 4, referência relativa).
+- `git diff --stat -- "n8n/workflows/02 - Escalar Humano.json"` confirmado vazio.
+
+**Riscos residuais:** item deferido acima (ambiguidade de re-escalonamento cross-turn); DW-44 (destinatarios_emergencia vazio) permanece não resolvido por esta story, conforme já documentado no Design Notes/Code Map.
