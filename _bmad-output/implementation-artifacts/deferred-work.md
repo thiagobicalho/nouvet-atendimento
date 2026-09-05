@@ -669,3 +669,11 @@ source_spec: `12-cap-8-temporizadores-continuidade-e-sla.md`
 severity: low
 reason: `task_sla_lock_adquirir` usa `make_interval(mins => p_ttl_minutos)` sem `COALESCE`. Se "Buscar SLA Config" (05) falhar (`onError: continueRegularOutput`, padrão já usado em todo o projeto) e o valor chegar indefinido, `now() - make_interval(mins => NULL)` é `NULL`, e a condição de reclamo do `DO UPDATE` (`lock_adquirido_em < NULL`) nunca é verdadeira -- um lock preso por essa falha composta (config falha E existe lock preso) só se resolve quando uma leitura de config bem-sucedida ocorrer de novo para aquele `deal_id`.
 status: open
+
+### DW-83: Validação 4 ("Nunca invente dado fora da seção Contexto") ainda instrui só "reconheça que você não tem essa informação agora" sem exigir o acionamento de Escalar_humano(motivo="Informação indisponível
+origin: spec-deferred fccb2e4fda23
+location: n8n/workflows/01 - Agente.json — nó Agente Nouvet, systemMessage, <validacoes> item 4
+source_spec: `13-cap-9-guardrails-de-ia.md`
+severity: medium
+reason: Achado convergente de dois reviewers independentes (blind-hunter e verification-gap) no review pass de 2026-09-04 da story 13. A tensão é real, mas não é uma correção óbvia: Validação 4 convive com carve-outs mais específicos que já preveem resposta transparente sem escalonamento para casos pontuais dentro de um fluxo já classificado (ex.: profissional não reconhecido na Validação 17, item de catálogo fora da lista na Validação 13) — generalizar Validação 4 para sempre escalar arriscaria contradizer esses carve-outs. Requer uma revisão de design (não uma correção mecânica) para decidir se/como diferenciar "lacuna pontual dentro de um fluxo" de "pergunta institucional/clínica genuinamente fora de escopo" (a distinção que o Motivo 4 já cobre via a frase de fechamento de `<contexto>`, corrigida nesta mesma passada de review).
+status: open
