@@ -686,3 +686,11 @@ source_spec: `14-cap-12-emergencias-declaradas-pelo-cliente.md`
 severity: medium
 reason: A Boundaries & Constraints e a I/O & Edge-Case Matrix desta story só tratam o caso de sintoma configurado e declaração explícita coincidindo na MESMA mensagem ("uma única chamada... mesmo invariante da Validação 10"). O cenário de declaração tardia, em turno separado, sobre um evento já escalado como Sinal de Alerta, não é coberto por nenhum Always/Never nem pela Matrix. A leitura defensável mais direta é que a Validação 10 ("nunca chame Escalar_humano duas vezes para o mesmo evento") já resolve isso suprimindo a segunda chamada, mas isso significa que o motivo mais grave e mais específico (Emergência Declarada) nunca chegaria a ser sinalizado para o humano nesse cenário -- mesma família de risco residual já aceita para destinatarios_emergencia vazio (DW-44), não bloqueante para esta story.
 status: open
+
+### DW-85: Dos 5 motivos de `Escalar_humano`, só 3 (Sinal de Alerta, Fora de escopo, Convênio mencionado) passaram a gerar registro em CRM/indicadores ao fechar DW-50 — "Informação indisponível" e "Emergência Declarada" continuam sem nenhum rastro além da mensagem transitória de WhatsApp
+origin: review-patch 15-cap-11-indicadores-e-visibilidade-gerencial
+location: n8n/workflows/02 - Escalar Humano.json — nó "Motivo Gera Registro no CRM?"
+source_spec: `15-cap-11-indicadores-e-visibilidade-gerencial.md`
+severity: low
+reason: Achado do Blind Hunter no review pass desta story. Decisão explícita de Thiago na invocação (Never: "Não estende o registro de card a 'Informação indisponível'/'Emergência Declarada' — fora do escopo nomeado do DW-50"), não uma correção pendente desta story. Registrado aqui só para não perder de vista, ao marcar DW-50 inteiramente `resolved`, que 2 dos 5 motivos originais de `Escalar_humano` seguem sem nenhuma trilha persistida — mesmo tipo de lacuna que DW-50 descrevia, agora restrita a um subconjunto menor. Candidato a uma story futura se a diretoria do Nouvet pedir visibilidade também desses 2 motivos.
+status: open

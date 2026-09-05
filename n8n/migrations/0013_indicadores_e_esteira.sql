@@ -48,7 +48,10 @@ CREATE TABLE atendimento_registro_setor (
 
 CREATE INDEX idx_atendimento_registro_setor_created_at ON atendimento_registro_setor (created_at);
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON atendimento_registro_setor TO app_role;
+-- Só SELECT/INSERT (nunca UPDATE/DELETE) -- reforça em privilégio o append-only já
+-- prometido nos comentários acima; nenhum node desta ou de outra story faz UPDATE/DELETE
+-- nesta tabela.
+GRANT SELECT, INSERT ON atendimento_registro_setor TO app_role;
 GRANT USAGE, SELECT ON atendimento_registro_setor_id_seq TO app_role;
 
 -- lock_conversa_adquirir: corpo idêntico à 0005, com `numero_tentativas_esteira = 0` e
@@ -256,9 +259,13 @@ GRANT EXECUTE ON FUNCTION atendimento_indicador_distribuicao_setor(DATE, DATE) T
 -- (`{"type": "human"|"ai", ...}`, ver Design Notes da story -- não verificável neste
 -- ambiente sem n8n/Postgres real, validar contra dado real na VPS de dev antes do
 -- go-live). Para cada sessão, cada par consecutivo humano->IA (via LAG por
--- session_id/created_at) é uma resposta; média em segundos sobre todos os pares do
--- período. Sem par no período: `media_segundos` NULL e `amostras` 0 (nenhuma resposta
--- para medir, não um erro).
+-- session_id/created_at, sobre TODO o histórico da sessão -- o filtro de período só
+-- entra depois de calcular o LAG, nunca antes, senão um par que cruza a borda do
+-- período perderia sua mensagem anterior) é uma resposta; média em segundos sobre
+-- todos os pares cuja resposta (mensagem da IA) caiu no período. Sem par no período:
+-- `media_segundos` NULL e `amostras` 0 (nenhuma resposta para medir, não um erro).
+-- `ROUND` exige `numeric` (Postgres não tem overload para `double precision`) -- por
+-- isso o cast explícito antes de arredondar o resultado de `AVG(EXTRACT(EPOCH ...))`.
 CREATE OR REPLACE FUNCTION atendimento_indicador_tempo_resposta(
 	p_data_inicio DATE DEFAULT CURRENT_DATE,
 	p_data_fim DATE DEFAULT CURRENT_DATE
@@ -275,15 +282,15 @@ AS $$
 			LAG(created_at) OVER (PARTITION BY session_id ORDER BY created_at) AS created_at_anterior,
 			LAG(message ->> 'type') OVER (PARTITION BY session_id ORDER BY created_at) AS tipo_anterior
 		FROM n8n_historico_mensagens
-		WHERE created_at::date BETWEEN p_data_inicio AND p_data_fim
 	),
 	respostas AS (
 		SELECT EXTRACT(EPOCH FROM (created_at - created_at_anterior)) AS segundos
 		FROM mensagens
 		WHERE tipo = 'ai' AND tipo_anterior = 'human'
+		  AND created_at::date BETWEEN p_data_inicio AND p_data_fim
 	)
 	SELECT jsonb_build_object(
-		'media_segundos', ROUND(AVG(segundos)),
+		'media_segundos', ROUND(AVG(segundos)::numeric),
 		'amostras', COUNT(*)
 	)
 	FROM respostas;

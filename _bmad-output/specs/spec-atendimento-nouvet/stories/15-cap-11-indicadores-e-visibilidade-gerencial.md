@@ -2,9 +2,9 @@
 title: 'CAP-11 — Indicadores e Visibilidade Gerencial'
 type: 'feature'
 created: '2026-09-05'
-status: 'in-review'
+status: 'done'
 review_loop_iteration: 0
-followup_review_recommended: false
+followup_review_recommended: true
 baseline_revision: '1c19ce83a083e6b02a2394772784fd54c4f4fc19'
 context: ['{project-root}/_bmad-output/planning-artifacts/architecture/architecture-atendimento-2026-09-01/ARCHITECTURE-SPINE.md']
 warnings: ['oversized']
@@ -90,3 +90,35 @@ FR-37 do PRD original ("atendido = chegou a 'resolvido' na esteira do RD Station
 
 **Manual checks (if no CLI):**
 - VPS de dev: aplicar `0013`; simular uma sessão vencida sem resposta pelos `max_tentativas_esteira` ciclos completos e confirmar `esteira_esgotada=TRUE` sem mensagem extra; confirmar que uma nova mensagem do mesmo telefone zera o contador; simular os 3 motivos de desvio e confirmar card/Note no RD CRM; chamar `atendimento_indicadores_ler` com um período de teste e conferir os 5 valores contra dado inserido manualmente.
+
+## Review Triage Log
+
+### 2026-09-05 — Review pass
+- intent_gap: 0
+- bad_spec: 0
+- patch: 4 (high 1, medium 2, low 1)
+- defer: 4
+- reject: 6
+- addressed_findings:
+  - `[high]` `[patch]` `atendimento_indicador_tempo_resposta` chamava `ROUND(AVG(segundos))` sobre um valor `double precision` (`EXTRACT(EPOCH FROM ...)`) — Postgres não tem overload `round(double precision)`, então `atendimento_indicadores_ler` (o ponto único de leitura) lançaria erro em toda chamada com pelo menos 1 par de mensagens no período. Corrigido com cast explícito: `ROUND(AVG(segundos)::numeric)`.
+  - `[medium]` `[patch]` Na mesma função, o filtro de período (`created_at::date BETWEEN ...`) era aplicado antes de calcular `LAG()`, então um par humano→IA que cruzasse a borda do período perdia a mensagem anterior (par descartado/mal atribuído). Corrigido movendo o filtro de data para depois do `LAG` (sobre a mensagem de resposta da IA, não sobre a anterior).
+  - `[medium]` `[patch]` `atendimento_registro_setor` era documentada nos comentários como "append-only, nunca atualizado/apagado" mas recebia `GRANT ... UPDATE, DELETE ... TO app_role`, sem nada no schema reforçando a promessa. Corrigido restringindo o `GRANT` a `SELECT, INSERT` (nenhum node desta story faz UPDATE/DELETE nessa tabela).
+  - `[low]` `[patch]` Ao marcar DW-50 inteiramente `resolved`, o fato de só 3 dos 5 motivos de `Escalar_humano` passarem a gerar registro (decisão já fechada por Thiago, não revista) ficaria sem rastro formal de que os outros 2 (Informação indisponível, Emergência Declarada) seguem sem trilha. Aberto `DW-85` em `deferred-work.md` documentando o residual, sem reabrir o escopo desta story.
+
+## Auto Run Result
+
+**Resumo:** Story executada em invocação anterior (commit `c970148`); esta passada de review (folder+id dispatch, `status: in-review`) construiu o diff contra `baseline_revision`, rodou os 4 reviewers em paralelo (blind-hunter, edge-case-hunter, verification-gap, intent-alignment) e aplicou os 4 patches acima.
+
+**Arquivos alterados (baseline → HEAD, incluindo esta passada de review):**
+- `_bmad-output/implementation-artifacts/deferred-work.md` — DW-50 marcado `resolved`; `DW-85` aberto nesta passada de review para o residual dos 2 motivos não cobertos.
+- `_bmad-output/specs/spec-atendimento-nouvet/stories/15-cap-11-indicadores-e-visibilidade-gerencial.md` — spec desta story (este arquivo).
+- `n8n/migrations/0013_indicadores_e_esteira.sql` — esteira (contador/teto configuráveis) + `atendimento_registro_setor` + 5 funções de indicador; corrigido nesta passada de review (cast `ROUND`, filtro de data pós-`LAG`, `GRANT` restrito).
+- `n8n/workflows/02 - Escalar Humano.json` — ramo novo delegando os 3 motivos nomeados a `04` (fecha DW-50).
+- `n8n/workflows/04 - Registrar Atendimento CRM.json` — 4ª branch gravando em `atendimento_registro_setor`.
+- `n8n/workflows/06 - Lembretes e Escalonamento SLA.json` — esteira de lembretes com contador/teto substituindo o reenvio infinito da Story 12.
+
+**Review findings breakdown:** 4 patches aplicados (1 alto, 2 médios, 1 baixo) — ver Triage Log acima. 4 achados deferidos (não harvestados como `DW-*` novos, pois nenhum se qualificou como ação corretiva imediata dentro do diff): (1) diversas arestas de concorrência/erro na extensão do Sweep A e no registro CRM de desvio (`intervalos_esteira_horas` vazio trava a esteira permanentemente; falha silenciosa de `Normalizar Telefone` deixa `04` ser chamado sem telefone; janela de corrida entre a busca de vencidas e a marcação de esgotada) — consistentes com o padrão `onError: continueRegularOutput` já adotado em todo o projeto, candidatas a um hardening futuro; (2) os 4 indicadores usam 4 colunas de timestamp diferentes, então não descrevem exatamente a mesma coorte de leads para um dado período — já documentado como limitação de schema aceita nas Design Notes, mas vale registrar formalmente numa story futura de modelo de dados; (3) as 6 verificações desta story são 100% estáticas (JSON/regex sobre arquivos versionados), nunca executam SQL real nem fazem dry-run dos grafos n8n — mesmo padrão de todas as stories anteriores dado que não há Postgres/n8n vivo neste ambiente de dev; (4) nenhuma das 5 funções de indicador valida `p_data_inicio > p_data_fim` — `BETWEEN` simplesmente retorna vazio, risco baixo dado uso manual sob demanda pela Btech. 6 achados rejeitados como ruído ou falso-positivo, entre eles: a alegação de que `mapeamento_stage_crm` precisaria ganhar 3 chaves novas via `UPDATE` — verificado que o seed atual (`n8n/seed/0001_atendimento_config.sql`) já é `'{}'::jsonb` vazio para os 5 setores reais também, então a leitura `-> p_setor` já retorna `null` de forma idêntica para os 3 novos motivos sem nenhuma gravação extra necessária; e a alegação de que o 3º valor de `intervalos_esteira_horas` (24h) seria "config morta" — verificado por trace manual do fluxo em `06` que esse valor é sim consumido, como o prazo de carência final antes de marcar `esteira_esgotada`, depois do 3º lembrete já ter sido enviado (não é um lembrete adicional, é a espera final antes de desistir) — comportamento coerente, não um bug.
+
+**Verificação:** Os 7 comandos da seção `## Verification` foram reexecutados após os patches — todos `OK`. Não houve ambiente Postgres/n8n real disponível nesta passada para os checks manuais da VPS de dev (já sinalizado nas Design Notes como validação pendente de go-live).
+
+**Riscos residuais:** Ver os 4 itens deferidos acima — nenhum bloqueante para o Piloto; o mais relevante para acompanhar é a ausência de hardening contra corrida/erro na esteira do Sweep A, dado que ela agora é a única fonte do indicador "não atendido" (FR-37).
