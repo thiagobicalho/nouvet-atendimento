@@ -10,10 +10,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        0,
-        17000
+        3664,
+        1968
       ],
-      "id": "29960436-749b-4288-9a69-5777370f46a7",
+      "id": "c35c6719-498d-4246-9c6d-cb07c446d181",
       "name": "Mensagem recebida",
       "webhookId": "60d6af6c-599a-4e10-a5e7-79b05ce8cd13"
     },
@@ -26,10 +26,10 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -40,
-        16740
+        3952,
+        1696
       ],
-      "id": "67057507-4a82-4cab-b46b-78564d204fe3",
+      "id": "0c171fc5-baf6-48fd-8571-445df13aa854",
       "name": "Sticky Note - Payload do webhook"
     },
     {
@@ -73,10 +73,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        220,
-        17000
+        4224,
+        1968
       ],
-      "id": "a4c2b3c9-3e76-409a-8a7c-4dcedfdf293c",
+      "id": "a8572945-aa0c-4045-abca-2f80109cfdc3",
       "name": "Extrair dados da mensagem"
     },
     {
@@ -90,15 +90,15 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        440,
-        17000
+        4432,
+        1968
       ],
-      "id": "da87a0ba-f522-4905-8411-bd4e065e7053",
+      "id": "bf5130b9-f448-4777-8111-6694a39d2280",
       "name": "Enfileirar mensagem",
       "credentials": {
         "postgres": {
-          "id": "SET_IN_N8N_UI",
-          "name": "Postgres - Atendimento Nouvet"
+          "id": "imw9RKUxjTQ86ZrN",
+          "name": "Nouvet"
         }
       }
     },
@@ -111,15 +111,15 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        660,
-        17000
+        4656,
+        1968
       ],
-      "id": "856ad06d-5b6b-4004-8df3-df9abe425caf",
+      "id": "df786a94-285a-49a8-b406-f9420db33e1a",
       "name": "Buscar Config",
       "credentials": {
         "postgres": {
-          "id": "SET_IN_N8N_UI",
-          "name": "Postgres - Atendimento Nouvet"
+          "id": "imw9RKUxjTQ86ZrN",
+          "name": "Nouvet"
         }
       }
     },
@@ -134,15 +134,15 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        880,
-        17000
+        4880,
+        1968
       ],
-      "id": "e40b245d-49b8-4c06-9eca-5601b1c1983c",
+      "id": "6f29d3c2-1f32-45c1-b8e1-e03391420dad",
       "name": "Adquirir Lock",
       "credentials": {
         "postgres": {
-          "id": "SET_IN_N8N_UI",
-          "name": "Postgres - Atendimento Nouvet"
+          "id": "imw9RKUxjTQ86ZrN",
+          "name": "Nouvet"
         }
       }
     },
@@ -152,7 +152,8 @@
           "options": {
             "caseSensitive": true,
             "leftValue": "",
-            "typeValidation": "strict"
+            "typeValidation": "strict",
+            "version": 2
           },
           "conditions": [
             {
@@ -173,10 +174,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1100,
-        17000
+        5104,
+        1968
       ],
-      "id": "2e202d2f-2845-41ff-88d2-db269e9ab81f",
+      "id": "0e4c01bc-5585-4327-9e9e-17c0841db1fc",
       "name": "Lock adquirido?"
     },
     {
@@ -184,24 +185,23 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        1100,
-        17220
+        5104,
+        2176
       ],
-      "id": "610188a8-c2bb-413b-8bae-778e0fd95424",
+      "id": "5818580e-e800-43f2-badc-34e9938c05a8",
       "name": "Outra execução já está processando"
     },
     {
       "parameters": {
-        "amount": 8,
-        "unit": "seconds"
+        "amount": 8
       },
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        1320,
-        17000
+        5312,
+        1968
       ],
-      "id": "793dbdbb-d4e4-4f71-a584-879dca8a3928",
+      "id": "cd5b1ef6-839d-482c-be2e-78ae52a643e9",
       "name": "Esperar",
       "webhookId": "0e547354-dda1-4c38-b006-cf6d118081e8"
     },
@@ -227,7 +227,6 @@
             },
             {
               "column": "processada",
-              "condition": "equal",
               "value": false
             }
           ]
@@ -244,15 +243,15 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1540,
-        17000
+        5536,
+        1968
       ],
-      "id": "f8e79041-9f86-4954-8cf0-e23265af9f5f",
+      "id": "0e75e8d2-2598-4198-855a-22f4dc16348a",
       "name": "Buscar mensagens",
       "credentials": {
         "postgres": {
-          "id": "SET_IN_N8N_UI",
-          "name": "Postgres - Atendimento Nouvet"
+          "id": "imw9RKUxjTQ86ZrN",
+          "name": "Nouvet"
         }
       }
     },
@@ -279,10 +278,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1760,
-        17000
+        5760,
+        1968
       ],
-      "id": "84d1f407-c3d4-4b56-acdd-626f36581336",
+      "id": "0d6a586a-da00-4ebc-be66-189f3a0344f8",
       "name": "Agregar mensagens"
     },
     {
@@ -296,15 +295,15 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1980,
-        17000
+        5984,
+        1968
       ],
-      "id": "80e697d0-b658-484e-a5c5-f74471589b9c",
+      "id": "51942ef6-c0cd-4a9b-a151-2e798fc3a19e",
       "name": "Normalizar telefone",
       "credentials": {
         "postgres": {
-          "id": "SET_IN_N8N_UI",
-          "name": "Postgres - Atendimento Nouvet"
+          "id": "imw9RKUxjTQ86ZrN",
+          "name": "Nouvet"
         }
       }
     },
@@ -319,15 +318,15 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2200,
-        17000
+        6192,
+        1968
       ],
-      "id": "9e082c8d-a9c2-4b9e-a493-775ac8ff9c44",
+      "id": "e564c1ac-b888-4a2c-89d2-ec9a5cc8b69f",
       "name": "Buscar Identidade",
       "credentials": {
         "postgres": {
-          "id": "SET_IN_N8N_UI",
-          "name": "Postgres - Atendimento Nouvet"
+          "id": "imw9RKUxjTQ86ZrN",
+          "name": "Nouvet"
         }
       }
     },
@@ -480,10 +479,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        2420,
-        17000
+        6416,
+        1968
       ],
-      "id": "0c7c6ed9-3918-4f77-8cca-ac2e98a277bd",
+      "id": "8060c8b9-6820-46be-8fd1-5da0733220fa",
       "name": "Info"
     },
     {
@@ -497,35 +496,11 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2.2,
       "position": [
-        2640,
-        17000
+        6640,
+        1968
       ],
-      "id": "f7716007-a02a-4dee-8f85-d1089969351d",
+      "id": "a089e982-8e02-4abf-b37c-2938bef517b1",
       "name": "Agente Nouvet"
-    },
-    {
-      "parameters": {
-        "model": {
-          "__rl": true,
-          "value": "gpt-4.1",
-          "mode": "list"
-        },
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
-      "typeVersion": 1.2,
-      "position": [
-        2540,
-        17260
-      ],
-      "id": "667b0673-b879-44cd-a6bf-68e2dfc2e124",
-      "name": "OpenAI",
-      "credentials": {
-        "openAiApi": {
-          "id": "SET_IN_N8N_UI",
-          "name": "OpenAI - Atendimento Nouvet"
-        }
-      }
     },
     {
       "parameters": {
@@ -537,15 +512,15 @@
       "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
       "typeVersion": 1.3,
       "position": [
-        2640,
-        17260
+        6640,
+        2224
       ],
-      "id": "e43e55ab-6c0f-4110-a0d6-b31aad19930a",
+      "id": "45037d45-e0c3-4e17-a24e-7124e0945482",
       "name": "Memory",
       "credentials": {
         "postgres": {
-          "id": "SET_IN_N8N_UI",
-          "name": "Postgres - Atendimento Nouvet"
+          "id": "imw9RKUxjTQ86ZrN",
+          "name": "Nouvet"
         }
       }
     },
@@ -556,16 +531,18 @@
       "type": "@n8n/n8n-nodes-langchain.toolThink",
       "typeVersion": 1.1,
       "position": [
-        2740,
-        17260
+        6752,
+        2224
       ],
-      "id": "acec1f03-7028-44d9-8fe9-dddb36930e28",
+      "id": "8a4cde78-e83d-4de8-a981-dfe68bee93d3",
       "name": "Refletir"
     },
     {
       "parameters": {
         "method": "POST",
         "url": "=https://api.tallos.com.br/v2/messages/{{ $('Info').item.json.contact_id }}/send",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "contentType": "form-urlencoded",
         "bodyParameters": {
@@ -580,23 +557,20 @@
             }
           ]
         },
-        "sendHeaders": false,
-        "options": {},
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth"
+        "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2860,
-        17000
+        6960,
+        1968
       ],
-      "id": "3d979efe-c6c7-452b-8c13-e3d26d9fdb8f",
+      "id": "e7f7581c-c2bd-40a6-9770-68167038db4d",
       "name": "Enviar resposta RD Conversas",
       "credentials": {
         "httpHeaderAuth": {
-          "id": "SET_IN_N8N_UI",
-          "name": "RD Station Conversas - Token"
+          "id": "mdvhi3lMspQKLDBo",
+          "name": "RD Conversas Nouvet"
         }
       }
     },
@@ -611,15 +585,15 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        3080,
-        17000
+        7168,
+        1968
       ],
-      "id": "f005be9c-1ca4-4c1c-935d-02521b1418ff",
+      "id": "0ddaf44e-1b20-44b4-8c2b-a8c6712894b2",
       "name": "Marcar mensagens processadas",
       "credentials": {
         "postgres": {
-          "id": "SET_IN_N8N_UI",
-          "name": "Postgres - Atendimento Nouvet"
+          "id": "imw9RKUxjTQ86ZrN",
+          "name": "Nouvet"
         }
       }
     },
@@ -634,15 +608,15 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        3300,
-        17000
+        7392,
+        1968
       ],
-      "id": "c6c14177-dbca-41fb-83ed-983a19100821",
+      "id": "d809d46c-2c8a-4c1e-8083-a84bad8dcc57",
       "name": "Liberar Lock",
       "credentials": {
         "postgres": {
-          "id": "SET_IN_N8N_UI",
-          "name": "Postgres - Atendimento Nouvet"
+          "id": "imw9RKUxjTQ86ZrN",
+          "name": "Nouvet"
         }
       }
     },
@@ -651,8 +625,9 @@
         "description": "Aciona o handoff para um humano continuar o atendimento -- use exatamente nos 5 casos da Secao 2.3 do SOP: Sinal de Alerta, Fora de escopo, Convênio mencionado pelo proprio cliente, Informação indisponível (pergunta factual fora das Fontes Confiaveis), ou Emergência Declarada (o proprio cliente afirma explicitamente que e uma emergencia). O(s) destinatario(s) do alerta ja vem prontos do sistema -- voce nunca escolhe nem informa esse dado, so preenche motivo e resumo. Depois de chamar esta ferramenta, continue a conversa normalmente com o cliente -- chamar esta tool nao encerra o turno.",
         "workflowId": {
           "__rl": true,
+          "value": "FqnT8o7xsNXqqO5f",
           "mode": "list",
-          "value": "SET_IN_N8N_UI",
+          "cachedResultUrl": "/workflow/FqnT8o7xsNXqqO5f",
           "cachedResultName": "02 - Escalar Humano"
         },
         "workflowInputs": {
@@ -746,10 +721,10 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        2740,
-        17400
+        6736,
+        2368
       ],
-      "id": "e09ca669-f2ed-48fb-acf5-595afc30d470",
+      "id": "e7cad488-bda6-43bc-b151-0010e9440eb3",
       "name": "Escalar Humano"
     },
     {
@@ -757,8 +732,9 @@
         "description": "Busca a fatia de configuracao ('setor') de atendimento_config_ler para o setor ja classificado nesta conversa -- devolve catalogo_servicos (unicos servicos/especialidades/vacinas que voce pode oferecer como agendaveis via IA), profissionais (nome/especialidade) e, exclusivamente para o setor Exames, exames_exigem_anestesia (lista de exames que exigem anestesia), todos ja filtrados por esse setor. Use logo depois de classificar o setor Care Center, Consultas, Vacinas ou Exames, antes de confirmar qualquer servico/especialidade/vacina/exame ou profissional ao cliente -- sempre com um setor literal exato ('Care Center', 'Consultas', 'Vacinas' ou 'Exames'), nunca uma chamada fundindo mais de um setor -- nunca responda com base em memoria de outro turno nem invente servico/profissional/regra de anestesia fora deste retorno. Se a busca falhar, nao invente nem valide profissional nominal: em Care Center, informe que um humano continuara; em Consultas, colete a queixa e preferencias em texto; em Vacinas, registre a necessidade e preferencias em texto; em Exames, nunca afirme que o exame exige nem que nao exige anestesia, e nao pergunte sobre pre-anestesicos por conta propria; nos quatro casos, informe a continuidade humana. Se apenas catalogo_servicos vier vazio, siga o fallback textual definido na secao do setor e continue coletando o restante. Se somente profissionais vier vazio, continue coletando servico/data/horario normalmente e apenas nao confirme preferencia nominal de profissional. Se exames_exigem_anestesia vier vazio ou indisponivel no setor Exames, nao pergunte sobre pre-anestesicos por padrao.",
         "workflowId": {
           "__rl": true,
+          "value": "bOqEyDhagFZ22ZpR",
           "mode": "list",
-          "value": "SET_IN_N8N_UI",
+          "cachedResultUrl": "/workflow/bOqEyDhagFZ22ZpR",
           "cachedResultName": "03 - Buscar Info Setor"
         },
         "workflowInputs": {
@@ -786,10 +762,10 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        2740,
-        17520
+        6736,
+        2480
       ],
-      "id": "0203a63a-5fbc-413e-bdf9-5bcd9c82adf8",
+      "id": "bc2cb28d-c258-4f6c-8c86-cecd263522ce",
       "name": "Buscar Info Setor"
     },
     {
@@ -797,8 +773,9 @@
         "description": "Registra o atendimento no CRM (RD Station CRM) -- cria ou reaproveita o contato e o card do cliente, move o card para a etapa do setor corrente e adiciona uma nota com o resumo do atendimento; quando aplicavel, sinaliza uma Task de revisao humana (cadastro pendente no SimplesVet e/ou possivel duplicidade familiar). Voce aciona a ferramenta, mas nunca executa a chamada de API voce mesmo (mesma distincao ja usada para Escalar_humano).",
         "workflowId": {
           "__rl": true,
+          "value": "wM1W1HCY5w4aitwS",
           "mode": "list",
-          "value": "SET_IN_N8N_UI",
+          "cachedResultUrl": "/workflow/wM1W1HCY5w4aitwS",
           "cachedResultName": "04 - Registrar Atendimento CRM"
         },
         "workflowInputs": {
@@ -870,11 +847,86 @@
       "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
       "typeVersion": 2.2,
       "position": [
-        2740,
-        17640
+        6736,
+        2608
       ],
-      "id": "b1e6b1a3-6e0e-4a5a-9b8b-4f1d5b3a7c2e",
+      "id": "3bdfad1c-f50e-4a92-a0f4-dbe0797c5745",
       "name": "Registrar Atendimento CRM"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        6528,
+        2224
+      ],
+      "id": "6cc5cc44-a46e-4cea-a23d-ca664097a09b",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "mwqRNna4c6EAPAxx",
+          "name": "OpenRouter UniqueAI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "76d00528-69c2-4b54-a6ef-87b6fce6dde2",
+              "name": "phone_test",
+              "value": "5511989892343",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3840,
+        1968
+      ],
+      "id": "ddb0722a-bb81-407d-9282-d3414577d8a8",
+      "name": "Set Telefone de teste"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0adb451a-4503-492a-beab-ba327a4d49ec",
+              "leftValue": "={{ $('Mensagem recebida').item.json.body.contact.phone }}",
+              "rightValue": "={{ $json.phone_test }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        4032,
+        1968
+      ],
+      "id": "ed512496-92db-4c2a-8af8-9e511208d128",
+      "name": "If"
     }
   ],
   "connections": {
@@ -882,7 +934,7 @@
       "main": [
         [
           {
-            "node": "Extrair dados da mensagem",
+            "node": "Set Telefone de teste",
             "type": "main",
             "index": 0
           }
@@ -1017,17 +1069,6 @@
         ]
       ]
     },
-    "OpenAI": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Agente Nouvet",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Memory": {
       "ai_memory": [
         [
@@ -1115,20 +1156,100 @@
           }
         ]
       ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente Nouvet",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Telefone de teste": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Extrair dados da mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "pinData": {},
+  "pinData": {
+    "Mensagem recebida": [
+      {
+        "json": {
+          "headers": {
+            "host": "myeditor.uniqueads.com.br",
+            "user-agent": "axios/0.21.4",
+            "content-length": "259",
+            "accept": "application/json, text/plain, */*",
+            "content-type": "application/json",
+            "traceparent": "00-6aa00d1400000000306a48fc1f5153ea-100773ac4b11aacf-00",
+            "tracestate": "dd=t.tid:6aa00d1400000000;t.dm:-1;s:0;p:100773ac4b11aacf",
+            "x-datadog-parent-id": "1155019013274839759",
+            "x-datadog-sampling-priority": "0",
+            "x-datadog-tags": "_dd.p.tid=6aa00d1400000000",
+            "x-datadog-trace-id": "3488681109046252522",
+            "x-forwarded-for": "34.170.200.52",
+            "x-forwarded-host": "myeditor.uniqueads.com.br",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "ce3e84c25547",
+            "x-real-ip": "34.170.200.52",
+            "accept-encoding": "gzip"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "content": {
+              "id": "6aa00d143d44b15fb17ef737",
+              "message": "Olá, tudo bem?",
+              "type": "text",
+              "action": "automation"
+            },
+            "contact": {
+              "id": "69e96c6e09177f6669f6a2f8",
+              "name": "Leticia - Maria Gorgonzola",
+              "phone": "5511954339474",
+              "channel": "whatsapp",
+              "channel_label": "Nouvet"
+            }
+          },
+          "webhookUrl": "https://myeditor.uniqueads.com.br/webhook/atendimento-nouvet-recepcao",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
   "active": false,
   "settings": {
     "executionOrder": "v1",
-    "binaryMode": "separate",
-    "callerPolicy": "workflowsFromSameOwner",
-    "availableInMCP": false
+    "binaryMode": "separate"
   },
-  "versionId": "ebc22c02-69b4-43d0-b293-f6b536e1f73f",
+  "versionId": "0bc129ad-3ff6-486f-9df5-2c762325e87d",
   "meta": {
-    "instanceId": "atendimento-nouvet-piloto"
+    "templateCredsSetupCompleted": true
   },
-  "id": "112b4f21-047b-4b0c-9179-40dcbb8f1d0e",
+  "id": "ivPwIf28PgVGX8LW",
   "tags": []
 }

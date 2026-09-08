@@ -10,10 +10,10 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -40,
-        0
+        -48,
+        368
       ],
-      "id": "c67d69b8-4ced-4a81-8411-e5d4aac744d1",
+      "id": "b6d7e2c0-46ac-4133-ab1a-2e5dbbacc067",
       "name": "Sticky Note - Origem dos destinatários"
     },
     {
@@ -47,10 +47,10 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
-        220,
-        260
+        256,
+        688
       ],
-      "id": "15055821-9335-4497-a47c-d2761b322ce6",
+      "id": "3990bd16-0f0a-40b0-bfc9-c32d17a205c6",
       "name": "Receber Solicitação"
     },
     {
@@ -81,10 +81,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        440,
-        260
+        480,
+        528
       ],
-      "id": "f637691b-ab28-41d0-929f-e88363fa6f24",
+      "id": "a39c019a-e854-4c6d-84a8-7980b9d4abf5",
       "name": "Destinatários configurados?"
     },
     {
@@ -95,16 +95,18 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        660,
-        180
+        704,
+        448
       ],
-      "id": "8ffe2dd5-215c-4af4-9599-664926152b61",
+      "id": "9c2ef9d9-48c8-4f78-bf18-866dcdf55086",
       "name": "Separar destinatários"
     },
     {
       "parameters": {
         "method": "POST",
         "url": "=https://api.tallos.com.br/v2/messages/{{ $json.destinatarios_emergencia.contact_id }}/send",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "contentType": "form-urlencoded",
         "bodyParameters": {
@@ -119,23 +121,20 @@
             }
           ]
         },
-        "sendHeaders": false,
-        "options": {},
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth"
+        "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        880,
-        180
+        928,
+        448
       ],
-      "id": "d3a8995d-0042-462c-8d2e-872fec876340",
+      "id": "2528d2aa-07c4-4482-974f-0164ec35fd4c",
       "name": "Enviar alerta RD Conversas",
       "credentials": {
         "httpHeaderAuth": {
-          "id": "SET_IN_N8N_UI",
-          "name": "RD Station Conversas - Token"
+          "id": "mdvhi3lMspQKLDBo",
+          "name": "RD Conversas Nouvet"
         }
       }
     },
@@ -144,10 +143,10 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        660,
-        380
+        704,
+        608
       ],
-      "id": "26808c36-2015-4541-b8c8-971ed23ac5c2",
+      "id": "97e1ea31-b2f5-44df-88f2-386b66fae7ae",
       "name": "Alerta não configurado"
     },
     {
@@ -178,10 +177,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        440,
-        460
+        480,
+        880
       ],
-      "id": "d2e3f4a5-2345-4b6c-9d7e-8f9a0b1c2d03",
+      "id": "ae5d1ea4-da01-42dd-a94c-c9a74ca9456e",
       "name": "Motivo Gera Registro no CRM?"
     },
     {
@@ -195,27 +194,27 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        660,
-        460
+        704,
+        768
       ],
-      "id": "e3f4a5b6-3456-4c7d-ae8f-9a0b1c2d3e04",
+      "id": "9ca1af7a-46e4-4649-977d-aaa75aad8de4",
       "name": "Normalizar Telefone (Registro CRM)",
+      "retryOnFail": true,
       "credentials": {
         "postgres": {
-          "id": "SET_IN_N8N_UI",
-          "name": "Postgres - Atendimento Nouvet"
+          "id": "imw9RKUxjTQ86ZrN",
+          "name": "Nouvet"
         }
       },
-      "onError": "continueRegularOutput",
-      "retryOnFail": true
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
-        "source": "database",
         "workflowId": {
           "__rl": true,
+          "value": "wM1W1HCY5w4aitwS",
           "mode": "list",
-          "value": "SET_IN_N8N_UI",
+          "cachedResultUrl": "/workflow/wM1W1HCY5w4aitwS",
           "cachedResultName": "04 - Registrar Atendimento CRM"
         },
         "workflowInputs": {
@@ -288,23 +287,23 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        880,
-        460
+        928,
+        768
       ],
-      "id": "f4a5b6c7-4567-4d8e-bf9a-0b1c2d3e4f05",
+      "id": "03919da9-5d20-4b61-a6a5-dd0867bf76b6",
       "name": "Registrar Atendimento CRM (Desvio Triagem)",
-      "onError": "continueRegularOutput",
-      "retryOnFail": true
+      "retryOnFail": true,
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {},
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        660,
-        620
+        704,
+        960
       ],
-      "id": "a5b6c7d8-5678-4e9f-8a0b-1c2d3e4f5a06",
+      "id": "418b3b5e-ef3f-432d-957e-a67168aa7807",
       "name": "Motivo Não Gera Registro no CRM"
     }
   ],
@@ -388,14 +387,12 @@
   "active": false,
   "settings": {
     "executionOrder": "v1",
-    "binaryMode": "separate",
-    "callerPolicy": "workflowsFromSameOwner",
-    "availableInMCP": false
+    "binaryMode": "separate"
   },
-  "versionId": "0a93e01f-cb28-491e-83a5-00dfb6acdf86",
+  "versionId": "81fbd497-1181-4edc-afbf-0dd68f5465cc",
   "meta": {
-    "instanceId": "atendimento-nouvet-piloto"
+    "templateCredsSetupCompleted": true
   },
-  "id": "bcb6f853-8f84-4026-8a62-4d2ad637ee04",
+  "id": "FqnT8o7xsNXqqO5f",
   "tags": []
 }

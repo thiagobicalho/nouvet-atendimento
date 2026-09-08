@@ -4,16 +4,16 @@
     {
       "parameters": {
         "content": "## 03. Buscar Info Setor\n\nSub-workflow de leitura (CAP-3/Story 7) -- ferramenta chamada pelo próprio `Agente Nouvet` via `toolWorkflow` (`01 - Agente.json`), sempre depois de o turno corrente já ter classificado o setor (Seção 2 do SOP). Implementa a montagem seletiva por setor \"não cumulativa\" (AD-1) sem o workflow persistir o setor classificado (decisão da Story 6): cada chamada busca só a fatia `setor` de `atendimento_config_ler(p_fase, p_setor)` (migrations 0004/0008/0010) para o `setor` recebido, nunca os 5 setores de uma vez. Devolve `catalogo_servicos` e `profissionais` já filtrados pelo setor -- nenhuma tool de agenda (AD-4), nenhuma escrita.\n\nScoped inicialmente (Story 7) só a `setor=\"Care Center\"` (quem decide o valor é o próprio agente via `$fromAI`, mesmo padrão de `motivo`/`resumo` de `02 - Escalar Humano.json`). A Story 8 (CAP-4) passou a chamar este mesmo sub-workflow também para `setor=\"Consultas\"` e `setor=\"Vacinas\"` (Seções 4/5 do SOP em `01 - Agente.json`), sem nenhuma mudança de `nodes`/`connections` aqui. A Story 9 (CAP-5, Exames) reutiliza da mesma forma, nunca duplica -- só acrescentou a terceira projeção `exames_exigem_anestesia` (passthrough direto de `atendimento_config_ler`, vazio para os demais setores, já tratado pela função Postgres), consumida pela Seção 6 do SOP em `01 - Agente.json` para decidir quando perguntar sobre exames pré-anestésicos (FR-16/AD-1).",
-        "height": 320,
+        "height": 544,
         "width": 460
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -40,
-        0
+        -272,
+        -16
       ],
-      "id": "6fb8dcf4-c292-4c6b-b2a6-cf320d43b191",
+      "id": "6608a4af-4b08-4b77-9f82-c4e9340732c6",
       "name": "Sticky Note - Leitura seletiva por setor"
     },
     {
@@ -29,10 +29,10 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
-        220,
-        260
+        272,
+        272
       ],
-      "id": "d861374a-075a-421f-8a46-455856d5a0e1",
+      "id": "21e7afc5-9a88-4b65-bc8f-2b0ae2849316",
       "name": "Receber Solicitação"
     },
     {
@@ -46,15 +46,15 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        440,
-        260
+        480,
+        272
       ],
-      "id": "12f3fe8a-ffb3-447f-935b-40010bea5093",
+      "id": "2024e163-e15b-4cfb-91de-54d8740b27b7",
       "name": "Buscar Config do Setor",
       "credentials": {
         "postgres": {
-          "id": "SET_IN_N8N_UI",
-          "name": "Postgres - Atendimento Nouvet"
+          "id": "imw9RKUxjTQ86ZrN",
+          "name": "Nouvet"
         }
       }
     },
@@ -87,10 +87,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        660,
-        260
+        704,
+        272
       ],
-      "id": "d12cb843-b542-419b-8557-3871bd140a2c",
+      "id": "a41e619f-724b-45ff-bc5d-e58883430081",
       "name": "Selecionar Catálogo e Profissionais"
     }
   ],
@@ -122,14 +122,12 @@
   "active": false,
   "settings": {
     "executionOrder": "v1",
-    "binaryMode": "separate",
-    "callerPolicy": "workflowsFromSameOwner",
-    "availableInMCP": false
+    "binaryMode": "separate"
   },
-  "versionId": "20873e9a-a7f8-4c60-89cf-59fd6edee3bf",
+  "versionId": "04f63150-91cd-4562-8e23-cce2a1e34a22",
   "meta": {
-    "instanceId": "atendimento-nouvet-piloto"
+    "templateCredsSetupCompleted": true
   },
-  "id": "6952894e-5943-467d-978d-400bc5eaf549",
+  "id": "bOqEyDhagFZ22ZpR",
   "tags": []
 }

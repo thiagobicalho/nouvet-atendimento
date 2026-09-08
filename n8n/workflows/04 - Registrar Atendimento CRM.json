@@ -10,10 +10,10 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -40,
-        -160
+        -128,
+        16
       ],
-      "id": "sticky-01",
+      "id": "2b313008-879e-4d3b-ad8a-1ae081704c7b",
       "name": "Sticky Note"
     },
     {
@@ -41,10 +41,10 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
-        220,
-        260
+        144,
+        448
       ],
-      "id": "trigger-01",
+      "id": "314167c4-a16f-431e-a8a2-5eda45ace39d",
       "name": "Receber Solicitação"
     },
     {
@@ -58,19 +58,19 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        440,
-        180
+        352,
+        368
       ],
-      "id": "pg-resolver-1",
+      "id": "7113ad02-8f0e-409d-9d6a-59a2d51292ee",
       "name": "Resolver Identidade (1ª chamada)",
+      "retryOnFail": true,
       "credentials": {
         "postgres": {
-          "id": "SET_IN_N8N_UI",
-          "name": "Postgres - Atendimento Nouvet"
+          "id": "imw9RKUxjTQ86ZrN",
+          "name": "Nouvet"
         }
       },
-      "onError": "continueRegularOutput",
-      "retryOnFail": true
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -81,19 +81,19 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        660,
-        180
+        576,
+        368
       ],
-      "id": "pg-stage-map",
+      "id": "de596f0d-c48e-4c4b-9b80-7e58c6afe235",
       "name": "Buscar Mapeamento de Stage CRM",
+      "retryOnFail": true,
       "credentials": {
         "postgres": {
-          "id": "SET_IN_N8N_UI",
-          "name": "Postgres - Atendimento Nouvet"
+          "id": "imw9RKUxjTQ86ZrN",
+          "name": "Nouvet"
         }
       },
-      "onError": "continueRegularOutput",
-      "retryOnFail": true
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -160,10 +160,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        880,
-        180
+        800,
+        368
       ],
-      "id": "set-extrair-identidade",
+      "id": "c20fdfac-1f2d-4488-8fd4-8c26ae111566",
       "name": "Extrair Identidade e Stage"
     },
     {
@@ -194,10 +194,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1100,
-        180
+        1024,
+        368
       ],
-      "id": "if-contato-vinculado",
+      "id": "91ac3136-fa22-4550-afab-4f30d8d78a4d",
       "name": "Contato RD CRM já vinculado?"
     },
     {
@@ -217,19 +217,17 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1320,
-        40
+        1232,
+        224
       ],
-      "id": "set-contato-vinculado",
+      "id": "d17c3651-dba9-4efa-8620-55153129391f",
       "name": "Usar Contato Vinculado"
     },
     {
       "parameters": {
-        "method": "GET",
         "url": "https://api.rd.services/crm/v2/contacts",
         "authentication": "genericCredentialType",
         "genericAuthType": "oAuth2Api",
-        "options": {},
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
@@ -238,24 +236,25 @@
               "value": "=phone:{{ $('Receber Solicitação').item.json.telefone }}"
             }
           ]
-        }
+        },
+        "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1320,
-        260
+        1232,
+        448
       ],
-      "id": "http-buscar-contato",
+      "id": "1a30f32e-3d59-4059-964c-887b65adfb2b",
       "name": "Buscar Contato RD CRM por Telefone",
-      "onError": "continueRegularOutput",
       "retryOnFail": true,
       "credentials": {
         "oAuth2Api": {
-          "id": "SET_IN_N8N_UI",
-          "name": "RD Station CRM - OAuth2"
+          "id": "9FtwzKRo2WRioC8N",
+          "name": "RD CRM Nouvet"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -285,10 +284,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1540,
-        260
+        1456,
+        448
       ],
-      "id": "if-contato-encontrado",
+      "id": "f9a7f210-fc4c-45c6-9c31-15e9e238d039",
       "name": "Contato encontrado por telefone?"
     },
     {
@@ -308,10 +307,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1760,
-        180
+        1680,
+        368
       ],
-      "id": "set-contato-encontrado",
+      "id": "9d44aece-a25d-4ebf-bd83-bd7cb0b91434",
       "name": "Usar Contato Encontrado"
     },
     {
@@ -320,27 +319,27 @@
         "url": "https://api.rd.services/crm/v2/contacts",
         "authentication": "genericCredentialType",
         "genericAuthType": "oAuth2Api",
-        "options": {},
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ data: { name: $('Receber Solicitação').item.json.nome_cliente, phones: [{ phone: $('Receber Solicitação').item.json.telefone, type: 'mobile' }] } }) }}"
+        "jsonBody": "={{ JSON.stringify({ data: { name: $('Receber Solicitação').item.json.nome_cliente, phones: [{ phone: $('Receber Solicitação').item.json.telefone, type: 'mobile' }] } }) }}",
+        "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1760,
-        340
+        1680,
+        528
       ],
-      "id": "http-criar-contato",
+      "id": "1c92f1b9-834e-4b17-a7ac-7a8b061b371f",
       "name": "Criar Contato RD CRM",
-      "onError": "continueRegularOutput",
       "retryOnFail": true,
       "credentials": {
         "oAuth2Api": {
-          "id": "SET_IN_N8N_UI",
-          "name": "RD Station CRM - OAuth2"
+          "id": "9FtwzKRo2WRioC8N",
+          "name": "RD CRM Nouvet"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -359,10 +358,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1980,
-        340
+        1904,
+        528
       ],
-      "id": "set-contato-criado",
+      "id": "a4b5334c-289c-4a16-a1a7-2d376bebfa3a",
       "name": "Usar Contato Criado"
     },
     {
@@ -376,19 +375,19 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2200,
-        260
+        2112,
+        448
       ],
-      "id": "pg-resolver-2",
+      "id": "6397256a-b2f9-4c04-b83b-6270821548fc",
       "name": "Persistir rd_crm_contact_id (2ª chamada resolver)",
+      "retryOnFail": true,
       "credentials": {
         "postgres": {
-          "id": "SET_IN_N8N_UI",
-          "name": "Postgres - Atendimento Nouvet"
+          "id": "imw9RKUxjTQ86ZrN",
+          "name": "Nouvet"
         }
       },
-      "onError": "continueRegularOutput",
-      "retryOnFail": true
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -407,10 +406,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        2420,
-        260
+        2336,
+        448
       ],
-      "id": "set-repassar-persistido",
+      "id": "88cd78f4-5654-4328-9011-a5267cf8802c",
       "name": "Repassar Contato Persistido"
     },
     {
@@ -418,19 +417,17 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        2640,
-        180
+        2560,
+        368
       ],
-      "id": "noop-contato-final",
+      "id": "f13fe231-dbc1-49c5-8f68-2ba4fc084989",
       "name": "Contato ID Final"
     },
     {
       "parameters": {
-        "method": "GET",
         "url": "https://api.rd.services/crm/v2/deals",
         "authentication": "genericCredentialType",
         "genericAuthType": "oAuth2Api",
-        "options": {},
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
@@ -439,24 +436,25 @@
               "value": "=contact_id:{{ $json.rd_crm_contact_id_final }}"
             }
           ]
-        }
+        },
+        "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2860,
-        180
+        2784,
+        368
       ],
-      "id": "http-buscar-deal",
+      "id": "c50f350c-05a0-44b1-8173-e3e08005b99e",
       "name": "Buscar Deal Existente",
-      "onError": "continueRegularOutput",
       "retryOnFail": true,
       "credentials": {
         "oAuth2Api": {
-          "id": "SET_IN_N8N_UI",
-          "name": "RD Station CRM - OAuth2"
+          "id": "9FtwzKRo2WRioC8N",
+          "name": "RD CRM Nouvet"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -486,10 +484,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        3080,
-        180
+        2992,
+        368
       ],
-      "id": "if-deal-existente",
+      "id": "bba5c84a-3f4c-406d-b407-1b6c096fafdb",
       "name": "Deal existente?"
     },
     {
@@ -498,27 +496,27 @@
         "url": "={{ 'https://api.rd.services/crm/v2/deals/' + $json.data[0].id }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "oAuth2Api",
-        "options": {},
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ data: Object.assign({}, $('Extrair Identidade e Stage').item.json.stage_id ? { stage_id: $('Extrair Identidade e Stage').item.json.stage_id } : {}) }) }}"
+        "jsonBody": "={{ JSON.stringify({ data: Object.assign({}, $('Extrair Identidade e Stage').item.json.stage_id ? { stage_id: $('Extrair Identidade e Stage').item.json.stage_id } : {}) }) }}",
+        "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        3300,
-        40
+        3216,
+        224
       ],
-      "id": "http-atualizar-deal",
+      "id": "dc4aa892-d41a-421f-b7b0-5d9be59f6007",
       "name": "Atualizar Deal (Stage)",
-      "onError": "continueRegularOutput",
       "retryOnFail": true,
       "credentials": {
         "oAuth2Api": {
-          "id": "SET_IN_N8N_UI",
-          "name": "RD Station CRM - OAuth2"
+          "id": "9FtwzKRo2WRioC8N",
+          "name": "RD CRM Nouvet"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -537,10 +535,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        3520,
-        40
+        3440,
+        224
       ],
-      "id": "set-deal-id-atualizado",
+      "id": "72fb21bf-76a2-416b-a1cb-52ed0686c8b7",
       "name": "Deal ID (Atualizado)"
     },
     {
@@ -549,27 +547,27 @@
         "url": "https://api.rd.services/crm/v2/deals",
         "authentication": "genericCredentialType",
         "genericAuthType": "oAuth2Api",
-        "options": {},
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ data: Object.assign({ name: 'Atendimento - ' + $('Receber Solicitação').item.json.nome_cliente, contact_ids: [$('Contato ID Final').item.json.rd_crm_contact_id_final] }, $('Extrair Identidade e Stage').item.json.stage_id ? { stage_id: $('Extrair Identidade e Stage').item.json.stage_id } : {}) }) }}"
+        "jsonBody": "={{ JSON.stringify({ data: Object.assign({ name: 'Atendimento - ' + $('Receber Solicitação').item.json.nome_cliente, contact_ids: [$('Contato ID Final').item.json.rd_crm_contact_id_final] }, $('Extrair Identidade e Stage').item.json.stage_id ? { stage_id: $('Extrair Identidade e Stage').item.json.stage_id } : {}) }) }}",
+        "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        3300,
-        320
+        3216,
+        496
       ],
-      "id": "http-criar-deal",
+      "id": "a291aed1-ff4f-4d66-956f-6e010837964c",
       "name": "Criar Deal",
-      "onError": "continueRegularOutput",
       "retryOnFail": true,
       "credentials": {
         "oAuth2Api": {
-          "id": "SET_IN_N8N_UI",
-          "name": "RD Station CRM - OAuth2"
+          "id": "9FtwzKRo2WRioC8N",
+          "name": "RD CRM Nouvet"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -588,10 +586,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        3520,
-        320
+        3440,
+        496
       ],
-      "id": "set-deal-id-criado",
+      "id": "fcb91be1-04b2-41d5-aba6-dbd312ca1e77",
       "name": "Deal ID (Criado)"
     },
     {
@@ -599,10 +597,10 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        3740,
-        180
+        3664,
+        368
       ],
-      "id": "noop-deal-final",
+      "id": "bc282098-49de-40d4-8a67-4002ab50406c",
       "name": "Deal ID Final"
     },
     {
@@ -611,27 +609,27 @@
         "url": "={{ 'https://api.rd.services/crm/v2/deals/' + $json.deal_id_final + '/notes' }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "oAuth2Api",
-        "options": {},
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ data: { description: 'Setor: ' + $('Receber Solicitação').item.json.setor + '\\nAtendimento: ' + $('Receber Solicitação').item.json.resumo_atendimento + '\\nEstado: ' + ($('Extrair Identidade e Stage').item.json.criado ? 'Cliente novo' : 'Cliente já cadastrado') + ($('Extrair Identidade e Stage').item.json.possivel_duplicidade_familiar ? ' (possível duplicidade familiar)' : '') + '\\nRegistrado em: ' + $now.toFormat('dd/MM/yyyy HH:mm') } }) }}"
+        "jsonBody": "={{ JSON.stringify({ data: { description: 'Setor: ' + $('Receber Solicitação').item.json.setor + '\\nAtendimento: ' + $('Receber Solicitação').item.json.resumo_atendimento + '\\nEstado: ' + ($('Extrair Identidade e Stage').item.json.criado ? 'Cliente novo' : 'Cliente já cadastrado') + ($('Extrair Identidade e Stage').item.json.possivel_duplicidade_familiar ? ' (possível duplicidade familiar)' : '') + '\\nRegistrado em: ' + $now.toFormat('dd/MM/yyyy HH:mm') } }) }}",
+        "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        3960,
-        180
+        3872,
+        368
       ],
-      "id": "http-criar-note",
+      "id": "fd96a141-ac38-4149-b979-83f024a3dcae",
       "name": "Criar Note no Deal",
-      "onError": "continueRegularOutput",
       "retryOnFail": true,
       "credentials": {
         "oAuth2Api": {
-          "id": "SET_IN_N8N_UI",
-          "name": "RD Station CRM - OAuth2"
+          "id": "9FtwzKRo2WRioC8N",
+          "name": "RD CRM Nouvet"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -661,10 +659,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        4180,
-        180
+        4096,
+        368
       ],
-      "id": "if-precisa-task",
+      "id": "961d718c-7fac-491b-ad5d-b17be3f8bd6e",
       "name": "Precisa criar Task?"
     },
     {
@@ -673,37 +671,37 @@
         "url": "https://api.rd.services/crm/v2/tasks",
         "authentication": "genericCredentialType",
         "genericAuthType": "oAuth2Api",
-        "options": {},
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ data: { name: ($('Extrair Identidade e Stage').item.json.criado && $('Extrair Identidade e Stage').item.json.simplesvet_status === 'pendente' && $('Extrair Identidade e Stage').item.json.possivel_duplicidade_familiar) ? 'Cadastro pendente no SimplesVet + possível duplicidade familiar' : ($('Extrair Identidade e Stage').item.json.possivel_duplicidade_familiar ? 'Possível duplicidade familiar' : 'Cadastro pendente no SimplesVet'), description: 'Cliente: ' + $('Receber Solicitação').item.json.nome_cliente + ' / Pet: ' + $('Receber Solicitação').item.json.nome_pet + ' / Telefone: ' + $('Receber Solicitação').item.json.telefone + (($('Extrair Identidade e Stage').item.json.criado && $('Extrair Identidade e Stage').item.json.simplesvet_status === 'pendente') ? '\\nCliente novo -- cadastro ainda pendente no SimplesVet, revisar e cadastrar manualmente.' : '') + ($('Extrair Identidade e Stage').item.json.possivel_duplicidade_familiar ? '\\nPossível duplicidade familiar: outro telefone já tem pet com o mesmo nome -- revisar antes de prosseguir.' : ''), status: 'open', deal_id: $('Deal ID Final').item.json.deal_id_final } }) }}"
+        "jsonBody": "={{ JSON.stringify({ data: { name: ($('Extrair Identidade e Stage').item.json.criado && $('Extrair Identidade e Stage').item.json.simplesvet_status === 'pendente' && $('Extrair Identidade e Stage').item.json.possivel_duplicidade_familiar) ? 'Cadastro pendente no SimplesVet + possível duplicidade familiar' : ($('Extrair Identidade e Stage').item.json.possivel_duplicidade_familiar ? 'Possível duplicidade familiar' : 'Cadastro pendente no SimplesVet'), description: 'Cliente: ' + $('Receber Solicitação').item.json.nome_cliente + ' / Pet: ' + $('Receber Solicitação').item.json.nome_pet + ' / Telefone: ' + $('Receber Solicitação').item.json.telefone + (($('Extrair Identidade e Stage').item.json.criado && $('Extrair Identidade e Stage').item.json.simplesvet_status === 'pendente') ? '\\nCliente novo -- cadastro ainda pendente no SimplesVet, revisar e cadastrar manualmente.' : '') + ($('Extrair Identidade e Stage').item.json.possivel_duplicidade_familiar ? '\\nPossível duplicidade familiar: outro telefone já tem pet com o mesmo nome -- revisar antes de prosseguir.' : ''), status: 'open', deal_id: $('Deal ID Final').item.json.deal_id_final } }) }}",
+        "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        4400,
-        40
+        4320,
+        224
       ],
-      "id": "http-criar-task",
+      "id": "a07f6cad-eec8-41be-9d25-7cb1fd2a964c",
       "name": "Criar Task de Revisão",
-      "onError": "continueRegularOutput",
       "retryOnFail": true,
       "credentials": {
         "oAuth2Api": {
-          "id": "SET_IN_N8N_UI",
-          "name": "RD Station CRM - OAuth2"
+          "id": "9FtwzKRo2WRioC8N",
+          "name": "RD CRM Nouvet"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {},
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        4400,
-        320
+        4320,
+        496
       ],
-      "id": "noop-sem-task",
+      "id": "0c35ae25-c89d-4871-ace8-f5db6e3946f5",
       "name": "Nenhuma Task Necessária"
     },
     {
@@ -711,10 +709,10 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        2640,
-        620
+        2560,
+        800
       ],
-      "id": "noop-registro-abortado",
+      "id": "c0e94421-676a-4a84-b52c-155859844047",
       "name": "Registro CRM Não Realizado"
     },
     {
@@ -745,10 +743,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        650,
-        620
+        576,
+        800
       ],
-      "id": "if-identidade-resolvida",
+      "id": "38d80439-6032-45b4-b8c1-1f900e35b9b5",
       "name": "Identidade Resolvida?"
     },
     {
@@ -779,10 +777,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1320,
-        620
+        1232,
+        800
       ],
-      "id": "if-busca-contato-bem-sucedida",
+      "id": "7681f48d-2e0a-46cb-9c2c-d20683f5ee69",
       "name": "Busca de Contato Bem-sucedida?"
     },
     {
@@ -813,10 +811,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        2860,
-        620
+        2784,
+        800
       ],
-      "id": "if-busca-deal-bem-sucedida",
+      "id": "184f976e-b37c-440d-981e-3a2c40bdd873",
       "name": "Busca de Deal Bem-sucedida?"
     },
     {
@@ -847,10 +845,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        2310,
-        460
+        2224,
+        640
       ],
-      "id": "if-contato-persistido",
+      "id": "f2f295b4-995b-4789-b547-b2b9c9813f5d",
       "name": "Contato Persistido?"
     },
     {
@@ -881,10 +879,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1870,
-        460
+        1792,
+        640
       ],
-      "id": "if-contato-criado-sucesso",
+      "id": "c2d75799-e7fb-46de-a401-82dca58cbc4e",
       "name": "Contato Criado Com Sucesso?"
     },
     {
@@ -915,19 +913,19 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        3410,
-        460
+        3328,
+        640
       ],
-      "id": "if-deal-criado-sucesso",
+      "id": "0ee32826-faf1-4559-b389-8a46918a04e0",
       "name": "Deal Criado Com Sucesso?"
     },
     {
       "parameters": {
-        "source": "database",
         "workflowId": {
           "__rl": true,
+          "value": "QSZnJJf5zYVP8DQh",
           "mode": "list",
-          "value": "SET_IN_N8N_UI",
+          "cachedResultUrl": "/workflow/QSZnJJf5zYVP8DQh",
           "cachedResultName": "05 - Gerenciar Task SLA"
         },
         "workflowInputs": {
@@ -956,13 +954,13 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        4180,
-        460
+        4096,
+        640
       ],
-      "id": "97e4d29a-f085-4eb5-8e13-323d078fc4ae",
+      "id": "c9aed67f-64a2-4643-8674-b53ce0731acb",
       "name": "Gerenciar Task SLA (CAP-8)",
-      "onError": "continueRegularOutput",
-      "retryOnFail": true
+      "retryOnFail": true,
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -975,19 +973,19 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        4180,
-        620
+        4096,
+        800
       ],
-      "id": "f4bb2829-2e5c-45b8-9195-038c6913157b",
+      "id": "11128831-3b71-4767-b8b2-cdd4d7d96679",
       "name": "Marcar Aguardando Atendimento Humano (CAP-8)",
+      "retryOnFail": true,
       "credentials": {
         "postgres": {
-          "id": "SET_IN_N8N_UI",
-          "name": "Postgres - Atendimento Nouvet"
+          "id": "imw9RKUxjTQ86ZrN",
+          "name": "Nouvet"
         }
       },
-      "onError": "continueRegularOutput",
-      "retryOnFail": true
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -1000,19 +998,19 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        4180,
-        780
+        4096,
+        960
       ],
-      "id": "6c1f3a9e-2b7d-4e5f-8a1c-9d4b7e2f5a04",
+      "id": "586a0722-c8ab-465a-8a14-c41f7f8b774a",
       "name": "Registrar Evento de Indicador (CAP-11)",
+      "retryOnFail": true,
       "credentials": {
         "postgres": {
-          "id": "SET_IN_N8N_UI",
-          "name": "Postgres - Atendimento Nouvet"
+          "id": "imw9RKUxjTQ86ZrN",
+          "name": "Nouvet"
         }
       },
-      "onError": "continueRegularOutput",
-      "retryOnFail": true
+      "onError": "continueRegularOutput"
     }
   ],
   "connections": {
@@ -1425,14 +1423,12 @@
   "active": false,
   "settings": {
     "executionOrder": "v1",
-    "binaryMode": "separate",
-    "callerPolicy": "workflowsFromSameOwner",
-    "availableInMCP": false
+    "binaryMode": "separate"
   },
-  "versionId": "65008b33-beac-48bc-8297-c3e39a681f55",
+  "versionId": "89c30c67-fdda-47b2-a849-c85f9e38ae19",
   "meta": {
-    "instanceId": "atendimento-nouvet-piloto"
+    "templateCredsSetupCompleted": true
   },
-  "id": "c98cf441-d0b6-484d-94b2-857b9f8461a1",
+  "id": "wM1W1HCY5w4aitwS",
   "tags": []
 }

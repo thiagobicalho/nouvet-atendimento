@@ -10,10 +10,10 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        -40,
-        -260
+        0,
+        0
       ],
-      "id": "5842df15-fbd9-41ea-b25a-af49d3454e8e",
+      "id": "d7b10bf2-20d3-41d8-aacf-a931a4ca2b8c",
       "name": "Sticky Note - Porta única de Task SLA"
     },
     {
@@ -29,10 +29,10 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
-        220,
-        260
+        272,
+        528
       ],
-      "id": "d97be8ea-1f08-46f1-8ca8-ebf6530ed658",
+      "id": "c4679f84-164e-45e0-82dc-129a7e7c26bf",
       "name": "Receber Solicitação"
     },
     {
@@ -44,27 +44,25 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        440,
-        260
+        480,
+        528
       ],
-      "id": "9601f868-5aef-4a38-9932-cbc8febfba73",
+      "id": "c2e557e5-b8c1-4861-90bf-bb4353f84463",
       "name": "Buscar SLA Config",
+      "retryOnFail": true,
       "credentials": {
         "postgres": {
-          "id": "SET_IN_N8N_UI",
-          "name": "Postgres - Atendimento Nouvet"
+          "id": "imw9RKUxjTQ86ZrN",
+          "name": "Nouvet"
         }
       },
-      "onError": "continueRegularOutput",
-      "retryOnFail": true
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
-        "method": "GET",
         "url": "https://api.rd.services/crm/v2/tasks",
         "authentication": "genericCredentialType",
         "genericAuthType": "oAuth2Api",
-        "options": {},
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
@@ -73,24 +71,25 @@
               "value": "=deal_id:{{ $('Receber Solicitação').item.json.deal_id }}+status:open"
             }
           ]
-        }
+        },
+        "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        660,
-        260
+        704,
+        528
       ],
-      "id": "21fa051b-9116-48f3-b481-68607cb344e1",
+      "id": "e482be7b-cbe4-48bd-8699-ccbaf6867ef7",
       "name": "Buscar Tasks Abertas do Deal",
-      "onError": "continueRegularOutput",
       "retryOnFail": true,
       "credentials": {
         "oAuth2Api": {
-          "id": "SET_IN_N8N_UI",
-          "name": "RD Station CRM - OAuth2"
+          "id": "9FtwzKRo2WRioC8N",
+          "name": "RD CRM Nouvet"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -120,10 +119,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        880,
-        260
+        928,
+        528
       ],
-      "id": "99c875be-b9b9-4e1c-9bc0-22a45493bf0e",
+      "id": "5f2ef063-42bc-43a2-8815-ccb772e0a5b1",
       "name": "Busca de Tasks Bem-sucedida?"
     },
     {
@@ -131,10 +130,10 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        1100,
-        460
+        1152,
+        720
       ],
-      "id": "a342d442-e1a2-4ccb-908b-19eef1cd2f0c",
+      "id": "88561da3-e511-4db9-bc69-7e0c75e6de66",
       "name": "Task SLA Não Gerenciada"
     },
     {
@@ -154,10 +153,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        1100,
-        180
+        1152,
+        448
       ],
-      "id": "edb6114f-cd30-4064-b5e9-93620fba7355",
+      "id": "de44174b-3e24-4b77-97b8-c26bf2428326",
       "name": "Selecionar Task de SLA Existente"
     },
     {
@@ -188,10 +187,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1320,
-        180
+        1360,
+        448
       ],
-      "id": "b0a0907e-cbdf-4cad-b533-1a8d32fa6005",
+      "id": "9e04d8c2-bfac-4b3e-a455-330996af4ece",
       "name": "Task de SLA já existe?"
     },
     {
@@ -200,6 +199,9 @@
         "url": "={{ 'https://api.rd.services/crm/v2/tasks/' + $json.task_sla_existente.id }}",
         "authentication": "genericCredentialType",
         "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ data: { due_date: $now.plus({ minutes: $('Buscar SLA Config').item.json.config.sla_resposta_minutos }).toISO() } }) }}",
         "options": {
           "response": {
             "response": {
@@ -207,37 +209,34 @@
               "responseFormat": "json"
             }
           }
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ data: { due_date: $now.plus({ minutes: $('Buscar SLA Config').item.json.config.sla_resposta_minutos }).toISO() } }) }}"
+        }
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1540,
-        80
+        1584,
+        352
       ],
-      "id": "63caf31f-691a-4649-a537-3dcc0295763c",
+      "id": "57115ad9-8154-474d-8640-8d8acc5dff9a",
       "name": "Renovar Task de SLA",
-      "onError": "continueRegularOutput",
       "retryOnFail": true,
       "credentials": {
         "oAuth2Api": {
-          "id": "SET_IN_N8N_UI",
-          "name": "RD Station CRM - OAuth2"
+          "id": "9FtwzKRo2WRioC8N",
+          "name": "RD CRM Nouvet"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {},
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        2200,
-        80
+        2240,
+        352
       ],
-      "id": "7dd09a0d-e9cd-4e40-b54d-0a1d5203ee70",
+      "id": "f336bd8c-6052-4bf9-a62c-365adc743d1d",
       "name": "Task SLA Renovada"
     },
     {
@@ -246,6 +245,9 @@
         "url": "https://api.rd.services/crm/v2/tasks",
         "authentication": "genericCredentialType",
         "genericAuthType": "oAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ data: { name: 'Acompanhamento SLA', description: 'Task de acompanhamento de SLA de resposta -- renovada automaticamente enquanto o atendimento aguarda humano; escalonamento ao gestor quando vencida sem atividade do lead.', status: 'open', due_date: $now.plus({ minutes: $('Buscar SLA Config').item.json.config.sla_resposta_minutos }).toISO(), deal_id: $('Receber Solicitação').item.json.deal_id } }) }}",
         "options": {
           "response": {
             "response": {
@@ -253,37 +255,34 @@
               "responseFormat": "json"
             }
           }
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ data: { name: 'Acompanhamento SLA', description: 'Task de acompanhamento de SLA de resposta -- renovada automaticamente enquanto o atendimento aguarda humano; escalonamento ao gestor quando vencida sem atividade do lead.', status: 'open', due_date: $now.plus({ minutes: $('Buscar SLA Config').item.json.config.sla_resposta_minutos }).toISO(), deal_id: $('Receber Solicitação').item.json.deal_id } }) }}"
+        }
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1540,
-        280
+        1584,
+        544
       ],
-      "id": "a73d2f1f-a1a4-4846-8f75-0bfec015d3bf",
+      "id": "7fb45a77-fb39-43b9-9702-260651dcaf86",
       "name": "Criar Task de SLA",
-      "onError": "continueRegularOutput",
       "retryOnFail": true,
       "credentials": {
         "oAuth2Api": {
-          "id": "SET_IN_N8N_UI",
-          "name": "RD Station CRM - OAuth2"
+          "id": "9FtwzKRo2WRioC8N",
+          "name": "RD CRM Nouvet"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {},
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        2200,
-        280
+        2240,
+        544
       ],
-      "id": "9a4a21e4-8380-409f-8958-32fd76434648",
+      "id": "e737885d-b0af-4091-b71e-f0011721065d",
       "name": "Task SLA Criada"
     },
     {
@@ -297,19 +296,19 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        660,
-        100
+        704,
+        368
       ],
-      "id": "369a3ada-420d-4794-af82-1afbfb8e7f5c",
+      "id": "a0eca1f2-2c68-47ef-80fb-1c8c80966ca4",
       "name": "Adquirir Lock de Task SLA",
+      "retryOnFail": true,
       "credentials": {
         "postgres": {
-          "id": "SET_IN_N8N_UI",
-          "name": "Postgres - Atendimento Nouvet"
+          "id": "imw9RKUxjTQ86ZrN",
+          "name": "Nouvet"
         }
       },
-      "onError": "continueRegularOutput",
-      "retryOnFail": true
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -339,10 +338,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        880,
-        100
+        928,
+        368
       ],
-      "id": "0d99864e-1ef4-454a-bac1-ed5f3c95e8e6",
+      "id": "d664798a-f556-40b7-8e74-082c97b6e6cf",
       "name": "Lock de Task SLA Adquirido?"
     },
     {
@@ -350,10 +349,10 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        1100,
-        20
+        1152,
+        288
       ],
-      "id": "0e33ec1f-3847-4977-b700-49d3fa9d8a9f",
+      "id": "6a72cdd8-ac56-4d16-a815-500d1d204cab",
       "name": "Task SLA Já em Gerenciamento (lock ocupado)"
     },
     {
@@ -367,19 +366,19 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1980,
-        260
+        2544,
+        464
       ],
-      "id": "6737dfdd-0324-469c-b508-9f98ac320ba9",
+      "id": "0b6db5a8-74e7-4675-afe7-be43830f4092",
       "name": "Liberar Lock de Task SLA",
+      "retryOnFail": true,
       "credentials": {
         "postgres": {
-          "id": "SET_IN_N8N_UI",
-          "name": "Postgres - Atendimento Nouvet"
+          "id": "imw9RKUxjTQ86ZrN",
+          "name": "Nouvet"
         }
       },
-      "onError": "continueRegularOutput",
-      "retryOnFail": true
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -409,10 +408,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1760,
-        80
+        1808,
+        352
       ],
-      "id": "8b6a3e1e-2b23-4b1a-9b0c-5b6b1e2a9a02",
+      "id": "a5d18e8a-9466-4a40-b6b8-c607dd9a82cc",
       "name": "Renovação de Task de SLA Bem-sucedida?"
     },
     {
@@ -420,10 +419,10 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        1980,
-        20
+        2032,
+        288
       ],
-      "id": "8b6a3e1e-2b23-4b1a-9b0c-5b6b1e2a9a03",
+      "id": "44d71aa5-fd52-4ded-9bf9-d40a1f37416c",
       "name": "Falha ao Renovar Task de SLA"
     },
     {
@@ -454,10 +453,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1760,
-        280
+        1808,
+        544
       ],
-      "id": "8b6a3e1e-2b23-4b1a-9b0c-5b6b1e2a9a05",
+      "id": "e75bc2b3-ba35-49f7-89a7-ae98a6827b41",
       "name": "Criação de Task de SLA Bem-sucedida?"
     },
     {
@@ -465,10 +464,10 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        1980,
-        340
+        2032,
+        688
       ],
-      "id": "8b6a3e1e-2b23-4b1a-9b0c-5b6b1e2a9a06",
+      "id": "70978867-15aa-435b-a34c-f23e5f537af7",
       "name": "Falha ao Criar Task de SLA"
     }
   ],
@@ -700,14 +699,12 @@
   "active": false,
   "settings": {
     "executionOrder": "v1",
-    "binaryMode": "separate",
-    "callerPolicy": "workflowsFromSameOwner",
-    "availableInMCP": false
+    "binaryMode": "separate"
   },
-  "versionId": "1d6b86c7-6c8e-4718-a227-ae54b1e26a83",
+  "versionId": "476c2c85-df55-479d-81e8-e8d21ff1a1a0",
   "meta": {
-    "instanceId": "atendimento-nouvet-piloto"
+    "templateCredsSetupCompleted": true
   },
-  "id": "4ddc9a99-ce61-4ae2-8c69-c948015d0f07",
+  "id": "QSZnJJf5zYVP8DQh",
   "tags": []
 }
