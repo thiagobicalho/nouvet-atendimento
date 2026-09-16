@@ -32,3 +32,10 @@ _bmad/render/
 
 # Dado real de cliente (PII - CPF/RG/telefone/endereço) - nunca versionar
 _bmad-output/reference/clientes.csv
+
+# Dados sensiveis do cliente (tenant Microsoft, backup SimplesVet) - nunca versionar
+_bmad-output/reference/microsoft/
+_bmad-output/reference/simplesvet/
+*.bak
+*.sql.gz
+*.dump

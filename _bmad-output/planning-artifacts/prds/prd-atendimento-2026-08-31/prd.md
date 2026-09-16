@@ -2,7 +2,7 @@
 title: Atendimento Nouvet
 status: draft
 created: 2026-08-31
-updated: 2026-09-01
+updated: 2026-09-08
 ---
 
 # PRD: Atendimento Nouvet
@@ -12,7 +12,7 @@ updated: 2026-09-01
 
 Este PRD serve três leitores: **Thiago Bicalho e a equipe da Btech.Cloud** responsáveis pela implementação em n8n (Thiago é o interlocutor principal e decisor de escopo da entrega), e a liderança do Nouvet (Edson Candido) que vai levar a entrega à diretoria/conselho.
 
-O documento organiza os requisitos por **Feature** (§4), com Requisitos Funcionais (**FR-1** a **FR-43**) numerados globalmente e referenciados por ID onde a cadeia importar. Termos do **Glossário** (§3) são usados de forma verbatim no restante do texto — nenhum sinônimo é introduzido. Pressupostos inferidos durante a elaboração aparecem marcados inline como `[ASSUMPTION]` e estão consolidados na íntegra na Seção 9.
+O documento organiza os requisitos por **Feature** (§4), com Requisitos Funcionais (**FR-1** a **FR-51**) numerados globalmente — **FR-1 a FR-43 são o Piloto; FR-44 a FR-51 são escopo pós-Piloto** (§4.13, §6.3) e referenciados por ID onde a cadeia importar. Termos do **Glossário** (§3) são usados de forma verbatim no restante do texto — nenhum sinônimo é introduzido. Pressupostos inferidos durante a elaboração aparecem marcados inline como `[ASSUMPTION]` e estão consolidados na íntegra na Seção 9.
 
 Este PRD parte de um processo de descoberta já avançado: um briefing de descoberta construído com um coach de brainstorming, o resumo e a transcrição completa de uma reunião de processo com o Nouvet (20/ago/2026), e os materiais comerciais da Btech.Cloud — proposta em PDF (`20260814002_PRP-IA_NOUVET.pdf`) e apresentação em PPTX (`Nouvet_Digital_Excellence_2.pptx`). Todos os documentos-fonte estão preservados em `_bmad-output/reference/`; o histórico integral de decisões e questões levantadas durante a construção deste PRD está em `.memlog.md`, na mesma pasta deste arquivo.
 
@@ -113,6 +113,7 @@ Resposta e continuidade têm precedência sobre automações mais sofisticadas, 
 - **Ciclo de Escalonamento** — intervalo de 5 minutos usado para informar progressivamente o gestor a cada rodada de atraso no atendimento humano, com urgência crescente a cada ciclo (ver FR-29).
 - **Configuração de Personalização** — conjunto de conteúdos (tom de voz, textos, limiares de SLA, regras por setor, dados de plantonistas) mantido fora do fluxo de automação do n8n, editável sem alterar a lógica do fluxo (ver FR-33, FR-34).
 - **Fonte Confiável** — base de conhecimento autorizada do Nouvet usada pela IA para responder; a IA não responde com base em informação fora dessas fontes (ver FR-29).
+- **Painel** (ou "Painel de Operação e Indicadores") — aplicação web da Btech, hospedada na mesma VPS do n8n, pela qual os 5 indicadores mínimos são consultados e a Configuração de Personalização é editada. Escopo pós-Piloto (ver §4.13). Não é um dashboard de BI.
 - **Calendário Compartilhado** — calendário Microsoft usado como fonte provisória de agenda, enquanto não há integração definitiva com o SimplesVet. No Piloto, nenhum setor recebe reserva automática nele — a estrutura de integração é preparada durante o Piloto para suportar agendamento real automático numa fase seguinte.
 
 ## 4. Features
@@ -383,13 +384,93 @@ Quando o cliente declara explicitamente que há uma emergência com o pet, o sis
 
 **Notes:** Mecanismo e destinatário definidos por Thiago junto à equipe Btech (01/set/2026), resolvendo o bloqueador de lançamento anterior — ver Questão em Aberto #11 (resolvida). `[NOTE FOR PM]` Ao implementar, considerar que "emergência" tende a ser usada por clientes exagerando a urgência, não só em casos reais — o desenho precisa tolerar isso sem gerar fadiga de alerta nos plantonistas, especialmente porque agora o alerta vai a todos os envolvidos, não a uma única pessoa.
 
+### 4.13 Painel de Operação e Indicadores `[ESCOPO PÓS-PILOTO — DECISÃO 08/set/2026]`
+**Descrição:** Aplicação web própria que dá superfície de uso a duas capacidades que hoje só existem dentro do banco de dados: a **leitura dos 5 indicadores mínimos** (§4.11 — entregues no Piloto como funções no banco, sem nenhum consumidor) e a **escrita da Configuração de Personalização** (§4.10 — hoje editável apenas por SQL direto pela equipe Btech). Promove a "UI de autoatendimento da Configuração de Personalização", registrada como *Deferred* na arquitetura em 02/set/2026, a escopo real e datado.
+
+**Delimitação:** o Painel **não é** o dashboard de BI da visão de longo prazo, que segue fora de escopo (§5, §6.2). A distinção não é de grau, é de natureza: BI é análise livre de conversão e receita com recortes arbitrários; o Painel expõe exatamente os indicadores já fechados em FR-36 a FR-39, mais um editor de configuração. Nenhum indicador novo nasce aqui.
+
+**Contexto de entrega:** o Painel é o primeiro incremento pós-Piloto (§6.3). A entrega do Piloto está pausada aguardando assinatura de contrato pelo Nouvet — o Painel é construído nessa janela, sobre a VPS que já está no ar.
+
+#### FR-44: Acesso autenticado com dois papéis
+O Painel exige autenticação e distingue dois papéis: **Visualizador** e **Operador**.
+
+**Consequences (testable):**
+- O papel **Visualizador** acessa a visualização de indicadores (FR-45, FR-46) e não acessa nenhuma tela ou operação de escrita de configuração (FR-47, FR-49).
+- O papel **Operador** acessa tudo que o Visualizador acessa, mais a edição de configuração (FR-47) e o histórico/reversão (FR-48, FR-49).
+- Nenhuma tela do Painel é acessível sem autenticação.
+- O conjunto inicial de usuários é de 3 pessoas — 1 do Nouvet (Visualizador) e 2 da Btech (Operadores) — criados por seed; não há tela de auto-cadastro.
+
+**Notes:** Autenticação própria (e-mail + senha), não federada — decisão de Thiago em 08/set/2026, para não criar dependência de tenant Microsoft por causa de 3 usuários. `[ASSUMPTION]` O usuário do Nouvet é **Visualizador** e não enxerga a Configuração de Personalização: Thiago disse "1 usuário Nouvet que verá tudo", mas na mesma sessão havia declarado que configuração é "somente Btech, a princípio" — prevalece a leitura restritiva até confirmação. Ver Questão em Aberto #16.
+
+#### FR-45: Visualização dos 5 indicadores mínimos
+O Painel exibe os indicadores de FR-36 a FR-39, lendo do banco da aplicação.
+
+**Consequences (testable):**
+- Os quatro indicadores aparecem no Painel: leads recebidos, leads atendidos/não atendidos, distribuição por setor e tempo de resposta.
+- Os valores exibidos vêm das funções de indicador já existentes no banco — o Painel não reimplementa nenhuma regra de cálculo.
+
+**Notes:** Cumprir FR-45/FR-46 é o que torna SM-5 verificável na prática; até aqui os indicadores existiam sem nenhuma superfície de consulta.
+
+#### FR-46: Recorte temporal e comparação entre períodos
+O Painel permite escolher o período dos indicadores e comparar dois períodos entre si.
+
+**Consequences (testable):**
+- Ao abrir o Painel sem escolha explícita, o período exibido é **hoje**.
+- O usuário altera o período para um intervalo de datas de sua escolha.
+- O usuário coloca dois períodos lado a lado e vê os mesmos indicadores para ambos.
+
+**Notes:** Definido por Thiago em 08/set/2026. A comparação existe porque o uso previsto pelo Nouvet é defesa de investimento perante a diretoria — número isolado não sustenta esse argumento, variação sustenta.
+
+#### FR-47: Edição da Configuração de Personalização pelo Painel
+Usuários com papel Operador editam os valores da Configuração de Personalização (§4.10, FR-34) pelo Painel, sem acesso direto ao banco.
+
+**Consequences (testable):**
+- Uma alteração salva pelo Painel passa a valer para o fluxo n8n na leitura seguinte, sem republicar nem alterar nós (mesma garantia de FR-34/FR-35).
+- O Painel grava na mesma configuração que é fonte única da verdade (FR-35), nunca em uma cópia própria.
+- Credenciais de integração (FR-43) continuam fora do Painel — vivem no cofre do n8n e não são editáveis nem exibíveis aqui.
+
+#### FR-48: Histórico append-only de alterações de configuração
+Toda alteração de configuração feita pelo Painel gera um registro histórico que não é sobrescrito nem removido.
+
+**Consequences (testable):**
+- Cada registro identifica **quem** alterou, **quando**, **qual valor** passou a valer e **qual era o valor anterior**.
+- Nenhuma operação do Painel atualiza ou apaga registros históricos já gravados (mesma lógica append-only do NFR-3).
+
+**Notes:** Requisito levantado por Thiago em 08/set/2026. FR-34 já exigia personalização "versionada"; enquanto só a Btech editava via SQL, esse versionamento era implícito no conhecimento de quem editava. Com uma UI, deixa de ser.
+
+#### FR-49: Reversão a uma versão anterior da configuração
+A partir do histórico (FR-48), um Operador restaura um valor de configuração para uma versão anterior.
+
+**Consequences (testable):**
+- Restaurar uma versão anterior gera um novo registro no histórico — não apaga nem reescreve os registros intermediários.
+
+#### FR-50: Ausência de exclusão física
+Nenhuma operação do Painel apaga dados fisicamente; exclusão é marcação lógica (soft delete).
+
+**Consequences (testable):**
+- Um item "excluído" pelo Painel deixa de ser aplicado pelo fluxo n8n, mas continua existindo no banco e permanece recuperável.
+- Não existe operação no Painel que resulte em remoção física de linha de configuração ou de histórico.
+
+**Notes:** Decisão de Thiago em 08/set/2026 ("nunca delete... para caso necessário possamos voltar versões"). Coerente com o NFR-3 já vigente para o card do CRM.
+
+#### FR-51: Implantação aditiva sobre a stack existente
+O Painel é implantado na VPS que já roda o n8n **sem recriar, reconfigurar ou derrubar** os serviços de n8n e Postgres já em operação.
+
+**Consequences (testable):**
+- Subir ou derrubar o Painel não recria nem reinicia os containers de n8n e Postgres.
+- O Painel se conecta ao Postgres já existente; nenhuma segunda instância de Postgres ou de n8n é provisionada.
+- Qualquer mudança de schema que o Painel exija é aplicada ao banco já em operação por processo explícito — o mecanismo de migrations por inicialização de volume vazio não cobre uma VPS que já está no ar.
+- O Painel acessa o banco com privilégio próprio e mínimo, sem reutilizar o papel de aplicação usado pelo fluxo n8n.
+
+**Notes:** Restrição levantada explicitamente por Thiago em 08/set/2026 ("já estamos com a VPS com n8n no ar e só precisaríamos subir essa aplicação — pense direitinho aí pra não subir n8n e Postgres de novo"). O ponto sobre migrations foi verificado nesta sessão: o `docker-compose.yml` monta as migrations em `docker-entrypoint-initdb.d`, que o Postgres executa **apenas** na inicialização de um volume vazio — numa VPS já no ar, uma migration nova não roda sozinha.
+
 ## 5. Não-Objetivos (Explícitos)
 
 - O Piloto **não substitui** atendentes humanos — reduz fila e tempo de resposta, mas conclusões clínicas, orçamentos complexos e negociação continuam humanas por definição (FR-8, FR-19).
 - O Piloto **não inclui Agente de Orçamento** dedicado — o Nouvet decidiu extinguir esse papel e rotear toda demanda de orçamento a humano (FR-19).
 - O Piloto **não depende de integração definitiva** com o sistema de gestão clínica (SimplesVet) nem com o futuro TOTVS — usa o Calendário Compartilhado e exportações pontuais como contorno temporário.
 - O Piloto **não é** o "ambiente 100% nativo" prometido na visão de longo prazo (IA conduzindo até o fechamento da venda) — ele vai até o ponto de continuidade humana com contexto completo, não até o fechamento.
-- O Piloto **não entrega dashboard de BI** consolidado nem métricas de conversão/receita além dos 5 indicadores mínimos (§4.11).
+- O Piloto **não entrega dashboard de BI** consolidado nem métricas de conversão/receita além dos 5 indicadores mínimos (§4.11). Isso continua valendo mesmo depois do Painel (§4.13): o Painel expõe exatamente FR-36 a FR-39 e o editor de configuração — não é análise livre de conversão/receita.
 - O Piloto **não inclui remarketing automático** nem réguas de reativação de clientes inativos — isso é tratado como Fase 5 no roadmap comercial da Btech.Cloud.
 - O Piloto **não cobre** Internação nem Oncologia — ambos ficam de fora até que o desempenho em produção seja validado nos setores em escopo.
 - O Piloto **não garante** cobertura "zero fila" absoluta em todas as linhas de serviço — reivindicações desse tipo no material comercial (§Constraints and Guardrails) são estado final aspiracional, não compromisso do Piloto.
@@ -423,10 +504,27 @@ Quando o cliente declara explicitamente que há uma emergência com o pet, o sis
 - **Exclusão de dados/opt-out do tutor (direito da LGPD)** `[DECISÃO 01/set/2026]` — decisão explícita de não implementar isso nesta entrega; fica para uma fase seguinte. Ver Questão em Aberto #14.
 - **Agente de Orçamento dedicado** — papel extinto no Nouvet; decisão permanente, não é só um corte temporário do Piloto.
 - **Integração definitiva com SimplesVet ou TOTVS** — depende de disponibilidade de API que hoje não existe (SimplesVet) ou de migração futura (TOTVS, previsão 2027).
-- **Dashboard de BI consolidado**, métricas de conversão/receita além dos 5 indicadores mínimos.
+- **Dashboard de BI consolidado**, métricas de conversão/receita além dos 5 indicadores mínimos. O Painel de Operação e Indicadores (§4.13) **não** é este item — é escopo pós-Piloto próprio, delimitado em §6.3.
 - **Remarketing automático** e réguas de reativação de clientes inativos.
 - Os três **agentes de IA adicionais** da visão de longo prazo (Social Selling, Agente Pessoal do Especialista, Agente Interno para Gestores) — dependeriam de negociação comercial própria e futura, não são uma extensão automática deste Piloto.
 - **Uso do Pega Plantão via API em tempo real** — viabilidade técnica já confirmada (acesso administrativo existente), mas entrada no Piloto é uma decisão de escopo em aberto, não automática (ver Questão em Aberto #9).
+
+### 6.3 Escopo Pós-Piloto — Incremento 1: Painel `[DECISÃO 08/set/2026]`
+
+Primeiro recorte de trabalho depois do Piloto, decidido por Thiago em 08/set/2026 enquanto a entrega do Piloto está pausada aguardando a assinatura do contrato pelo Nouvet. Não altera nada do que o Piloto entregou nem do que ele deixou de fora — acrescenta uma superfície de uso sobre o que já existe no banco.
+
+**Em escopo:**
+- Painel de Operação e Indicadores (§4.13, FR-44 a FR-51).
+- Aplicação web própria na mesma VPS que já roda o n8n, implantada de forma aditiva (FR-51).
+- 3 usuários criados por seed: 1 Visualizador (Nouvet), 2 Operadores (Btech).
+- Histórico append-only de configuração, reversão de versão e soft delete (FR-48 a FR-50).
+
+**Fora de escopo deste incremento:**
+- Dashboard de BI e qualquer indicador novo além de FR-36 a FR-39 (§5, §6.2).
+- Autoatendimento de configuração pelo Nouvet — o Nouvet lê indicadores; quem edita configuração é a Btech (FR-44, Questão em Aberto #16).
+- Edição ou exibição de credenciais de integração, que seguem no cofre do n8n (FR-43, FR-47).
+- Backup/DR e teste de restore — também *Deferred* na arquitetura junto com a UI de config, mas tratados como trabalho próprio, fora deste incremento.
+- Provisionamento da VPS de produção e o corte dev→produção, que seguem pendentes de contrato assinado.
 
 ## 7. Métricas de Sucesso
 
@@ -439,7 +537,7 @@ Quando o cliente declara explicitamente que há uma emergência com o pet, o sis
 
 **Secundárias**
 - **SM-4**: Percentual de handoffs que chegam ao humano com informação completa, sem precisar reperguntar o que o cliente quer. Valida FR-8, FR-18, FR-19.
-- **SM-5**: Disponibilidade diária dos 5 indicadores mínimos, atualizados e consultáveis pela gestão. Valida FR-36 a FR-39.
+- **SM-5**: Disponibilidade diária dos 5 indicadores mínimos, atualizados e consultáveis pela gestão. Valida FR-36 a FR-39. Só passa a ser verificável de ponta a ponta com o Painel (§4.13, FR-45/FR-46), que é a superfície de consulta — no Piloto os indicadores existem, mas sem tela onde a gestão os consulte.
 
 **Contra-métricas (não otimizar)**
 - **SM-C1**: Taxa de handoff prematuro/forçado apenas para cumprir a meta de velocidade de resposta — a IA não deve encerrar a coleta de dados incompleta só para bater o SLA. Contrabalança SM-2.
@@ -449,8 +547,9 @@ Quando o cliente declara explicitamente que há uma emergência com o pet, o sis
 
 - **NFR-1 (Performance):** resposta inicial automática em até 1 minuto após qualquer mensagem recebida, 24/7, incluindo fora do horário comercial. `[ASSUMPTION: valor de 1 minuto não confirmado numericamente pelo Thiago]`
 - **NFR-2 (Configurabilidade):** toda personalização (FR-34, FR-35) é editável sem alteração da estrutura do fluxo de automação.
-- **NFR-3 (Rastreabilidade):** todo card mantém histórico imutável e cronológico de atendimentos; nenhuma informação anterior é sobrescrita ou removida ao adicionar um novo atendimento (mesma lógica de log append-only).
+- **NFR-3 (Rastreabilidade):** todo card mantém histórico imutável e cronológico de atendimentos; nenhuma informação anterior é sobrescrita ou removida ao adicionar um novo atendimento (mesma lógica de log append-only). A mesma lógica se estende ao histórico de alterações da Configuração de Personalização feito pelo Painel (FR-48).
 - **NFR-4 (Resiliência de dados):** se um setor falhar em registrar uma informação no card, os demais registros ainda garantem contexto mínimo de continuidade — motivo declarado da escolha de pipeline único (FR-20).
+- **NFR-6 (Implantabilidade aditiva):** componentes novos entram numa VPS já em operação sem recriar nem interromper os serviços que já rodam nela (FR-51). Mudanças de schema em ambiente já no ar são aplicadas por processo explícito, não pelo mecanismo de inicialização de volume vazio do Postgres.
 - **NFR-5 (Naturalidade da conversa):** a conversa deve soar natural e fluida, evitando estrutura de menu rígido (tipo URA, "digite 1 para X"). Esta é a preocupação nº1 relatada pela diretoria do Nouvet ao avaliar o projeto ("não queremos um bot") — trata da qualidade da interação, distinta do guardrail de transparência de identidade (FR-32, que exige que a IA se identifique como virtual sem, por isso, soar como um menu robotizado).
 
 ## 9. Constraints and Guardrails
@@ -462,6 +561,7 @@ Quando o cliente declara explicitamente que há uma emergência com o pet, o sis
 **Security**
 - O sistema resiste a tentativas de manipulação de instruções (prompt injection) que tentem alterar guardrails, extrair configuração interna ou fazer a IA agir fora das regras definidas — incluindo conteúdo extraído de anexos, e nunca revelando dados da Configuração de Personalização como contatos de plantonistas (FR-40).
 - Credenciais de todas as integrações externas vivem no cofre de credenciais do n8n, nunca hardcoded em nós de fluxo ou na Configuração de Personalização (FR-43).
+- O Painel (§4.13) exige autenticação e separa papel de leitura (Visualizador) de papel de escrita (Operador), de forma que quem consulta indicadores não altere o comportamento do agente em produção (FR-44). Credenciais de integração não são editáveis nem exibíveis pelo Painel (FR-43, FR-47), e ele acessa o banco com privilégio próprio e mínimo (FR-51).
 
 **Privacy**
 - Dados de tutores e pets (nome, telefone, histórico) devem ser tratados conforme a LGPD. Fontes de dados temporárias (exportações do SimplesVet, planilhas) precisam do mesmo cuidado de acesso que o sistema definitivo teria — acesso e atualização ficam com a equipe Btech, que tem acesso direto ao SimplesVet (FR-42); falta apenas fechar a política formal de retenção (Questão em Aberto #13).
@@ -507,6 +607,8 @@ Quando o cliente declara explicitamente que há uma emergência com o pet, o sis
 14. **[RESOLVIDO em 01/set/2026 — fora de escopo do Piloto]** Atendimento a pedido de exclusão de dados/opt-out do tutor (direito da LGPD): decisão explícita de Thiago de não implementar isso nesta entrega — fica para uma fase seguinte, não é um corte por omissão. `[NOTE FOR PM]` Tensão a observar quando isso for retomado: o histórico imutável do card (NFR-3) pode conflitar com um pedido de eliminação.
 15. **[NÃO bloqueia o início do build — bloqueia o go-live]** Qual é a lista definitiva de sinais de alerta clínico a usar em produção (FR-8)? Decisão de 01/set/2026: os critérios são configuráveis (FR-34), então o time já pode construir o mecanismo com uma lista interina — mas a lista real, validada pela equipe clínica do Nouvet, precisa estar pronta antes do go-live de 08/09.
 
+16. O usuário do Nouvet no Painel enxerga apenas os indicadores, ou também a Configuração de Personalização (FR-44)? Thiago disse "1 usuário Nouvet que verá tudo" em 08/set/2026, mas na mesma sessão havia declarado que configuração é "somente Btech, a princípio". O PRD assume a leitura restritiva — só indicadores — até confirmação, porque o erro na direção oposta daria a alguém de fora da Btech o poder de mudar o comportamento do agente em produção. Não bloqueia o início da construção do Painel.
+
 ## 14. Índice de Suposições
 
 - **§4.7 (FR-22):** mecanismo exato de exibição "mais recente primeiro" no card do RD Station a confirmar com o time técnico.
@@ -515,3 +617,4 @@ Quando o cliente declara explicitamente que há uma emergência com o pet, o sis
 - **§4.2 (FR-8):** lista interina de sinais de alerta clínico assumida com os exemplos já usados no material comercial/entrevistas (ex.: vômito por 3+ dias seguidos), até a equipe clínica do Nouvet validar a lista definitiva — ver Questão em Aberto #15.
 - **§4.9 (FR-30, FR-31):** arquitetura da base de conhecimento e mensagem exata de reconhecimento de incerteza ainda não definidas.
 - **§8 (NFR-1) / §7 (SM-2):** alvo de tempo de primeira resposta assumido em 1 minuto.
+- **§4.13 (FR-44):** papel do usuário do Nouvet no Painel assumido como Visualizador — só indicadores, sem acesso à Configuração de Personalização — ver Questão em Aberto #16.
