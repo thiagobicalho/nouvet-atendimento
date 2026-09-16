@@ -577,9 +577,9 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "UPDATE n8n_fila_mensagens SET processada = TRUE WHERE id = ANY($1::bigint[])",
+        "query": "UPDATE n8n_fila_mensagens SET processada = TRUE WHERE id = ANY(string_to_array($1, ';')::bigint[])",
         "options": {
-          "queryReplacement": "={{ $('Agregar mensagens').item.json.ids_lote }}"
+          "queryReplacement": "={{ ($('Agregar mensagens').item.json.ids_lote || []).join(';') }}"
         }
       },
       "type": "n8n-nodes-base.postgres",
@@ -927,6 +927,128 @@
       ],
       "id": "ed512496-92db-4c2a-8af8-9e511208d128",
       "name": "If"
+    },
+    {
+      "id": "6ec0cba7-2c14-431c-9619-715547aa6249",
+      "name": "É comando de reset?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        4340,
+        2176
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "a1b2c3d4-0001-4000-8000-000000000001",
+              "leftValue": "={{ $json.mensagem.trim().toLowerCase() }}",
+              "rightValue": "/resetar",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "d4661b24-10d3-4150-a909-dd4d6221229c",
+      "name": "Limpar memória",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        4340,
+        2384
+      ],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM n8n_historico_mensagens WHERE session_id = $1",
+        "options": {
+          "queryReplacement": "={{ $('Extrair dados da mensagem').item.json.telefone }}"
+        }
+      },
+      "credentials": {
+        "postgres": {
+          "id": "imw9RKUxjTQ86ZrN",
+          "name": "Nouvet"
+        }
+      }
+    },
+    {
+      "id": "ce11fae6-86ec-41fb-b130-6a80e7b54d46",
+      "name": "Montar confirmação de reset",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4340,
+        2592
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1b2c3d4-0002-4000-8000-000000000002",
+              "name": "contact_id",
+              "value": "={{ $('Extrair dados da mensagem').item.json.contact_id }}",
+              "type": "string"
+            },
+            {
+              "id": "a1b2c3d4-0003-4000-8000-000000000003",
+              "name": "output",
+              "value": "Prontinho — memória desta conversa foi apagada. Pode mandar sua próxima mensagem normalmente.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "dd8956bd-48b4-41bc-84d8-2ab18f1f9bc0",
+      "name": "Enviar confirmação de reset",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4340,
+        2800
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.tallos.com.br/v2/messages/{{ $json.contact_id }}/send",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "name": "sent_by",
+              "value": "bot"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "mdvhi3lMspQKLDBo",
+          "name": "RD Conversas Nouvet"
+        }
+      }
     }
   ],
   "connections": {
@@ -945,7 +1067,47 @@
       "main": [
         [
           {
+            "node": "É comando de reset?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "É comando de reset?": {
+      "main": [
+        [
+          {
+            "node": "Limpar memória",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
             "node": "Enfileirar mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limpar memória": {
+      "main": [
+        [
+          {
+            "node": "Montar confirmação de reset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Montar confirmação de reset": {
+      "main": [
+        [
+          {
+            "node": "Enviar confirmação de reset",
             "type": "main",
             "index": 0
           }
