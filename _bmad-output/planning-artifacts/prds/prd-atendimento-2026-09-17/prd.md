@@ -44,6 +44,7 @@ Três coisas o acompanham:
 
 - **O calendário migra para o Microsoft 365.** A agenda do Nouvet passa a viver em calendários de recurso do Outlook, que é onde o agente escreve e de onde a equipe lê.
 - **Uma aplicação web** para a Btech configurar o comportamento do agente e para a diretoria do Nouvet manter escalas e acompanhar indicadores.
+- **O calendário do Outlook passa a ser a agenda de todos os setores**, não só dos serviços que o agente atende — decisão de 17/09. A migração de calendário é uma **trilha própria**, paralela às ondas do agente: 3.119 agendamentos futuros (até ago/2027, 18 recursos) e 6.642 linhas de escala precisam ser migrados, e a virada é por recurso, não por data única.
 - **A base de clientes e pets é importada uma vez** do SimplesVet, que não tem integração disponível.
 
 ### 3.1 Objetivos
@@ -52,7 +53,7 @@ Três coisas o acompanham:
 |---|---|---|
 | O1 | Responder todo cliente imediatamente, 24/7 | Tempo até a primeira resposta |
 | O2 | Concluir o agendamento sem humano no caminho comum | % de conversas que terminam em agendamento sem transferência |
-| O3 | Reduzir a cadeira vazia | Atrasado + Cancelado sobre o total — **linha de base 20,1%** |
+| O3 | Reduzir a cadeira vazia — por **confirmação no lembrete** (FR-22), **remarcação imediata** de quem não pode (FR-23) e **recorrência** (FR-23a) | Atrasado + Cancelado sobre o total — **linha de base 20,1%** |
 | O4 | Fazer a confirmação prévia existir | % de agendamentos confirmados — **linha de base 2,5%** |
 | O5 | Não aumentar o trabalho da equipe | Volume de transferências para humano por 100 conversas |
 
@@ -106,7 +107,9 @@ Terça de manhã, Mariana escreve *"não vou conseguir hoje"*. O agente encontra
 - **FR-2** — Quando houver mais de um pet, conduzir a conversa para descobrir de qual se trata, sem perguntar dados que já se sabe.
 - **FR-3** — Tratar telefone desconhecido como cliente novo, sem travar o atendimento por falta de cadastro.
 - **FR-4** — Criar cadastro de cliente e pet quando novos, e sinalizar que há lançamento pendente no SimplesVet.
+- **FR-4a** — Coletar dado cadastral faltante **apenas quando a tarefa em curso precisar dele** (ex.: endereço de retirada para transporte) ou **oferecer o complemento ao final**, depois do agendamento confirmado — nunca como etapa que anteceda ou atrase o agendamento.
 - **FR-5** — Manter memória da conversa entre mensagens e entre sessões.
+- **FR-5a** — Manter preferências estáveis do pet (plano, perfume, acessório, produto próprio, observação livre) e **confirmá-las em uma linha** no agendamento seguinte, em vez de perguntar de novo.
 
 ### 6.2 Entendimento do pedido
 
@@ -134,9 +137,12 @@ Terça de manhã, Mariana escreve *"não vou conseguir hoje"*. O agente encontra
 
 ### 6.5 Lembrete e confirmação
 
-- **FR-21** — Enviar lembrete antes do atendimento, na antecedência configurada por serviço.
-- **FR-22** — Pedir confirmação no lembrete e registrar a resposta.
+- **FR-21** — Enviar lembrete antes do atendimento, nas antecedências configuradas por serviço (mais de uma).
+- **FR-21a** — **Suprimir o lembrete cujo momento já passou ou que cairia perto demais do agendamento.** Quem acabou de escolher o horário não precisa ser lembrado dele. *(42% dos banhos são marcados com menos de 24h de antecedência — nesses casos só o lembrete curto se aplica; e quem marca com 2h de antecedência não recebe lembrete nenhum.)*
+- **FR-22** — Pedir confirmação no lembrete e registrar a resposta. *(Mecanismo principal de O3: hoje só 2,5% dos agendamentos são confirmados, porque depende de alguém clicar no sistema.)*
+- **FR-22a** — Registrar comparecimento a partir da categoria marcada no evento do calendário, recebida por notificação do Microsoft Graph.
 - **FR-23** — Oferecer remarcação quando o cliente disser que não poderá comparecer.
+- **FR-23a** — Procurar o cliente quando o intervalo típico do serviço for ultrapassado, oferecendo novo agendamento. *(Banho: mediana de 14 dias entre atendimentos; 208 clientes hoje fora do ritmo.)*
 - **FR-24** — Obter e registrar a autorização do cliente para receber mensagens, conforme exigência da Meta para mensagens iniciadas pela empresa.
 
 ### 6.6 Transporte (onda 1, sem agendamento automático)
@@ -166,6 +172,7 @@ Terça de manhã, Mariana escreve *"não vou conseguir hoje"*. O agente encontra
 - **FR-38** — Manter a escala dos recursos — quais estão abertos em cada dia.
 - **FR-39** — Acompanhar indicadores: agendamentos pelo agente, taxa de confirmação, comparecimento, transferências por motivo, tempo de resposta.
 - **FR-40** — Acompanhar o consumo de mensagens contra a franquia mensal da Meta.
+- **FR-40a** — Importar exportação do SimplesVet **sob demanda** (carga inicial e conferências eventuais de porte), sem sobrescrever campos de domínio próprio. **Não há rotina periódica**: comparecimento vem da categoria no calendário e da confirmação do cliente; histórico de agendamento vem do próprio calendário.
 - **FR-41** — Acessar a aplicação com a conta Microsoft do Nouvet, com permissão por papel.
 
 ## 7. Requisitos não funcionais
@@ -210,8 +217,10 @@ Terça de manhã, Mariana escreve *"não vou conseguir hoje"*. O agente encontra
 | QA-5 | O que o cliente quer quando fala de internação | Nouvet | Define o comportamento do agente no tema |
 | QA-6 | Quem é a "Rose" da oncologia e qual o critério | Nouvet | Onda 4 |
 | QA-7 | Há plantão para alertar em emergência fora do horário comercial | Nouvet | FR-27 fica sem destinatário |
-| QA-8 | Preço pode ser informado com o plano Black Pet envolvido | Nouvet | Agente informa valor errado para quem tem plano |
-| QA-9 | `[ASSUMPTION]` Visita — internação entra na onda 2 | Thiago | Pode ir para a onda 4 sem prejuízo |
+| QA-8 | Preço quando há plano **PETLOVE** (Ideal, Essencial, Completo) — o agente informa? | Nouvet | Agente informa valor errado para quem tem plano |
+| QA-11 | Janela e tom da mensagem de recorrência; o que fazer com os 965 clientes inativos há mais de 180 dias | Nouvet | FR-23a sem parâmetro |
+| QA-12 | Frequência do export do SimplesVet para reconciliar comparecimento | Nouvet | Indicadores de O3 sem fonte |
+| ~~QA-9~~ | **Resolvida em 17/09**: Visita — internação entra na **onda 2** | Thiago | — |
 | QA-10 | `[ASSUMPTION]` Care Center abre com banho e tosa; demais serviços de estética ficam para depois | Nouvet | Escopo da onda 1 |
 
 ## 11. Riscos

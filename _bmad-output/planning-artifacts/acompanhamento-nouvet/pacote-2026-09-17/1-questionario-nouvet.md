@@ -122,6 +122,80 @@ Os 1.164 registros de "Internamento" quase nunca são um cliente pedindo interna
 
 **A.5.3** — Pedidos de **notícia do animal internado** ("como ele está?") devem ir para qual setor?
 
+**A.6 — Internação: o que o cliente costuma querer?**
+
+Os 1.164 registros de "Internamento" quase nunca partem de um pedido do cliente — 81% são criados depois do fato, e mesmo os 217 criados com antecedência têm mediana de **6 horas**, com 74% deles na `Sala de Acompanhamento Família`.
+
+Quando alguém fala de internação pelo WhatsApp, **o que essa pessoa normalmente quer**: visitar o animal, saber como ele está, ou perguntar se vai precisar internar? As três têm respostas diferentes e precisamos saber qual é a comum.
+
+---
+
+## Bloco C2 — A mudança no preço do banho
+
+Notamos algo na base que precisa de confirmação de vocês.
+
+**Até julho/2026**, o banho era cobrado por **porte e comprimento de pelo** — oito combinações. **A partir de agosto** começou a migração para **valor único por espécie**, e em setembro ela está completa: nenhuma cobrança por porte, só `Banho Nouvet | Cães R$ 120,00` e `| Gatos R$ 240,00`.
+
+Comparando o preço de tabela anterior com o novo:
+
+| Porte / pelo | Antes | Agora | Variação |
+|---|---|---|---|
+| P — curto | R$ 92,00 | R$ 120,00 | **+30%** |
+| P — longo | R$ 104,00 | R$ 120,00 | **+15%** |
+| M — curto | R$ 104,00 | R$ 120,00 | +15% |
+| M — longo | R$ 120,00 | R$ 120,00 | igual |
+| G — curto | R$ 143,00 | R$ 120,00 | −16% |
+| G — longo | R$ 176,00 | R$ 120,00 | −32% |
+| GG — longo | R$ 202,00 | R$ 120,00 | **−41%** |
+
+**O que nos chama atenção:** entre os animais cuja classificação conseguimos recuperar do faturamento, **68% são porte P**. Ou seja, a maioria dos clientes de banho teve **aumento**, e os poucos donos de cães grandes tiveram queda expressiva.
+
+**C2.1** — O valor único é **definitivo e intencional**, ou é transição?
+
+**C2.2** — Vocês têm acompanhado o efeito disso no volume de banhos? Se houver queda nos próximos meses entre tutores de cães pequenos, é candidato a explicação.
+
+**C2.3** — **Do nosso lado isso simplifica:** com valor único por espécie, o agente informa o preço do banho com segurança, sem precisar saber o porte. Já a **tosa continua por porte × pelo** — e essas duas informações **não existem no cadastro** (o campo de pelagem guarda cor, não comprimento; não há campo de porte). Enquanto não tivermos o porte confirmado, o agente informará o valor da tosa **com ressalva** ("confirmado no check-in, conforme o porte"). Vocês concordam com essa ressalva?
+
+**C2.4** — Se voltarem ao modelo por porte, precisamos saber com antecedência: o agente passará a precisar do porte também para o banho.
+
+---
+
+## Bloco F2 — Mensagem de recorrência
+
+Medimos o intervalo entre banhos: **mediana de 14 dias**. De 1.377 animais que já tomaram banho, **867 (63%) voltaram** pelo menos uma vez, e 59% retornam em até 15 dias. Banho no Nouvet é **rotina quinzenal**, não evento isolado.
+
+Olhando quando cada animal tomou banho pela última vez (referência 09/09/2026):
+
+| Situação | Animais |
+|---|---|
+| Ativo (menos de 45 dias) | 204 |
+| **Atrasado (45 a 90 dias)** | **105** |
+| **Sumido (90 a 180 dias)** | **103** |
+| Inativo (mais de 180 dias) | 965 |
+
+Os **208 animais nas faixas "atrasado" e "sumido" tinham ritmo e pararam.** A R$ 120,00 o banho, recuperar metade é da ordem de **R$ 12 mil** — e recorrente a cada quinze dias.
+
+**F2.1** — Depois de quantos dias sem banho o agente deve procurar o cliente?
+
+**F2.2** — Ele insiste se não houver resposta, ou fala uma vez só?
+
+**F2.3** — O que fazer com os **965 inativos há mais de 180 dias**? Campanha única de reativação, ou deixar quieto? (Atenção: essa lista tem animais que faleceram ou mudaram de cidade — precisa de cuidado no texto.)
+
+**F2.4** — Vale a pena o agente mandar uma mensagem **depois do atendimento** perguntando como foi? Serve para satisfação e, de quebra, confirma que o cliente compareceu.
+
+---
+
+## Bloco G2 — Exportação eventual do SimplesVet
+
+Não precisaremos de uma rotina periódica. O acompanhamento do dia a dia virá do próprio calendário e das confirmações do cliente. A exportação fica como recurso **eventual**, para dois usos pontuais:
+
+1. **Carga inicial** — clientes, pets e contatos, uma vez, na entrada em produção.
+2. **Conferência ocasional** de porte e tipo de pelo — quando o check-in fatura a tosa, a classificação escolhida é a correta; um export esporádico permite corrigir nosso cadastro. Não é urgente, porque o agente sempre informa o valor da tosa com a ressalva de confirmação no check-in.
+
+**G2.1** — Quem consegue gerar esse export quando pedirmos? (Precisamos apenas de agenda, vendas, itens de venda, pessoas, contatos e animais — não do banco inteiro.)
+
+**G2.2** — Há alguma restrição para gerá-lo, ou é uma exportação simples do sistema?
+
 ---
 
 ## Bloco B — Duração dos atendimentos e horário dos recursos
@@ -239,7 +313,7 @@ Quando o agente não puder resolver, ele transfere a conversa **dentro do RD Sta
 
 **E.2.1** — Quem no Nouvet fica responsável por revisar e manter o cadastro de usuários e setores do RD daqui em diante?
 
-**E.2.2** — Contas genéricas (Marketing, Internação, Financeiro, Veterinários, Gestão TI) devem receber transferência do agente? Nossa premissa é que **não**.
+**E.2.3** — Contas genéricas (Marketing, Internação, Financeiro, Veterinários, Gestão TI) devem receber transferência do agente? Nossa premissa é que **não**.
 
 **E.3 — Oncologia.** Existem dois consultórios de oncologia na agenda (onc-1 e onc-2) e foi mencionado que, em alguns casos, após a consulta o atendimento é encaminhado para a **"Rose"**. Não há ninguém com esse nome no RD Station.
 - Quem é a Rose e qual conta ela usa?
@@ -266,9 +340,35 @@ Ou seja: **13.346 agendamentos — cerca de 1 em cada 5 — não viraram atendim
 
 **F.2** — **Qual seria uma melhora relevante** para vocês? (ex.: reduzir falta de 20% para 15%; elevar confirmação de 2,5% para 40%.) Precisamos de uma meta para medir o sucesso do projeto.
 
-**F.3** — Quando o agente deve **lembrar** o cliente — 24h antes, 2h antes, os dois?
+**F.3 — Quando lembrar.** Medimos quando os cancelamentos acontecem hoje, e o resultado sugere uma resposta:
+
+| Quando o cancelamento foi registrado | Todos | Só banho |
+|---|---|---|
+| **Depois do horário já ter passado** | **53,4%** | **59,0%** |
+| Menos de 2h antes | 5,0% | 5,5% |
+| Entre 2h e 24h antes | 26,3% | 21,8% |
+| Mais de 24h antes | 15,2% | 13,7% |
+
+**Mais da metade dos "cancelamentos" não são cancelamento — são falta, registrada depois.** O cliente simplesmente não apareceu e alguém limpou a agenda. E entre os que avisam, a maioria avisa **entre 6 e 24 horas antes** — é a janela em que a pessoa realmente decide. (As confirmações de hoje confirmam o padrão: 66% acontecem entre 6 e 24h antes.)
+
+**Nossa proposta, baseada nisso:**
+
+| Lembrete | Quando | Para quê |
+|---|---|---|
+| **1º** | **24h antes** | Pega a janela em que o cliente decide, pede confirmação e — se ele não puder — **ainda dá tempo de remarcar e de oferecer o horário liberado a outra pessoa** |
+| **2º** | **2h antes** | Não serve para recuperar o horário (a essa altura ninguém mais ocupa), mas combate o **esquecimento puro** — que é o que explica os 53% que somem sem avisar |
+
+**F.3.1** — Concordam com 24h e 2h? Preferem só um dos dois?
+
+**F.3.1a** — E quando o cliente marca **em cima da hora**? Se ele agenda às 15h de hoje para as 10h de amanhã, o lembrete de 24h já não faz sentido — ele acabou de escolher esse horário. Nossa regra: **o lembrete é suprimido quando o momento dele já passou ou cairia perto demais do agendamento**; nesse exemplo, só o de 2h seria enviado. E quem marca com 2h de antecedência não recebe lembrete nenhum. Concordam?
+
+> Isso é comum: **42% dos banhos são marcados com menos de 24 horas de antecedência**, e 18% com menos de uma hora.
+
+**F.3.2** — A cadência será **configurável por serviço** — banho pode ter lembrete diferente de exame. Há algum serviço que precise de antecedência maior?
 
 **F.4** — O lembrete deve **pedir confirmação** ("responda SIM para confirmar") e **oferecer remarcação** se o cliente não puder?
+
+> **É este o principal mecanismo contra a cadeira vazia.** Hoje apenas 1.647 agendamentos (2,5%) chegam a ser confirmados, porque confirmar depende de alguém clicar no sistema. Com o agente, a confirmação passa a acontecer na conversa — e quem responde que não pode é **remarcado na hora**, em vez de virar falta.
 
 **F.5** — Se o cliente não responder ao lembrete, o que acontece? Mantém, cancela, avisa a recepção?
 

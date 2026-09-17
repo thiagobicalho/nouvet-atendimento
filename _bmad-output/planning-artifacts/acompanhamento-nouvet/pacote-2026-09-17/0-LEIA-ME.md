@@ -7,7 +7,7 @@ O que levar, em que ordem, e para quem.
 | # | Documento | Para quem | O que é |
 |---|---|---|---|
 | **1** | `1-questionario-nouvet.md` | Diretoria + coordenação de operação | O documento principal. Sete blocos de decisões que só o Nouvet pode tomar, cada um explicando por que perguntamos e o que trava. |
-| **2** | `mapeamento-servicos-onda1.csv` | Quem coordena o Care Center | Planilha com **37 campos por serviço**, para banho e tosa. É o insumo que destrava a construção da primeira entrega. Abre no Excel ou Google Sheets (separador `;`). |
+| **2** | `mapeamento-servicos-onda1.csv` | Quem coordena o Care Center | Planilha com **38 campos** × **6 serviços** (banho, quatro tipos de tosa e desembolo). É o insumo que destrava a construção da primeira entrega. Abre no Excel ou Google Sheets (separador `;`). |
 | **3** | `3-anexo-tecnico-rd-conversas.md` | Quem administra o RD Station Conversas | Anexo técnico: setores a criar, ajustes de cadastro e as inconsistências encontradas. **Não circula com a diretoria** — é operacional. |
 
 ## A ordem que importa
@@ -34,6 +34,14 @@ Se a resposta vier em partes, esta é a ordem de utilidade para nós:
 **Sobre o prazo.** A entrega será **modular**. A primeira onda é o **Care Center — banho e tosa**: 19.698 agendamentos, cerca de 450 por mês, **34,6% de tudo que a clínica marca** — e o único serviço de alto volume que é genuinamente agendado com antecedência (mediana de quase dois dias). As ondas seguintes trazem Imagem, depois Consultas, depois o restante.
 
 **O que pedimos agora.** As respostas da planilha e dos blocos B e E. O resto pode ser respondido enquanto construímos.
+
+## O que descobrimos e vale vocês saberem
+
+**O preço do banho mudou em agosto.** Até julho era cobrado por porte e comprimento de pelo; desde setembro é valor único por espécie. O efeito não é uniforme: cães de **porte pequeno — 68% da base** — tiveram aumento de 15% a 30%, enquanto cães grandes tiveram queda de até 41%. Está no Bloco C2, com a tabela comparativa. Se houver queda de volume nos próximos meses, é candidato a explicação.
+
+**Metade dos "cancelamentos" não é cancelamento.** Dos 5.105 registros cancelados, **53% foram marcados depois que o horário já tinha passado** — ou seja, o cliente não apareceu e alguém limpou a agenda. É exatamente esse público que o lembrete com pedido de confirmação ataca.
+
+**Banho é rotina quinzenal, não evento.** O intervalo mediano entre banhos do mesmo animal é de **14 dias**, e 63% dos animais voltam. Hoje há **208 animais que tinham ritmo e pararam** — e ninguém os procurou.
 
 ## Duas decisões que já tomamos, e o porquê
 

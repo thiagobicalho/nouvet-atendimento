@@ -46,8 +46,21 @@ Login da aplicação web (métricas, escalas, config) com conta Microsoft do Nou
 | Certificado inviável (Q5) | Client secret com validade 6 meses + lembrete de rotação no calendário da Btech. |
 | Bookings disponível (Q6 = sim) | Avaliar no spike **Microsoft Bookings via Graph** (`bookingBusinesses`, staff, services, availability): já modela serviços, durações, equipe e disponibilidade com UI da Microsoft para o Nouvet editar. Limite conhecido: disponibilidade de equipe é semanal — escala rotativa 24h encaixa mal. Só vale se a escala do SimplesVet for majoritariamente semanal fixa. |
 
+## 4b. Saber que o atendimento aconteceu — o que o Graph oferece
+
+Precisamos saber se o cliente compareceu, para medir redução de faltas. Verificamos o que existe de nativo:
+
+- **O `event` do Graph não tem estado de conclusão.** Não há `status` nem `completedDateTime` — isso só existia no antigo `outlookTask`, descontinuado em 2022. `showAs` modela **disponibilidade** (free/busy/tentative), não ciclo de vida; usá-lo para "concluído" corrompe a consulta de livre/ocupado.
+- **Existe webhook.** O Graph tem *change notifications*: assina-se `users/{id}/events` com `changeType: created,updated,deleted` e recebe-se aviso num endpoint HTTPS público. Limites: assinatura expira e precisa de renovação; máximo de 1.000 assinaturas por caixa; permissão de aplicação (não delegada) para caixa de terceiro.
+- **O caminho viável é categoria.** Quem atende marca o evento com uma categoria (`Atendido`, `Faltou`) — um clique no Outlook —, o webhook dispara em `updated` e nós lemos. É visível na interface, colorido e filtrável.
+- **Alternativa para estado só nosso**: *open extensions*, para dado que o app grava e ninguém precisa ver.
+
+**Q8** — Há alguma política contra usar **categorias de calendário** padronizadas nas caixas de recurso? Precisamos criar as categorias `Atendido` e `Faltou` em cada caixa.
+
+**Q9** — O endpoint de webhook do n8n já é HTTPS público. Há restrição de rede ou de Conditional Access que impeça o Graph de chamá-lo?
+
 ## 5. O que a Btech devolve depois do spike (2 dias)
 
-- Prova: autenticou com o app, listou `calendarView` da `agenda.teste.ia`, criou e cancelou um evento, `Test-ApplicationAccessPolicy` negando caixa fora do grupo.
+- Prova: autenticou com o app, listou `calendarView` da `agenda.teste.ia`, criou e cancelou um evento, `Test-ApplicationAccessPolicy` negando caixa fora do grupo, **e recebeu uma notificação de webhook ao marcar o evento com categoria**.
 - Decisão registrada: caixa pessoal vs compartilhada; Bookings sim/não.
 - Doc de operação para o suporte da Btech: como criar uma nova caixa de agenda e incluí-la no grupo quando entrar um profissional novo.
