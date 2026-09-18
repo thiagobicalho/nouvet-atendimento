@@ -166,7 +166,7 @@ Vindos da espinha do Piloto, **binding e read-only** — não re-derivar:
 
 - **Binds:** FR-21, FR-23a, FR-29, O5
 - **Prevents:** os temporizadores são um processo independente que fala direto com o cliente. Sem esta regra, um lembrete dispara no meio de uma conversa que um atendente humano está conduzindo — exatamente a falha que o Piloto já cometeu em produção
-- **Rule:** antes de qualquer mensagem proativa, o temporizador **verifica o estado da conversa** e **respeita o mesmo lock** que a conversa usa (`AD-5`). Conversa em atendimento humano, ou com lock ativo, **adia** — nunca envia em paralelo. Além disso, nenhuma mensagem proativa é enviada sobre agendamento já resolvido, e **toda mensagem proativa fora da janela de 24 horas é um template aprovado**, com categoria declarada (`FR-24`) — o que também torna o custo previsível por tipo de disparo.
+- **Rule:** antes de qualquer mensagem proativa, o temporizador **verifica o estado da conversa** e **respeita o mesmo lock** que a conversa usa (`AD-5`). **Posse da conversa não é pré-requisito para enviar** — mensagem proativa sai por API com a conversa fechada, e é por isso que é template. O que a regra proíbe é enviar **enquanto há humano em atendimento**. Conversa em atendimento humano, ou com lock ativo, **adia** — nunca envia em paralelo. Além disso, nenhuma mensagem proativa é enviada sobre agendamento já resolvido, e **toda mensagem proativa fora da janela de 24 horas é um template aprovado**, com categoria declarada (`FR-24`) — o que também torna o custo previsível por tipo de disparo.
 
 ### AD-30 — Ambientes: nada de ensaio em produção [ADOPTED]
 
