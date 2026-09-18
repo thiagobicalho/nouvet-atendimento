@@ -91,7 +91,7 @@ Vindos da espinha do Piloto, **binding e read-only** — não re-derivar:
 
 - **Binds:** NFR-1, FR-21, FR-21a
 - **Prevents:** dividir a resposta em várias mensagens para "parecer humano" — padrão comum nos templates de referência (`07 - Quebrar/Enviar Mensagens`) que, a partir de 01/10/2026, multiplica o custo por turno. **Não existe franquia gratuita nem faixa por volume para mensagem de serviço** (confirmado na doc da Meta): cada mensagem é custo direto, sempre
-- **Rule:** o agente emite **exatamente uma mensagem por turno**. Quando uma operação demorar (`NFR-2` pede sinalizar em vez de silenciar), a sinalização vai **dentro da mesma mensagem** — *"deixa eu ver os horários"* nunca é uma mensagem separada. As duas regras não conflitam: `NFR-2` fala de **transparência**, `AD-17` de **quantidade**. Lembretes e mensagens proativas são turnos próprios, contabilizados. **Lembrete cujo momento já passou, ou que cairia perto demais do agendamento, é suprimido** — 42% dos banhos são marcados com menos de 24h de antecedência, então a supressão é o caminho comum, não a exceção.
+- **Rule:** o agente emite **exatamente uma mensagem por turno**. **A alavanca de custo é o tamanho do prompt, não o modelo**: a montagem seletiva de `AD-1` leva o prompt do Piloto de ~16 mil tokens para ~4 mil na onda 1, cortando o gasto por quatro em qualquer modelo. Maior ainda é o **cache de prefixo** — o prompt estável é reenviado a cada turno; se o node do n8n expuser cache, os turnos seguintes saem por uma fração. **Verificar isso é a pergunta de maior retorno do spike.** Quando uma operação demorar (`NFR-2` pede sinalizar em vez de silenciar), a sinalização vai **dentro da mesma mensagem** — *"deixa eu ver os horários"* nunca é uma mensagem separada. As duas regras não conflitam: `NFR-2` fala de **transparência**, `AD-17` de **quantidade**. Lembretes e mensagens proativas são turnos próprios, contabilizados. **Lembrete cujo momento já passou, ou que cairia perto demais do agendamento, é suprimido** — 42% dos banhos são marcados com menos de 24h de antecedência, então a supressão é o caminho comum, não a exceção.
 
 ### AD-18 — Preço é função, não valor [ADOPTED]
 
@@ -228,7 +228,7 @@ O agente fala com `Cfg`, `Disp` e `Tools` — nunca com `Cal`, `CRM` ou `App` di
 | --- | --- |
 | n8n (self-hosted) | `n8nio/n8n:2.14.2` — literal já presente no `docker-compose.yml` do repositório. ⚠️ **n8n 3.0, com breaking changes, está previsto para outubro de 2026** — a janela do prazo. Atualizar é decisão datada, nunca efeito colateral de recriar container (`AD-10`) |
 | PostgreSQL | `postgres:16.15-alpine3.24` — literal já no `docker-compose.yml` |
-| Modelo de linguagem | **[ASSUMPTION] não decidido.** `AD-17` é decisão de custo por turno e depende de qual modelo responde. Provedor atual do Piloto: OpenRouter. Precisa de escolha explícita antes do build |
+| Modelo de linguagem | **[ASSUMPTION] a decidir por medição, não no papel.** Acesso pelo **OpenRouter** (uma credencial serve Anthropic e OpenAI — trocar de modelo é mudar um campo). Candidatos e preço por milhão de tokens em 18/09/2026: **GPT-5.6 Luna** $0,20/$1,20 · **Claude Haiku 4.5** $1/$5 · **Claude Sonnet 5** $2/$10 · *(Opus 5 $5/$25 só se os três falharem)*. GPT-4.1 e GPT-5 são **legado** — não entram. **Custo não é o critério**: no volume da onda 1 a diferença entre o mais barato e o mais caro é da ordem de US$ 50/mês, muito abaixo do custo das mensagens na Meta. O critério é **confiabilidade de chamada de ferramenta** |
 | Runtime | Docker / Docker Compose |
 | Agente | n8n LangChain (`@n8n/n8n-nodes-langchain.agent`) |
 | Mensageria | RD Station Conversas (API v2) |
@@ -301,7 +301,8 @@ O endpoint de webhook do Graph precisa ser HTTPS público e alcançável a parti
 ## Deferred
 
 - **Forma de entrada pelo RD** (`AD-20`) — decidida na reunião; plano de fundo é o webhook.
-- **Modelo de linguagem** — não escolhido, e `AD-17` é decisão de custo por turno.
+- **Modelo de linguagem** — spike de medição, não escolha no papel. Medir, nas mesmas cinco conversas de banho: (1) chamou a ferramenta certa com os parâmetros certos; (2) respeitou o objeto de oferta de `AD-25` sem reescolher recurso nem inventar horário; (3) latência por turno — **limite duro** se `AD-20` fechar na opção síncrona; (4) aderiu a `AD-17`. Erro de modelo **não gera agendamento duplo**, porque `AD-25` revalida no commit — o que permite escolher um modelo mais barato com segurança.
+- **Cache de prompt no node do n8n** — existe? É a maior alavanca de custo e não está confirmada.
 - **Biblioteca de autenticação da aplicação** — `next-auth` v5 nunca saiu de beta; avaliar Better Auth ou MSAL Node.
 - **Comportamento do assistente de reserva do Exchange** em escrita direta por permissão de aplicação — `AD-25` assume que **não** protege e resolve por conta própria. Confirmar no spike; se proteger, é defesa extra, nunca substituta.
 - **Granularidade de `getSchedule`** frente a durações que não são múltiplo da grade (banho com mediana de 75 minutos, `QA-2`).
