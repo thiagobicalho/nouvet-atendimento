@@ -35,6 +35,10 @@ Se a resposta vier em partes, esta é a ordem de utilidade para nós:
 
 **O que pedimos agora.** As respostas da planilha e dos blocos B e E. O resto pode ser respondido enquanto construímos.
 
+## ⚠️ Um prazo que não pode passar — 30/09
+
+A Meta muda a cobrança do WhatsApp em **01/10/2026**, a mesma data prevista para a entrada em produção. Contas **sem meio de pagamento cadastrado até 30/09** têm a entrega de mensagens interrompida quando a cobrança começa. Como vocês operam pelo RD Station, a confirmação passa por eles — provavelmente já está resolvido, mas precisa ser verificado. Detalhes em documento separado.
+
 ## O que descobrimos e vale vocês saberem
 
 **O preço do banho mudou em agosto.** Até julho era cobrado por porte e comprimento de pelo; desde setembro é valor único por espécie. O efeito não é uniforme: cães de **porte pequeno — 68% da base** — tiveram aumento de 15% a 30%, enquanto cães grandes tiveram queda de até 41%. Está no Bloco C2, com a tabela comparativa. Se houver queda de volume nos próximos meses, é candidato a explicação.

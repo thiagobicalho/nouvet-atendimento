@@ -128,6 +128,7 @@ Terça de manhã, Mariana escreve *"não vou conseguir hoje"*. O agente encontra
 - **FR-15** — Respeitar antecedência mínima e máxima configuradas por serviço.
 - **FR-16** — Nunca marcar dois atendimentos no mesmo recurso e horário.
 - **FR-17** — Cancelar e remarcar agendamentos existentes, dentro dos limites configurados.
+- **FR-17a** — Agir apenas sobre agendamento **do próprio contato em conversa** — nenhuma ferramenta de cancelar ou remarcar aceita alvo que não pertença ao telefone corrente.
 
 ### 6.4 Preço
 
@@ -144,6 +145,7 @@ Terça de manhã, Mariana escreve *"não vou conseguir hoje"*. O agente encontra
 - **FR-23** — Oferecer remarcação quando o cliente disser que não poderá comparecer.
 - **FR-23a** — Procurar o cliente quando o intervalo típico do serviço for ultrapassado, oferecendo novo agendamento. *(Banho: mediana de 14 dias entre atendimentos; 208 clientes hoje fora do ritmo.)*
 - **FR-24** — Obter e registrar a autorização do cliente para receber mensagens, conforme exigência da Meta para mensagens iniciadas pela empresa.
+- **FR-24a** — Enviar toda mensagem proativa **fora da janela de 24 horas** como **template aprovado**, com a categoria correta declarada, e registrar o custo por categoria.
 
 ### 6.6 Transporte (onda 1, sem agendamento automático)
 
@@ -171,19 +173,22 @@ Terça de manhã, Mariana escreve *"não vou conseguir hoje"*. O agente encontra
 
 - **FR-38** — Manter a escala dos recursos — quais estão abertos em cada dia.
 - **FR-39** — Acompanhar indicadores: agendamentos pelo agente, taxa de confirmação, comparecimento, transferências por motivo, tempo de resposta.
-- **FR-40** — Acompanhar o consumo de mensagens contra a franquia mensal da Meta.
+- **FR-40** — Acompanhar o **custo** de mensagens enviadas, por categoria de cobrança (serviço, utilidade, autenticação) — não há franquia contra a qual comparar; o indicador é gasto, não saldo.
 - **FR-40a** — Importar exportação do SimplesVet **sob demanda** (carga inicial e conferências eventuais de porte), sem sobrescrever campos de domínio próprio. **Não há rotina periódica**: comparecimento vem da categoria no calendário e da confirmação do cliente; histórico de agendamento vem do próprio calendário.
 - **FR-41** — Acessar a aplicação com a conta Microsoft do Nouvet, com permissão por papel.
 
 ## 7. Requisitos não funcionais
 
-- **NFR-1 — Uma resposta por turno.** A partir de 01/10/2026 a Meta cobra por mensagem de serviço enviada, com franquia de 1.000 por número por mês. O agente responde uma vez por turno; dividir resposta em várias mensagens é proibido.
+- **NFR-1 — Uma resposta por turno.** A partir de 01/10/2026 a Meta cobra **por mensagem de serviço entregue**, à tarifa de utilidade/autenticação do país do destinatário. **Não há franquia gratuita e não há faixas por volume** — confirmado na documentação da Meta; a "franquia de 1.000" que circula em resumos de terceiros é resíduo do modelo antigo por conversa, já aposentado. Toda resposta do agente custa. O agente responde uma vez por turno; dividir resposta em várias mensagens é proibido.
+- **NFR-1a — Pré-requisito operacional com data.** É preciso haver **meio de pagamento cadastrado na conta WhatsApp Business até 30/09/2026**. Sem isso, a Meta **interrompe a entrega de mensagens de serviço** quando a cobrança começa, em 01/10 — a mesma data do go-live.
 - **NFR-2 — Tempo de resposta.** O cliente recebe resposta em poucos segundos. Quando uma consulta de agenda for demorar, o agente sinaliza em vez de silenciar.
 - **NFR-3 — O calendário é a fonte da verdade.** Se o CRM e o calendário divergirem, o calendário está certo. Escrita no CRM nunca bloqueia o agendamento.
 - **NFR-4 — Falha não vira silêncio.** Qualquer falha técnica no caminho do agendamento resulta em mensagem honesta ao cliente e registro para a equipe — nunca em conversa abandonada.
 - **NFR-5 — Privilégio mínimo.** O agente acessa apenas os calendários dos recursos que precisa, com credencial de aplicação restrita.
 - **NFR-6 — Dado de cliente não sai do ambiente.** Base importada e conversas permanecem na infraestrutura do projeto; nada de PII em repositório.
-- **NFR-7 — Auditabilidade.** Todo agendamento, cancelamento e transferência feito pelo agente é rastreável.
+- **NFR-7 — Auditabilidade.** Todo agendamento, cancelamento e transferência feito pelo agente é rastreável a partir do registro de fatos.
+- **NFR-9 — Nenhum indicador sem cobertura.** Todo número apresentado vem acompanhado da fração da base sobre a qual foi medido. Ausência de sinal é reportada como desconhecida, nunca convertida em desfecho.
+- **NFR-10 — Ambiente de desenvolvimento não alcança cliente nem agenda real.**
 - **NFR-8 — Configuração é dado, não código.** Mudar nome, tom, catálogo, duração, horário ou destinatário não exige alterar fluxo nem publicar versão.
 
 ## 8. Fora de escopo
@@ -231,4 +236,6 @@ Terça de manhã, Mariana escreve *"não vou conseguir hoje"*. O agente encontra
 
 **A configuração é maior do que parecia.** O modelo de cadastro tem ~35 atributos por serviço, com matriz de preço. Mitigação: a onda 1 exige mapear **dois** serviços, não quarenta.
 
-**A cobrança da Meta muda no dia da entrega.** Resposta de agente passa a ser paga. Mitigação: NFR-1 e acompanhamento de consumo (FR-40).
+**A cobrança da Meta muda no dia da entrega.** Resposta de agente passa a ser paga, sem franquia. Mitigação: NFR-1, NFR-1a e acompanhamento de custo (FR-40).
+
+**Lembretes são mensagens fora da janela de 24h.** Uma mensagem avulsa só pode sair fora da janela como **template aprovado**. Templates de utilidade **dentro** de uma janela aberta seguem gratuitos, mas o lembrete de véspera quase sempre cai fora dela — logo é template, e é cobrado. Os templates precisam ser criados e aprovados antes do go-live.

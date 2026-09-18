@@ -10,7 +10,7 @@ Objetivo: um agente (n8n) que **lê disponibilidade e cria/atualiza/cancela even
 | Q1 | O e-mail do Nouvet roda em **Exchange Online** (Microsoft 365)? Ou o domínio usa outro provedor de e-mail? | Calendário do Graph só existe em caixa Exchange Online. Sem Exchange, não há calendário Microsoft para usar. |
 | Q2 | Os **veterinários/profissionais** têm licença Microsoft 365 com caixa de correio própria? Quantos? | Define se usamos o calendário pessoal deles ou caixas compartilhadas. |
 | Q3 | Podemos criar **caixas de recurso** (*room mailbox* / *equipment mailbox*) e caixas compartilhadas? Há política contra? | **Atualizado em 15/09 após a análise do SimplesVet**: a agenda do Nouvet é por **recurso** (consultórios, salas de imagem, sala de infusão, transporte), não por profissional. Room/equipment mailbox não consome licença e tem reserva automática — é o encaixe exato. |
-| Q4 | Quem tem papel de **Exchange Administrator** para rodar PowerShell (`New-ApplicationAccessPolicy`)? | É o que restringe o app a só os calendários certos. |
+| Q4 | Quem tem papel de **Exchange Administrator** e é membro de **Organization Management** para configurar o RBAC for Applications? | É o que restringe o app a só os calendários certos (ver §2.5). |
 | Q5 | Política de credencial de app: **certificado** ou client secret? Prazo máximo de validade? | Define como o n8n autentica e a rotina de rotação. |
 | Q6 | Alguém já usa **Microsoft Bookings** no tenant? Há licença Business Standard/Premium? | Alternativa a avaliar (ver §4). |
 | Q7 | Fuso horário e horário comercial padrão das caixas: `America/Sao_Paulo`, clínica 24h. Ok? | Evita evento marcado em UTC por engano. |
@@ -24,11 +24,27 @@ Objetivo: um agente (n8n) que **lê disponibilidade e cria/atualiza/cancela even
    - `MailboxSettings.Read` — ler fuso horário/horário de trabalho das caixas de agenda.
    - (nada de `Mail.*`, nada de `User.ReadWrite.*`).
 4. **Grupo de segurança habilitado para e-mail**: `agendas-ia@nouvet.com.br` — contém **somente** as caixas de agenda.
-5. **Application Access Policy** (Exchange Online PowerShell), restringindo o app ao grupo:
+5. **Restrição de escopo — usar RBAC for Applications, não Application Access Policy.** `New-ApplicationAccessPolicy` ainda funciona, mas a Microsoft classifica as *Application Access Policies* como **legadas** e orienta explicitamente a **não criar novas**, porque exigirão migração quando a descontinuação for anunciada. O substituto é **RBAC for Applications** (Exchange Online), que amarra permissão + escopo de recurso ao service principal:
+
    ```powershell
-   New-ApplicationAccessPolicy -AppId <client-id> -PolicyScopeGroupId agendas-ia@nouvet.com.br -AccessRight RestrictAccess -Description "Agente IA Nouvet - so calendarios de agenda"
-   Test-ApplicationAccessPolicy -Identity <qualquer-caixa-fora-do-grupo> -AppId <client-id>   # esperado: Denied
+   # 1) escopo de gerenciamento apontando para o grupo das caixas de agenda
+   New-ManagementScope -Name "Agendas IA Nouvet" `
+     -RecipientRestrictionFilter "MemberOfGroup -eq '<DN do grupo agendas-ia>'"
+
+   # 2) objeto de service principal no Exchange, apontando para o app do Entra
+   New-ServicePrincipal -AppId <client-id> -ObjectId <object-id-do-service-principal>
+
+   # 3) atribuição de papel restrita ao escopo
+   New-ManagementRoleAssignment -App <service-principal> `
+     -Role "Application Calendars.ReadWrite" -CustomResourceScope "Agendas IA Nouvet"
+
+   # 4) verificação — deve retornar InScope=False para caixa fora do grupo
+   Test-ServicePrincipalAuthorization -Identity <service-principal> -Resource <caixa-fora-do-grupo>
    ```
+
+   Requer **Organization Management** (quem atribui) e **Exchange Administrator** no Entra. Os nomes exatos de papel devem ser confirmados na documentação corrente no momento da execução.
+
+   > **Ponto a validar no spike, não presumir:** há relato na comunidade de que escopos de gerenciamento do Exchange não se aplicariam a permissões de aplicação do Microsoft Graph, e de que a Application Access Policy seria o único mecanismo efetivo para Graph — contrariando a documentação oficial. **Se `Test-ServicePrincipalAuthorization` indicar restrição mas a chamada real do Graph acessar uma caixa fora do grupo, a restrição não está valendo** — e aí a Application Access Policy volta como alternativa, assumida como dívida técnica. O spike precisa testar o acesso real, não só o cmdlet de verificação.
 6. **Caixas de agenda** (*room/equipment mailbox*, sem licença), **uma por recurso** — a lista real saiu do SimplesVet: ~20 recursos ativos por dia, entre consultórios (`Consult.1 - Dr Jorge`, `Consult.2 - Dr Pedro`, `Consult.3 - Fisioterapia`, `Consul.4 - Especialistas`, `Consult onc-1/2`), salas (`Sala de Infusão`, `Sala de Acompanhamento Família`), imagem (`Imagem1 Usg/Rx/Tomo`, `Imagem2 Rx/Tomog`), `Laboratório`, `Anestesia`, `Cirurgia`, `Transporte` — mais as agendas nominais de ~35 pessoas. Nome padrão `Agenda - <Recurso>`, e-mail `agenda.<slug>@nouvet.com.br`, fuso `America/Sao_Paulo`. A lista final vem do levantamento do SimplesVet; **para o spike, criar hoje uma só**: `agenda.teste.ia@nouvet.com.br`, adicionada ao grupo.
 7. Cada profissional recebe **permissão de leitura/edição** no calendário da própria caixa de agenda (para ver no Outlook do celular) — `Add-MailboxFolderPermission` ou compartilhamento pelo Outlook.
 
@@ -42,7 +58,7 @@ Login da aplicação web (métricas, escalas, config) com conta Microsoft do Nou
 |---|---|
 | Sem Exchange Online no domínio (Q1 = não) | Licenciar **N contas "agenda"** com Microsoft 365 Business Basic (menor custo) só para os calendários; ou reavaliar Google Calendar se o e-mail do Nouvet for Google. Decisão de produto, não técnica. |
 | Profissionais sem caixa própria (Q2 = não) | Caixas compartilhadas (§2.6) — é o cenário ideal mesmo assim. |
-| Sem Exchange Admin para a Access Policy (Q4) | Aceitar temporariamente `Calendars.ReadWrite` sem restrição de escopo, com secret sob custódia estrita e rotação curta; **não recomendado para produção** — agendar a policy antes do go-live. |
+| Sem quem configure o RBAC for Applications (Q4) | Aceitar temporariamente `Calendars.ReadWrite` sem restrição de escopo, com credencial sob custódia estrita e rotação curta; **não recomendado para produção** — restringir o escopo antes do go-live. |
 | Certificado inviável (Q5) | Client secret com validade 6 meses + lembrete de rotação no calendário da Btech. |
 | Bookings disponível (Q6 = sim) | Avaliar no spike **Microsoft Bookings via Graph** (`bookingBusinesses`, staff, services, availability): já modela serviços, durações, equipe e disponibilidade com UI da Microsoft para o Nouvet editar. Limite conhecido: disponibilidade de equipe é semanal — escala rotativa 24h encaixa mal. Só vale se a escala do SimplesVet for majoritariamente semanal fixa. |
 
@@ -61,6 +77,6 @@ Precisamos saber se o cliente compareceu, para medir redução de faltas. Verifi
 
 ## 5. O que a Btech devolve depois do spike (2 dias)
 
-- Prova: autenticou com o app, listou `calendarView` da `agenda.teste.ia`, criou e cancelou um evento, `Test-ApplicationAccessPolicy` negando caixa fora do grupo, **e recebeu uma notificação de webhook ao marcar o evento com categoria**.
+- Prova: autenticou com o app, listou `calendarView` da `agenda.teste.ia`, criou e cancelou um evento, **tentou de fato ler uma caixa fora do grupo e recebeu negativa do Graph** (não apenas o cmdlet de verificação), e recebeu notificação de webhook ao marcar o evento com categoria.
 - Decisão registrada: caixa pessoal vs compartilhada; Bookings sim/não.
 - Doc de operação para o suporte da Btech: como criar uma nova caixa de agenda e incluí-la no grupo quando entrar um profissional novo.
