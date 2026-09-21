@@ -5,10 +5,20 @@ numérica por papel no fluxo (Design Paradigm, `ARCHITECTURE-SPINE.md`), reaprov
 o padrão já validado em `_bmad-output/reference/modelo-n8n/secretariav3-completo/`:
 
 - `00 - Configurações.json` — setup/config inicial
-- `01 - Agente.json` — raciocínio do agente (Recepcionista IA / Agente de Setor, mesmo
-  nó); sem webhook próprio — é um sub-workflow chamado via `executeWorkflowTrigger`
+- `01 - Agente.json` — raciocínio do agente; sem webhook próprio — é um sub-workflow
+  chamado via `executeWorkflowTrigger`
   ("Receber Turno") recebendo só `contact_id`, `telefone` e `mensagem_agregada`
-  (`AD-20`); quem o chama hoje é `07 - Ingresso e Fila.json`
+  (`AD-20`); quem o chama hoje é `07 - Ingresso e Fila.json`. Desde a Story 1.3, o
+  `Agente Nouvet` não tem nenhuma ferramenta (`ai_tool`) conectada — identidade, tom e
+  apresentação única (por telefone/nome, via `Memory`) são a única resposta desta fase;
+  triagem por setor, catálogo, emergência e transferência (`02`–`04`, arquivos intactos
+  no disco) voltam redesenhados em stories futuras (1.8–1.10). As 3 consultas Postgres
+  da fase (`Buscar Config`/`Normalizar telefone`/`Buscar Identidade`), o node `Info`
+  (também pode falhar ao dereferenciar o retorno delas) e o próprio node `Agente
+  Nouvet` têm `onError: continueErrorOutput`, convergindo para `Registrar Falha`
+  (grava em `atendimento_falha_registro`, migration `0015`) e `Montar Mensagem de
+  Falha` — leaf que devolve `output` com mensagem honesta, mesmo contrato que `Enviar
+  resposta RD Conversas` (`07`) já consome no caminho de sucesso.
 - `07 - Ingresso e Fila.json` — camada de ingresso (`AD-20`): recebe o webhook do RD
   Conversas/Tallos, enfileira toda mensagem em `n8n_fila_mensagens` antes de qualquer
   outro processamento, trava a conversa (lock com TTL), agrega mensagens picadas em um

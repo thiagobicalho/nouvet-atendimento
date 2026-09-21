@@ -113,3 +113,14 @@ futura explícita de descomissionamento). `GRANT` só a `identidade_role`. Chave
 upsert do importador é o código de origem do SimplesVet (`simplesvet_codigo_pessoa`/
 `simplesvet_codigo_animal`), nunca casamento por nome; ambos únicos porém nullable,
 para acomodar tutores/pets futuros sem origem SimplesVet (Story 1.7).
+
+A `0015` entrega `atendimento_falha_registro` (Story 1.3, NFR-4/AD-31): tabela
+append-only (sem `UPDATE`/`DELETE` concedido) que grava um evento sempre que uma das 3
+consultas Postgres da fase de resposta base (`Buscar Config`, `Normalizar telefone`,
+`Buscar Identidade`) ou o próprio node `Agente Nouvet` falha em `n8n/workflows/01 -
+Agente.json` -- fecha a lacuna de falha silenciosa, junto com `onError:
+continueErrorOutput` novo nesses 4 nodes e os 2 nodes novos `Registrar Falha`/`Montar
+Mensagem de Falha` (leaf que devolve `output` com mensagem honesta, mesmo contrato de
+`$json.output` que `07 - Ingresso e Fila.json` já consome no caminho de sucesso).
+`GRANT` só a `app_role` (papel da credencial "Nouvet" usada por `01 - Agente.json`) --
+nunca `identidade_role`.

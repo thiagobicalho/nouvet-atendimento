@@ -782,3 +782,35 @@ source_spec: `spec-1-2-a-mensagem-chega-e-nao-se-perde.md`
 severity: medium
 reason: Limitação de ambiente pré-existente e já registrada informalmente (party-mode, Murat: "zero harness de teste pros workflows"), não introduzida por esta story; aplica-se aos dois defeitos corrigidos aqui (vírgula no Postgres e falta de executeOnce) e ao novo loop de reconferência — nenhum dos três tem uma execução real comprovando o comportamento, só inspeção de código/estrutura.
 status: open
+
+### DW-97: `Memory` usa `contextWindowLength: 50`; uma conversa muito longa pode deixar a apresentação original fora da janela, arriscando repeti-la.
+origin: spec-deferred 25576ebef045
+location: n8n/workflows/01 - Agente.json (node Memory)
+source_spec: `spec-1-3-a-nouvi-responde.md`
+severity: low
+reason: Comportamento pré-existente do node `Memory` (config não alterada por esta story) -- a regra de "apresentação única" desta story depende inteiramente do histórico injetado por ele, sem contador/flag explícito.
+status: open
+
+### DW-98: A regra de emoji 🐾 desta story ("duas situações", UX-DR14) diverge do design de conversa, que mostra um terceiro uso (pedido de feedback pós-atendimento).
+origin: spec-deferred 0634a133974e
+location: _bmad-output/planning-artifacts/design-conversa/2026-09-18-design-de-conversa-onda1.md vs. epics.md UX-DR14
+source_spec: `spec-1-3-a-nouvi-responde.md`
+severity: low
+reason: `_bmad-output/planning-artifacts/design-conversa/2026-09-18-design-de-conversa-onda1.md` usa 🐾 numa mensagem de feedback pós-serviço, fora das duas situações que `epics.md`/UX-DR14 (fonte canônica citada pela AC desta story) definem. Divergência pré-existente entre dois documentos de planejamento, não introduzida por esta story -- o prompt novo segue a fonte canônica (UX-DR14) à risca.
+status: open
+
+### DW-99: `Registrar Falha` tem `onError: continueRegularOutput`; se a própria gravação de log falhar (ex. Postgres totalmente indisponível), essa falha específica não deixa rastro algum.
+origin: spec-deferred 6cd377f80511
+location: n8n/workflows/01 - Agente.json (node Registrar Falha)
+source_spec: `spec-1-3-a-nouvi-responde.md`
+severity: low
+reason: Falha composta (a consulta original falha E a gravação em `atendimento_falha_registro` também falha) não é coberta -- o cliente ainda recebe a mensagem de fallback (`Montar Mensagem de Falha` sempre executa), mas a alegação implícita de "equipe avisada" fica sem registro nesse caso específico.
+status: open
+
+### DW-100: `atendimento_falha_registro` não tem coluna identificando qual dos pontos de falha (`Buscar Config`/`Normalizar telefone`/`Buscar Identidade`/`Info`/`Agente Nouvet`) gerou a linha -- só o texto livre
+origin: spec-deferred f23634cca2d0
+location: n8n/migrations/0015_atendimento_falha_registro.sql
+source_spec: `spec-1-3-a-nouvi-responde.md`
+severity: low
+reason: Os 5 pontos de falha convergem num único node `Registrar Falha`; diferenciar a origem exigiria um node de marcação por branch, não fiz por manter o grafo simples nesta story -- o texto de `erro` já carrega pista suficiente na maioria dos casos (erro de SQL vs. erro de modelo têm formatos bem diferentes).
+status: open
