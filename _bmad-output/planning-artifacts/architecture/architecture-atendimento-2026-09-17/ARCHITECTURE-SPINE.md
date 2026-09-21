@@ -180,6 +180,12 @@ Vindos da espinha do Piloto, **binding e read-only** — não re-derivar:
 - **Prevents:** os modos de falha novos são todos **silenciosos e indistinguíveis de operação normal**: assinatura do Graph expirada parece "ninguém marcou categoria"; notificação descartada por não responder em três segundos some sem rastro; template rejeitado só aparece no painel; escrita no CRM é *fire-and-forget* por desenho
 - **Rule:** todo mecanismo que pode falhar sem produzir erro visível carrega um **sinal de vitalidade** — última notificação recebida por caixa, validade de cada assinatura, idade do último fato de comparecimento. **Ausência prolongada de sinal é alarme**, não silêncio aceito. Nenhum indicador apresenta número sem apresentar também sua **cobertura**: "70% de comparecimento sobre 40% dos agendamentos medidos" é honesto; "70% de comparecimento" é mentira por omissão.
 
+### AD-32 — Escopo de autorização é o tutor, não o telefone [ADOPTED]
+
+- **Binds:** FR-1, FR-17, FR-17a, FR-17b, FR-33, NFR-6
+- **Prevents:** duas divergências que nascem juntas. (a) A ferramenta de cancelar e a de consultar poderiam escopar diferente — uma por telefone, outra por pet — e um número desconhecido que cite o nome do pet obteria confirmação de que o agendamento existe. (b) Pior: o agente, sendo prestativo, **confirma rotina alheia** — *"o banho do Bidu é amanhã às 10h"* dito a quem não é o tutor expõe o horário em que uma casa fica vazia. Nenhum `AD` anterior impedia isso
+- **Rule:** o telefone da conversa resolve para **um tutor** (`identidade_tutor.telefones`, que é lista). **Toda leitura e toda escrita sobre agendamento são escopadas a esse tutor** — a mesma regra vale para cancelar, remarcar, consultar e mencionar. O agente **nunca confirma nem nega** a existência de agendamento fora desse escopo: responde que não localizou agendamento naquele número e oferece os dois caminhos legítimos. Telefone que não resolve para tutor algum, ou que resolve para mais de um, é tratado como **não autorizado** — o padrão seguro é recusar, nunca adivinhar. **O agente nunca acrescenta telefone a um cadastro**: vincular número é ação de humano ou de número já autorizado, porque um número não verificado pedindo para ser incluído é exatamente o formato de um ataque de engenharia social.
+
 ### Diagrama de dependência
 
 ```mermaid
@@ -287,9 +293,9 @@ O endpoint de webhook do Graph precisa ser HTTPS público e alcançável a parti
 
 | PRD | Sustentado por |
 | --- | --- |
-| Identificação e contexto (FR-1–FR-5a) | `AD-11`, `AD-15`, `AD-8` |
+| Identificação e contexto (FR-1–FR-5a) | `AD-11`, `AD-15`, `AD-8`, `AD-32` |
 | Entendimento do pedido (FR-6–FR-9) | `AD-1`, `AD-5`, `AD-19` |
-| Disponibilidade e agendamento (FR-10–FR-17) | `AD-12`, `AD-13`, `AD-14`, `AD-25`, `AD-26`, `AD-27`, `AD-28` |
+| Disponibilidade e agendamento (FR-10–FR-17b) | `AD-12`, `AD-13`, `AD-14`, `AD-25`, `AD-26`, `AD-27`, `AD-28`, `AD-32` |
 | Preço (FR-18–FR-20) | `AD-18`, `AD-1` |
 | Lembrete e confirmação (FR-21–FR-24) | `AD-17`, `AD-16`, `AD-24`, `AD-29` |
 | Transporte (FR-25–FR-26) | `AD-19` (registra, não agenda) |

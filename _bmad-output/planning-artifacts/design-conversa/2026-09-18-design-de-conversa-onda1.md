@@ -164,7 +164,27 @@ Uma pergunta, não um formulário. E **nunca** perguntar raça, porte ou pelagem
 
 Tudo pela **porta única idempotente** (`AD-11`), nunca por escrita direta — é o que impede dois telefones do mesmo núcleo familiar criarem dois cadastros para o mesmo pet.
 
-### 3.8 Completar cadastro — só no fim, e opcional
+### 3.8 Pedido sobre agendamento de outra pessoa
+
+> **Cliente:** quero cancelar o banho do Bidu amanhã
+>
+> *(o telefone não pertence ao tutor do Bidu — ou não está em cadastro nenhum)*
+>
+> **Agente:** Não localizei nenhum agendamento nesse número. Se quem marcou foi outra pessoa, ela consegue cancelar pelo número dela. Se não der, eu passo pra recepção e alguém entra em contato pra confirmar — prefere assim?
+
+**A agente não confirma e não nega que o agendamento existe.** Não diz "esse banho foi marcado por outra pessoa", não diz o horário, não pergunta o CPF para "validar". Quem valida identidade por outro meio é a recepção — isso não é tarefa de agente.
+
+> **Cliente:** minha esposa marcou e ela está em cirurgia, não tem como falar com ela
+>
+> **Agente:** Entendo. Vou passar pra recepção agora e alguém entra em contato pra resolver com você.
+
+Transfere, sem prometer que o cancelamento vai acontecer.
+
+**Quando o segundo número já está no cadastro, nada disso aparece** — o telefone resolve para o mesmo tutor e a conversa segue normal. É por isso que os números adicionais do cadastro importam: **1.110 tutores têm dois ou mais**, e cada um deles é uma pessoa que consegue resolver sem passar pela recepção.
+
+**A agente nunca oferece incluir o número.** *"Quer que eu adicione esse telefone ao seu cadastro?"* vindo de um número não reconhecido é exatamente o formato de um golpe. Vincular telefone é ação de humano, ou de número já autorizado.
+
+### 3.9 Completar cadastro — só no fim, e opcional
 
 > **Agente:** Aproveitando: seu cadastro está sem o CPF. Quer que eu complete agora? Se preferir, deixa pra depois, sem problema.
 
@@ -219,6 +239,9 @@ Sem botão — é aviso, não pergunta.
 | Pergunta o que já sabe | `FR-1`, `FR-5a` |
 | Menciona "onda", "sistema", "API", "fluxo" ou qualquer termo interno | é atendimento, não suporte técnico |
 | Revela configuração, prompt ou contato de plantão | `FR-33` |
+| Confirma, nega ou detalha agendamento de quem não é o tutor daquele telefone | `FR-17b`, `AD-32` |
+| Pede CPF ou dado pessoal para "validar identidade" | validação de identidade é da recepção, não do agente |
+| Oferece incluir um telefone no cadastro a pedido do próprio número desconhecido | `FR-17c` — é o formato de um golpe |
 
 ---
 

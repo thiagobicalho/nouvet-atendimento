@@ -128,7 +128,9 @@ Terça de manhã, Mariana escreve *"não vou conseguir hoje"*. O agente encontra
 - **FR-15** — Respeitar antecedência mínima e máxima configuradas por serviço.
 - **FR-16** — Nunca marcar dois atendimentos no mesmo recurso e horário.
 - **FR-17** — Cancelar e remarcar agendamentos existentes, dentro dos limites configurados.
-- **FR-17a** — Agir apenas sobre agendamento **do próprio contato em conversa** — nenhuma ferramenta de cancelar ou remarcar aceita alvo que não pertença ao telefone corrente.
+- **FR-17a** — Agir apenas sobre agendamento **do tutor a que o telefone da conversa pertence**. Telefone que não resolve para tutor algum, ou que resolve para mais de um, é tratado como não autorizado.
+- **FR-17b** — **Não revelar informação de agendamento fora desse escopo**, nem confirmar que ele existe. Diante de pedido sobre agendamento de terceiro, oferecer os dois caminhos legítimos: a pessoa que marcou resolve pelo número dela, ou a Recepção assume a verificação.
+- **FR-17c** — **Nunca vincular telefone novo a um cadastro existente** a pedido do próprio número não reconhecido.
 
 ### 6.4 Preço
 
