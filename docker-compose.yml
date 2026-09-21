@@ -61,6 +61,35 @@ services:
       timeout: 5s
       retries: 10
 
+  # Importador standalone do export SimplesVet (Story 1.1, AD-15) -- roda só sob
+  # demanda via `docker compose run --rm importer`, nunca com `docker compose up`
+  # default (profiles abaixo) e nunca como rotina periódica/agendada (Never). Mesma
+  # rede compose que `postgres` (sem porta publicada ao host) para alcançar
+  # `postgres:5432` direto, sem exigir serviço/rede extra.
+  importer:
+    build: ./import
+    profiles: ["tools"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_APP_DB: ${POSTGRES_APP_DB:-nouvet_app}
+      # Credencial de identidade_role já existente (0001/0014) -- reusada, nunca uma
+      # senha nova (Code Map: ".env.example -- ... reusar sem criar variável de senha
+      # nova").
+      POSTGRES_IDENTIDADE_ROLE_PASSWORD: ${POSTGRES_IDENTIDADE_ROLE_PASSWORD:?defina POSTGRES_IDENTIDADE_ROLE_PASSWORD no .env}
+      # Caminho fixo dentro do container -- não é o mesmo valor de
+      # SIMPLESVET_EXPORT_HOST_DIR (abaixo): esta é a variável que importador/main.py
+      # lê, sempre "/export" aqui dentro; o caminho real no host é outra variável, só
+      # usada pelo bind mount, nunca do repo (NFR-6).
+      SIMPLESVET_EXPORT_DIR: /export
+    volumes:
+      # Export do SimplesVet montado só-leitura a partir de um caminho no host (fora
+      # do repositório) -- nunca copiado para dentro da imagem/repo (NFR-6).
+      - ${SIMPLESVET_EXPORT_HOST_DIR:?defina SIMPLESVET_EXPORT_HOST_DIR no .env com o caminho do export no host}:/export:ro
+
 volumes:
   postgres_data:
   n8n_data:

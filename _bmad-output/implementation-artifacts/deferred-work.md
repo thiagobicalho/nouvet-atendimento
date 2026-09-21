@@ -702,3 +702,27 @@ source_spec: `15-cap-11-indicadores-e-visibilidade-gerencial.md`
 severity: low
 reason: The follow-up-review damping cap (limits.max_followup_reviews = 1) was spent with the story finalized (status: done, verify green, 1 high finding already patched — ROUND(double precision) cast) while the review pass still recommended an independent follow-up. The work was committed manually (commit 0600e81) after the dev/review session was interrupted by host memory pressure and required manual tmux recovery (bmad-loop run 20260905-181002-7f8d). This entry preserves the lingering recommendation for a deliberate later review — same pattern as DW-74 (story 11).
 status: open
+
+### DW-87: Nenhum lock consultivo impede duas execuções manuais concorrentes do importador contra o mesmo Postgres.
+origin: spec-deferred dd5df9157a7d
+location: import/importador/main.py
+source_spec: `spec-1-1-a-base-de-quem-ja-e-cliente.md`
+severity: low
+reason: O "Never" da story proíbe rotina periódica/agendada, mas nada impede dois operadores rodarem `docker compose run --rm importer` ao mesmo tempo — os UPSERTs são idempotentes individualmente, mas não há garantia de isolamento entre duas execuções completas simultâneas.
+status: open
+
+### DW-88: O import não deixa rastro persistido além de stdout/log (quando rodou, quais contagens).
+origin: spec-deferred 7c2fe6128a20
+location: import/importador/main.py
+source_spec: `spec-1-1-a-base-de-quem-ja-e-cliente.md`
+severity: low
+reason: Útil para auditoria futura, mas não é exigido por nenhuma AC desta story; infraestrutura compartilhada torna isso mais relevante a médio prazo.
+status: open
+
+### DW-89: import/tests/ não roda em nenhuma automação de CI.
+origin: spec-deferred cbe33494fb4c
+location: n/a
+source_spec: `spec-1-1-a-base-de-quem-ja-e-cliente.md`
+severity: low
+reason: Não há CI configurado no repositório hoje — gap pré-existente, só incidentalmente exposto por esta story ao adicionar o primeiro pacote de testes Python do projeto.
+status: open

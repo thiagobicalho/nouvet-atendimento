@@ -1,0 +1,14 @@
+{
+  "actions": [
+    "Aplicar a migration n8n/migrations/0014_identidade_tutor_pet.sql no Postgres real via `docker compose exec -T postgres psql -v ON_ERROR_STOP=1 --username \"$POSTGRES_SUPERUSER\" --dbname \"$POSTGRES_APP_DB\" < n8n/migrations/0014_identidade_tutor_pet.sql` (comando documentado em import/README.md) \u2014 docker-entrypoint-initdb.d s\u00f3 roda na primeira inicializa\u00e7\u00e3o do volume, ent\u00e3o o arquivo presente sozinho n\u00e3o basta.",
+    "Definir SIMPLESVET_EXPORT_HOST_DIR no .env do host com o caminho (fora do reposit\u00f3rio) para um diret\u00f3rio contendo o export real do SimplesVet (glo_pessoa.csv, glo_contato.csv, vet_animal.csv).",
+    "Rodar `docker compose run --rm importer` contra o export real e conferir o relat\u00f3rio de cobertura impresso ao final (contagem absoluta + fra\u00e7\u00e3o por tutor/pet/telefone/registros descartados).",
+    "Rodar `docker compose run --rm importer` uma segunda vez sobre o mesmo export (ou um export mais novo) e confirmar em identidade_tutor/identidade_pet/identidade_telefone que nenhum registro duplicou e nenhum campo foi sobrescrito indevidamente \u2014 valida a AC de re-execu\u00e7\u00e3o idempotente que este ambiente de build n\u00e3o tem como testar sem Postgres real.",
+    "Depois do import rodar contra dado real, consultar identidade_telefone em busca de algum telefone com mais de um tutor_id distinto e confirmar que ambos os v\u00ednculos foram gravados, nenhum resolvido a um tutor arbitr\u00e1rio \u2014 valida a AC de telefone amb\u00edguo, que depende de dado real para ocorrer.",
+    "Decidir com o Thiago quando identidade_cliente_pet (tabela antiga do Piloto, ainda referenciada pelos workflows n8n `01 - Agente`/`04 - Registrar Atendimento CRM` marcados active:true em 21/09/2026) pode ser descomissionada \u2014 esta story deliberadamente n\u00e3o alterou nem removeu essa tabela."
+  ],
+  "parked_at": "2026-09-21",
+  "run_id": "20260921-112422-e88f",
+  "spec_file": "_bmad-output/implementation-artifacts/spec-1-1-a-base-de-quem-ja-e-cliente.md",
+  "story_key": "1-1-a-base-de-quem-j\u00e1-\u00e9-cliente"
+}

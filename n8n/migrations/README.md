@@ -101,3 +101,15 @@ de SLA no deal, chamada por `04` e pelo cron `06`) e por
 independente do `Agente Nouvet`, varre sessões `aguardando_cliente` vencidas e Tasks de
 SLA `status:open` vencidas, reconferindo ao vivo a resolução antes de disparar
 lembrete/escalonamento, AD-1).
+
+A `0014` entrega a base própria de identidade (Story 1.1, `AD-15`/`AD-3`):
+`identidade_tutor`, `identidade_telefone` (tabela filha, `UNIQUE (tutor_id, telefone)`
+— não array, para permitir duas linhas legítimas quando o mesmo telefone aparece em
+mais de um tutor) e `identidade_pet`, carregadas pelo importador standalone do export
+SimplesVet (`import/`, fora do n8n). Só cria tabelas novas — nunca `DROP`/`ALTER` em
+`identidade_cliente_pet` (`0003`/`0009`), que segue alimentando os workflows do Piloto
+ainda `active: true` na instância n8n real (coexistência, não substituição, até decisão
+futura explícita de descomissionamento). `GRANT` só a `identidade_role`. Chave de
+upsert do importador é o código de origem do SimplesVet (`simplesvet_codigo_pessoa`/
+`simplesvet_codigo_animal`), nunca casamento por nome; ambos únicos porém nullable,
+para acomodar tutores/pets futuros sem origem SimplesVet (Story 1.7).
