@@ -1,0 +1,73 @@
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created, ready for development
+#   - in-progress: Developer actively working on implementation
+#   - review: Implementation complete, ready for review
+#   - done: Story completed
+
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+
+# Action Item Status:
+#   - open: Committed during a retrospective, not yet addressed
+#   - in-progress: Actively being worked on
+#   - done: Completed
+
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when its first story starts (via build's sprint sync)
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates the next story after the previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+# - Retrospective appends its action items to action_items; the status view surfaces open ones
+generated: 09-21-2026 10:01
+last_updated: 09-21-2026 10:01
+project: atendimento
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+development_status:
+  epic-1: backlog
+  1-1-a-base-de-quem-já-é-cliente: backlog
+  1-2-a-mensagem-chega-e-não-se-perde: backlog
+  1-3-a-nouvi-responde: backlog
+  1-4-uma-segunda-porta-para-poder-testar: backlog
+  1-5-a-nouvi-sabe-quem-está-falando: backlog
+  1-6-preferências-que-não-se-perguntam-duas-vezes: backlog
+  1-7-a-nouvi-cadastra-quem-ainda-não-é-cliente: backlog
+  1-8-a-nouvi-entende-o-que-o-cliente-quer: backlog
+  1-9-a-nouvi-reconhece-emergência: backlog
+  1-10-a-nouvi-transfere-e-fica-quieta: backlog
+  1-11-a-nouvi-não-pode-ser-virada-do-avesso: backlog
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-as-três-agendas-existem-na-microsoft: backlog
+  2-2-recursos-escala-e-quem-faz-o-quê: backlog
+  2-3-a-nouvi-sabe-quais-horários-existem-de-verdade: backlog
+  2-4-a-nouvi-marca-e-confirma: backlog
+  2-5-a-nouvi-informa-o-valor: backlog
+  2-6-o-agendamento-aparece-no-crm: backlog
+  2-7-leva-e-traz-vira-pedido-não-promessa: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-autorização-para-receber-mensagem: backlog
+  3-2-templates-aprovados-e-o-que-cada-mensagem-custa: backlog
+  3-3-lembrete-na-hora-certa-e-o-que-não-se-manda: backlog
+  3-4-o-cliente-confirma-pelo-próprio-lembrete: backlog
+  3-5-cancelar-e-remarcar-só-quem-pode: backlog
+  3-6-comparecimento-vem-do-calendário-não-de-export: backlog
+  3-7-trazer-de-volta-quem-saiu-do-ritmo: backlog
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  epic-4-retrospective: optional

@@ -288,6 +288,10 @@ As a Btech, operando o produto,
 I want carregar tutores, pets, telefones e preferências do export do SimplesVet para o domínio próprio,
 So that a Nouvi reconheça quem escreve em vez de tratar todo cliente antigo como desconhecido.
 
+> **Mecanismo.** É um programa executável sob demanda (`import/`, `AD-15`), **não um fluxo n8n**: o container do n8n não tem volume montado para o export, e rodar por `n8n_role` violaria o privilégio mínimo do `AD-3` — importação toca dado pessoal permanente, que é escopo exclusivo de `identidade_role`. O programa conecta direto no Postgres com `identidade_role`, lê os CSVs de onde o export estiver colocado no disco, e é seguro re-executar. Não gera arquivo intermediário para carga manual.
+>
+> **Não é greenfield.** O Piloto já criou `identidade_cliente_pet` (`n8n/migrations/0003`) — uma tabela única, com `origem` por registro. A espinha nova pede duas tabelas (`identidade_tutor`, `identidade_pet`) com `origem` por campo do pet. Esta story decide como migrar — alterar e dividir a existente, ou criar as novas e aposentar a antiga — registrando a escolha como migration numerada seguinte (`0014+`), não reescrevendo as anteriores.
+
 **Acceptance Criteria:**
 
 **Given** o export do SimplesVet disponível no ambiente
