@@ -726,3 +726,59 @@ source_spec: `spec-1-1-a-base-de-quem-ja-e-cliente.md`
 severity: low
 reason: Não há CI configurado no repositório hoje — gap pré-existente, só incidentalmente exposto por esta story ao adicionar o primeiro pacote de testes Python do projeto.
 status: open
+
+### DW-90: A janela de corrida entre reconferir a fila e liberar o lock não é atômica (dois statements Postgres sequenciais, não uma única função).
+origin: spec-deferred 272d056064ff
+location: n8n/workflows/07 - Ingresso e Fila.json (Buscar mensagens pendentes / Liberar Lock)
+source_spec: `spec-1-2-a-mensagem-chega-e-nao-se-perde.md`
+severity: low
+reason: `Buscar mensagens pendentes` (SELECT) e `Liberar Lock` (UPDATE via lock_conversa_liberar) são duas chamadas separadas em `07 - Ingresso e Fila.json`. Uma mensagem inserida exatamente entre as duas ainda pode ficar sem execução agendada para buscá-la — a story reduz a janela de "toda a espera + processamento" (bug original) para o intervalo entre dois statements sequenciais, mas não a fecha por completo. Fechar de verdade exigiria uma função Postgres nova (ex. `lock_conversa_liberar_se_vazio`), fora do escopo desta story.
+status: open
+
+### DW-91: O loop de reconferência de pendências não tem limite de iterações nem timeout.
+origin: spec-deferred e975505b61c2
+location: n8n/workflows/07 - Ingresso e Fila.json (Há mensagens pendentes? -> Esperar)
+source_spec: `spec-1-2-a-mensagem-chega-e-nao-se-perde.md`
+severity: medium
+reason: Um cliente que mande mensagens continuamente mais rápido que a janela de 8s do `Esperar` fecha mantém a mesma execução em loop indefinidamente, seguindo o lock aberto sem corte. Definir um teto e o que fazer ao atingi-lo (responder e encerrar? escalar?) é decisão de produto, não um patch trivial.
+status: open
+
+### DW-92: Nem `Chamar Agente Nouvet` nem `Enviar resposta RD Conversas` têm onError/retry; falha em qualquer um deixa o lock preso até o TTL expirar, sem alerta.
+origin: spec-deferred 97a125d768ac
+location: n8n/workflows/07 - Ingresso e Fila.json (Chamar Agente Nouvet / Enviar resposta RD Conversas)
+source_spec: `spec-1-2-a-mensagem-chega-e-nao-se-perde.md`
+severity: medium
+reason: Comportamento pré-existente (o `01 - Agente.json` original também não tinha onError nesse trecho) só realocado, não introduzido por esta story. Mesma classe do DW-52 já registrado (falta de onError/retryOnFail em chamada à API Tallos).
+status: open
+
+### DW-93: Fila e lock são chaveados pelo telefone bruto (não normalizado), enquanto a identidade usa o telefone normalizado — os dois podem divergir de formatação.
+origin: spec-deferred f97c7517aa9f
+location: n8n/workflows/07 - Ingresso e Fila.json (Enfileirar mensagem / Adquirir Lock / Liberar Lock)
+source_spec: `spec-1-2-a-mensagem-chega-e-nao-se-perde.md`
+severity: low
+reason: Comportamento pré-existente, só realocado de `01` para `07`. Divergência de formatação do mesmo número entre mensagens poderia, em tese, fazer debounce/lock tratarem duas mensagens do mesmo cliente como sessões diferentes.
+status: open
+
+### DW-94: `Enviar resposta RD Conversas` consome `$json.output` sem checar presença/formato.
+origin: spec-deferred cdc8ccf4f6bf
+location: n8n/workflows/07 - Ingresso e Fila.json (Enviar resposta RD Conversas)
+source_spec: `spec-1-2-a-mensagem-chega-e-nao-se-perde.md`
+severity: medium
+reason: Pré-existente (mesma leitura direta já existia no `01 - Agente.json` original). Se `Agente Nouvet` (ou uma falha no meio do caminho) não produzir `output`, o cliente pode receber texto vazio/"undefined" pelo RD Conversas.
+status: open
+
+### DW-95: `id_mensagem` pode ficar nulo se nenhum dos campos de fallback do payload existir, quebrando o dedup por `ON CONFLICT (id_mensagem)`.
+origin: spec-deferred f1e24045daac
+location: n8n/workflows/07 - Ingresso e Fila.json (Extrair dados da mensagem)
+source_spec: `spec-1-2-a-mensagem-chega-e-nao-se-perde.md`
+severity: medium
+reason: Pré-existente em `Extrair dados da mensagem` (cadeia `message_id || id || uuid`), só realocada para `07`, não alterada por esta story.
+status: open
+
+### DW-96: Não existe harness de teste de execução real para workflows n8n neste repositório (nem para esta story, nem para nenhuma anterior) — toda verificação aqui é estrutural (JSON válido, topologia via MCP)
+origin: spec-deferred 9ac2d7241359
+location: n8n/workflows/ (todos os workflows)
+source_spec: `spec-1-2-a-mensagem-chega-e-nao-se-perde.md`
+severity: medium
+reason: Limitação de ambiente pré-existente e já registrada informalmente (party-mode, Murat: "zero harness de teste pros workflows"), não introduzida por esta story; aplica-se aos dois defeitos corrigidos aqui (vírgula no Postgres e falta de executeOnce) e ao novo loop de reconferência — nenhum dos três tem uma execução real comprovando o comportamento, só inspeção de código/estrutura.
+status: open

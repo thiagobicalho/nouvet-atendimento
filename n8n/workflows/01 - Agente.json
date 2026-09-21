@@ -3,104 +3,28 @@
   "nodes": [
     {
       "parameters": {
-        "httpMethod": "POST",
-        "path": "atendimento-nouvet-recepcao",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2.1,
-      "position": [
-        3664,
-        1968
-      ],
-      "id": "c35c6719-498d-4246-9c6d-cb07c446d181",
-      "name": "Mensagem recebida",
-      "webhookId": "60d6af6c-599a-4e10-a5e7-79b05ce8cd13"
-    },
-    {
-      "parameters": {
-        "content": "## Payload do webhook (RD Conversas / Tallos)\n\nO schema exato do payload de mensagem recebida do RD Conversas não é documentado como contrato formal (ver skill rd-station-api, só o formato de ENVIO é documentado). Os campos extraídos no node \"Extrair dados da mensagem\" logo abaixo são um mapeamento razoável a validar contra o payload real na VPS de dev antes do go-live (mesmo tratamento de dado externo ainda não confirmado já usado nas Stories 1-4).\n\n**Story 9 (CAP-5):** o campo `mensagem` também embute um marcador `[Anexo recebido: <url>]` quando o payload indicar um anexo do tipo documento -- cadeia de fallback best-effort sobre `attachment?.type`/`type` (tipo) e `attachment?.url`/`attach`/`file_url`/`document?.url` (url), mesma classe de suposição a validar contra o payload real na VPS de dev antes do go-live. Foto/áudio não geram marcador (fallback genérico de Casos Especiais, inalterado).",
-        "height": 260,
-        "width": 380
-      },
-      "type": "n8n-nodes-base.stickyNote",
-      "typeVersion": 1,
-      "position": [
-        3952,
-        1696
-      ],
-      "id": "0c171fc5-baf6-48fd-8571-445df13aa854",
-      "name": "Sticky Note - Payload do webhook"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
+        "workflowInputs": {
+          "values": [
             {
-              "id": "61e1f0e1-0b22-4f86-96c9-779adcf7e8c5",
-              "name": "contact_id",
-              "value": "={{ $json.body.contact?.id || $json.body.contact_id || $json.body.id }}",
-              "type": "string"
+              "name": "contact_id"
             },
             {
-              "id": "58711e8a-1c3f-4126-ba96-fbf0c4876dc3",
-              "name": "telefone",
-              "value": "={{ $json.body.contact?.cel_phone || $json.body.contact?.phone || $json.body.phone || $json.body.from }}",
-              "type": "string"
+              "name": "telefone"
             },
             {
-              "id": "84b7fa31-bc86-4a75-9b6d-0c652595000c",
-              "name": "mensagem",
-              "value": "={{ (() => { const b = $json.body; const msg = b.message || b.content || b.text || '<mensagem sem texto reconhecido>'; const tipo = (b.attachment?.type || b.document?.type || b.type || '').toLowerCase(); const url = b.attachment?.url || b.attach || b.file_url || b.document?.url; const ehDocumento = url && (tipo === 'document' || tipo === 'file' || tipo === 'pdf'); return ehDocumento ? msg + ' [Anexo recebido: ' + url + ']' : msg; })() }}",
-              "type": "string"
-            },
-            {
-              "id": "45a14cd3-645e-4d9c-ae72-8efca097e311",
-              "name": "id_mensagem",
-              "value": "={{ $json.body.message_id || $json.body.id || $json.body.uuid }}",
-              "type": "string"
-            },
-            {
-              "id": "bab1fa7d-2593-4a53-aa6b-5ff674487ae2",
-              "name": "timestamp",
-              "value": "={{ $json.body.timestamp ? new Date($json.body.timestamp).toISOString() : $now.toISO() }}",
-              "type": "string"
+              "name": "mensagem_agregada"
             }
           ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        4224,
-        1968
-      ],
-      "id": "a8572945-aa0c-4045-abca-2f80109cfdc3",
-      "name": "Extrair dados da mensagem"
-    },
-    {
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "INSERT INTO n8n_fila_mensagens (id_mensagem, telefone, mensagem, \"timestamp\")\nVALUES ($1, $2, $3, $4::timestamp)\nON CONFLICT (id_mensagem) DO NOTHING",
-        "options": {
-          "queryReplacement": "={{ $json.id_mensagem }},{{ $json.telefone }},{{ $json.mensagem }},{{ $json.timestamp }}"
         }
       },
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.6,
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
       "position": [
-        4432,
+        5536,
         1968
       ],
-      "id": "bf5130b9-f448-4777-8111-6694a39d2280",
-      "name": "Enfileirar mensagem",
-      "credentials": {
-        "postgres": {
-          "id": "imw9RKUxjTQ86ZrN",
-          "name": "Nouvet"
-        }
-      }
+      "id": "5c6fbe70-c78f-4881-8c35-e9060cb5da23",
+      "name": "Receber Turno"
     },
     {
       "parameters": {
@@ -111,10 +35,10 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        4656,
+        5760,
         1968
       ],
-      "id": "df786a94-285a-49a8-b406-f9420db33e1a",
+      "id": "dd682ec6-17c1-432a-8445-cae20fe0e6e2",
       "name": "Buscar Config",
       "credentials": {
         "postgres": {
@@ -126,170 +50,9 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT lock_conversa_adquirir($1, $2) AS lock_adquirido",
-        "options": {
-          "queryReplacement": "={{ $('Extrair dados da mensagem').item.json.telefone }},{{ $('Buscar Config').item.json.config.lock_ttl_minutos }}"
-        }
-      },
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.6,
-      "position": [
-        4880,
-        1968
-      ],
-      "id": "6f29d3c2-1f32-45c1-b8e1-e03391420dad",
-      "name": "Adquirir Lock",
-      "credentials": {
-        "postgres": {
-          "id": "imw9RKUxjTQ86ZrN",
-          "name": "Nouvet"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "2ea40d9b-e292-42bd-bf4b-e68fc1481fac",
-              "leftValue": "={{ $json.lock_adquirido }}",
-              "rightValue": true,
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        5104,
-        1968
-      ],
-      "id": "0e4c01bc-5585-4327-9e9e-17c0841db1fc",
-      "name": "Lock adquirido?"
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [
-        5104,
-        2176
-      ],
-      "id": "5818580e-e800-43f2-badc-34e9938c05a8",
-      "name": "Outra execução já está processando"
-    },
-    {
-      "parameters": {
-        "amount": 8
-      },
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
-      "position": [
-        5312,
-        1968
-      ],
-      "id": "cd5b1ef6-839d-482c-be2e-78ae52a643e9",
-      "name": "Esperar",
-      "webhookId": "0e547354-dda1-4c38-b006-cf6d118081e8"
-    },
-    {
-      "parameters": {
-        "operation": "select",
-        "schema": {
-          "__rl": true,
-          "mode": "list",
-          "value": "public"
-        },
-        "table": {
-          "__rl": true,
-          "value": "n8n_fila_mensagens",
-          "mode": "list"
-        },
-        "returnAll": true,
-        "where": {
-          "values": [
-            {
-              "column": "telefone",
-              "value": "={{ $('Extrair dados da mensagem').item.json.telefone }}"
-            },
-            {
-              "column": "processada",
-              "value": false
-            }
-          ]
-        },
-        "sort": {
-          "values": [
-            {
-              "column": "timestamp"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.6,
-      "position": [
-        5536,
-        1968
-      ],
-      "id": "0e75e8d2-2598-4198-855a-22f4dc16348a",
-      "name": "Buscar mensagens",
-      "credentials": {
-        "postgres": {
-          "id": "imw9RKUxjTQ86ZrN",
-          "name": "Nouvet"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "6b8ee690-ae42-4e97-b410-23ffd544ecc8",
-              "name": "mensagem_agregada",
-              "value": "={{ $('Buscar mensagens').all().map(i => i.json.mensagem).join('\\n') }}",
-              "type": "string"
-            },
-            {
-              "id": "6470bf78-9abe-4101-9bae-98a141a3fb1d",
-              "name": "ids_lote",
-              "value": "={{ $('Buscar mensagens').all().map(i => i.json.id) }}",
-              "type": "array"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        5760,
-        1968
-      ],
-      "id": "0d6a586a-da00-4ebc-be66-189f3a0344f8",
-      "name": "Agregar mensagens"
-    },
-    {
-      "parameters": {
-        "operation": "executeQuery",
         "query": "SELECT telefone_normalizar($1) AS telefone_normalizado",
         "options": {
-          "queryReplacement": "={{ $('Extrair dados da mensagem').item.json.telefone }}"
+          "queryReplacement": "={{ $('Receber Turno').item.json.telefone }}"
         }
       },
       "type": "n8n-nodes-base.postgres",
@@ -337,13 +100,13 @@
             {
               "id": "ea120246-8336-40dd-8931-be22bc3e6ccf",
               "name": "contact_id",
-              "value": "={{ $('Extrair dados da mensagem').item.json.contact_id }}",
+              "value": "={{ $('Receber Turno').item.json.contact_id }}",
               "type": "string"
             },
             {
               "id": "b5435553-b3de-4d9d-9ac4-8db334b336fd",
               "name": "telefone",
-              "value": "={{ $('Extrair dados da mensagem').item.json.telefone }}",
+              "value": "={{ $('Receber Turno').item.json.telefone }}",
               "type": "string"
             },
             {
@@ -355,7 +118,7 @@
             {
               "id": "fc1aae94-90b3-4f00-aad9-b6aa7e2c7334",
               "name": "mensagem_agregada",
-              "value": "={{ $('Agregar mensagens').item.json.mensagem_agregada }}",
+              "value": "={{ $('Receber Turno').item.json.mensagem_agregada }}",
               "type": "string"
             },
             {
@@ -505,7 +268,7 @@
     {
       "parameters": {
         "sessionIdType": "customKey",
-        "sessionKey": "={{ $('Extrair dados da mensagem').item.json.telefone }}",
+        "sessionKey": "={{ $('Receber Turno').item.json.telefone }}",
         "tableName": "n8n_historico_mensagens",
         "contextWindowLength": 50
       },
@@ -536,89 +299,6 @@
       ],
       "id": "8a4cde78-e83d-4de8-a981-dfe68bee93d3",
       "name": "Refletir"
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "=https://api.tallos.com.br/v2/messages/{{ $('Info').item.json.contact_id }}/send",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendBody": true,
-        "contentType": "form-urlencoded",
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "message",
-              "value": "={{ $json.output }}"
-            },
-            {
-              "name": "sent_by",
-              "value": "bot"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        6960,
-        1968
-      ],
-      "id": "e7f7581c-c2bd-40a6-9770-68167038db4d",
-      "name": "Enviar resposta RD Conversas",
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "mdvhi3lMspQKLDBo",
-          "name": "RD Conversas Nouvet"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "UPDATE n8n_fila_mensagens SET processada = TRUE WHERE id = ANY(string_to_array($1, ';')::bigint[])",
-        "options": {
-          "queryReplacement": "={{ ($('Agregar mensagens').item.json.ids_lote || []).join(';') }}"
-        }
-      },
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.6,
-      "position": [
-        7168,
-        1968
-      ],
-      "id": "0ddaf44e-1b20-44b4-8c2b-a8c6712894b2",
-      "name": "Marcar mensagens processadas",
-      "credentials": {
-        "postgres": {
-          "id": "imw9RKUxjTQ86ZrN",
-          "name": "Nouvet"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "SELECT lock_conversa_liberar($1)",
-        "options": {
-          "queryReplacement": "={{ $('Extrair dados da mensagem').item.json.telefone }}"
-        }
-      },
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.6,
-      "position": [
-        7392,
-        1968
-      ],
-      "id": "d809d46c-2c8a-4c1e-8083-a84bad8dcc57",
-      "name": "Liberar Lock",
-      "credentials": {
-        "postgres": {
-          "id": "imw9RKUxjTQ86ZrN",
-          "name": "Nouvet"
-        }
-      }
     },
     {
       "parameters": {
@@ -871,250 +551,10 @@
           "name": "OpenRouter UniqueAI"
         }
       }
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "76d00528-69c2-4b54-a6ef-87b6fce6dde2",
-              "name": "phone_test",
-              "value": "5511989892343",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        3840,
-        1968
-      ],
-      "id": "ddb0722a-bb81-407d-9282-d3414577d8a8",
-      "name": "Set Telefone de teste"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "0adb451a-4503-492a-beab-ba327a4d49ec",
-              "leftValue": "={{ $('Mensagem recebida').item.json.body.contact.phone }}",
-              "rightValue": "={{ $json.phone_test }}",
-              "operator": {
-                "type": "string",
-                "operation": "equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        4032,
-        1968
-      ],
-      "id": "ed512496-92db-4c2a-8af8-9e511208d128",
-      "name": "If"
-    },
-    {
-      "id": "6ec0cba7-2c14-431c-9619-715547aa6249",
-      "name": "É comando de reset?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        4340,
-        2176
-      ],
-      "parameters": {
-        "conditions": {
-          "options": {
-            "version": 3,
-            "leftValue": "",
-            "caseSensitive": true,
-            "typeValidation": "strict"
-          },
-          "conditions": [
-            {
-              "id": "a1b2c3d4-0001-4000-8000-000000000001",
-              "leftValue": "={{ $json.mensagem.trim().toLowerCase() }}",
-              "rightValue": "/resetar",
-              "operator": {
-                "type": "string",
-                "operation": "equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      }
-    },
-    {
-      "id": "d4661b24-10d3-4150-a909-dd4d6221229c",
-      "name": "Limpar memória",
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.6,
-      "position": [
-        4340,
-        2384
-      ],
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "DELETE FROM n8n_historico_mensagens WHERE session_id = $1",
-        "options": {
-          "queryReplacement": "={{ $('Extrair dados da mensagem').item.json.telefone }}"
-        }
-      },
-      "credentials": {
-        "postgres": {
-          "id": "imw9RKUxjTQ86ZrN",
-          "name": "Nouvet"
-        }
-      }
-    },
-    {
-      "id": "ce11fae6-86ec-41fb-b130-6a80e7b54d46",
-      "name": "Montar confirmação de reset",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        4340,
-        2592
-      ],
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "a1b2c3d4-0002-4000-8000-000000000002",
-              "name": "contact_id",
-              "value": "={{ $('Extrair dados da mensagem').item.json.contact_id }}",
-              "type": "string"
-            },
-            {
-              "id": "a1b2c3d4-0003-4000-8000-000000000003",
-              "name": "output",
-              "value": "Prontinho — memória desta conversa foi apagada. Pode mandar sua próxima mensagem normalmente.",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      }
-    },
-    {
-      "id": "dd8956bd-48b4-41bc-84d8-2ab18f1f9bc0",
-      "name": "Enviar confirmação de reset",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        4340,
-        2800
-      ],
-      "parameters": {
-        "method": "POST",
-        "url": "=https://api.tallos.com.br/v2/messages/{{ $json.contact_id }}/send",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendBody": true,
-        "contentType": "form-urlencoded",
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "message",
-              "value": "={{ $json.output }}"
-            },
-            {
-              "name": "sent_by",
-              "value": "bot"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "mdvhi3lMspQKLDBo",
-          "name": "RD Conversas Nouvet"
-        }
-      }
     }
   ],
   "connections": {
-    "Mensagem recebida": {
-      "main": [
-        [
-          {
-            "node": "Set Telefone de teste",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Extrair dados da mensagem": {
-      "main": [
-        [
-          {
-            "node": "É comando de reset?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "É comando de reset?": {
-      "main": [
-        [
-          {
-            "node": "Limpar memória",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Enfileirar mensagem",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Limpar memória": {
-      "main": [
-        [
-          {
-            "node": "Montar confirmação de reset",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Montar confirmação de reset": {
-      "main": [
-        [
-          {
-            "node": "Enviar confirmação de reset",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Enfileirar mensagem": {
+    "Receber Turno": {
       "main": [
         [
           {
@@ -1126,68 +566,6 @@
       ]
     },
     "Buscar Config": {
-      "main": [
-        [
-          {
-            "node": "Adquirir Lock",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Adquirir Lock": {
-      "main": [
-        [
-          {
-            "node": "Lock adquirido?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Lock adquirido?": {
-      "main": [
-        [
-          {
-            "node": "Esperar",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Outra execução já está processando",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Esperar": {
-      "main": [
-        [
-          {
-            "node": "Buscar mensagens",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Buscar mensagens": {
-      "main": [
-        [
-          {
-            "node": "Agregar mensagens",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Agregar mensagens": {
       "main": [
         [
           {
@@ -1253,39 +631,6 @@
         ]
       ]
     },
-    "Agente Nouvet": {
-      "main": [
-        [
-          {
-            "node": "Enviar resposta RD Conversas",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Enviar resposta RD Conversas": {
-      "main": [
-        [
-          {
-            "node": "Marcar mensagens processadas",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Marcar mensagens processadas": {
-      "main": [
-        [
-          {
-            "node": "Liberar Lock",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Escalar Humano": {
       "ai_tool": [
         [
@@ -1329,80 +674,9 @@
           }
         ]
       ]
-    },
-    "Set Telefone de teste": {
-      "main": [
-        [
-          {
-            "node": "If",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "If": {
-      "main": [
-        [
-          {
-            "node": "Extrair dados da mensagem",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
     }
   },
-  "pinData": {
-    "Mensagem recebida": [
-      {
-        "json": {
-          "headers": {
-            "host": "myeditor.uniqueads.com.br",
-            "user-agent": "axios/0.21.4",
-            "content-length": "259",
-            "accept": "application/json, text/plain, */*",
-            "content-type": "application/json",
-            "traceparent": "00-6aa00d1400000000306a48fc1f5153ea-100773ac4b11aacf-00",
-            "tracestate": "dd=t.tid:6aa00d1400000000;t.dm:-1;s:0;p:100773ac4b11aacf",
-            "x-datadog-parent-id": "1155019013274839759",
-            "x-datadog-sampling-priority": "0",
-            "x-datadog-tags": "_dd.p.tid=6aa00d1400000000",
-            "x-datadog-trace-id": "3488681109046252522",
-            "x-forwarded-for": "34.170.200.52",
-            "x-forwarded-host": "myeditor.uniqueads.com.br",
-            "x-forwarded-port": "443",
-            "x-forwarded-proto": "https",
-            "x-forwarded-server": "ce3e84c25547",
-            "x-real-ip": "34.170.200.52",
-            "accept-encoding": "gzip"
-          },
-          "params": {},
-          "query": {},
-          "body": {
-            "content": {
-              "id": "6aa00d143d44b15fb17ef737",
-              "message": "Olá, tudo bem?",
-              "type": "text",
-              "action": "automation"
-            },
-            "contact": {
-              "id": "69e96c6e09177f6669f6a2f8",
-              "name": "Leticia - Maria Gorgonzola",
-              "phone": "5511954339474",
-              "channel": "whatsapp",
-              "channel_label": "Nouvet"
-            }
-          },
-          "webhookUrl": "https://myeditor.uniqueads.com.br/webhook/atendimento-nouvet-recepcao",
-          "executionMode": "production"
-        },
-        "pairedItem": {
-          "item": 0
-        }
-      }
-    ]
-  },
+  "pinData": {},
   "active": false,
   "settings": {
     "executionOrder": "v1",
