@@ -90,6 +90,37 @@ services:
       # do repositório) -- nunca copiado para dentro da imagem/repo (NFR-6).
       - ${SIMPLESVET_EXPORT_HOST_DIR:?defina SIMPLESVET_EXPORT_HOST_DIR no .env com o caminho do export no host}:/export:ro
 
+  # Bancada de teste standalone (Story 1.4, AD-20) -- dispara os casos de
+  # bancada-teste/casos/*.yaml turno a turno contra a segunda porta (`n8n/workflows/08
+  # - Entrada de Teste.json`) e grava um transcrito por caso em
+  # bancada-teste/transcritos/, para leitura humana; nunca calcula sozinho um veredito
+  # passou/não passou (Never). Mesmo padrão do `importer` (Story 1.1): roda só sob
+  # demanda via `docker compose run --rm bancada-teste`, nunca com `docker compose up`
+  # default (profiles abaixo). `rodar.py` é stdlib puro, sem framework nem dependência
+  # externa -- por isso usa a imagem `python` oficial direto, sem Dockerfile/build
+  # próprio. Mesma rede compose que `n8n` (sem porta publicada ao host) para alcançar
+  # `n8n:5678` direto.
+  bancada-teste:
+    image: python:3.12-slim
+    profiles: ["tools"]
+    depends_on:
+      n8n:
+        condition: service_healthy
+    environment:
+      # URL da segunda porta dentro da rede compose -- o workflow `08` precisa estar
+      # importado e ativo na instância n8n para responder em `/webhook/...`; ao testar
+      # manualmente antes de ativá-lo, sobrescreva com a URL de teste
+      # `/webhook-test/...` (ver bancada-teste/README.md).
+      BANCADA_TESTE_URL: http://n8n:5678/webhook/atendimento-nouvet-teste
+      # Sem isso, o stdout do Python fica bufferizado quando não há TTY (caso de
+      # `docker compose run`) e as linhas de progresso "Rodando caso: ..." só
+      # aparecem todas juntas no final, em vez de em tempo real.
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - ./bancada-teste:/bancada-teste
+    working_dir: /bancada-teste
+    command: ["python3", "rodar.py"]
+
 volumes:
   postgres_data:
   n8n_data:

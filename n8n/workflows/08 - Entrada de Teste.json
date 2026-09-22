@@ -1,0 +1,195 @@
+{
+  "name": "08 - Entrada de Teste",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Segunda porta, só para teste (Story 1.4)\n\nEste workflow existe só para exercitar `01 - Agente.json` sem gastar mensagem real nem tocar RD Conversas/Tallos/Meta (NFR-10). Ele chama exatamente o mesmo sub-workflow, pelo mesmo contrato (`contact_id`/`telefone`/`mensagem_agregada` → `output`) que `07 - Ingresso e Fila.json` já usa em produção -- `01` nunca é modificado nem duplicado.\n\nNão existe fila, lock, agregação de mensagens picadas nem envio de resposta por nenhum canal aqui -- cada chamada HTTP é um turno único, síncrono, e a fala da Nouvi volta no próprio corpo da resposta HTTP. Quem orquestra multi-turno (a bancada de teste) é `bancada-teste/rodar.py`, chamando esta entrada turno a turno.\n\n**Limitação conhecida:** esta entrada não exercita o envio pelo RD Station -- ver `bancada-teste/README.md`.",
+        "height": 320,
+        "width": 460
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3664,
+        1696
+      ],
+      "id": "a2f6c1d0-1a2b-4c3d-8e4f-5a6b7c8d9e0f",
+      "name": "Sticky Note - Escopo"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "atendimento-nouvet-teste",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        3664,
+        1968
+      ],
+      "id": "d49dafd3-2ebe-4903-bd84-c91834301a5c",
+      "name": "Receber Chamada de Teste",
+      "webhookId": "b983ac4b-9a47-4556-9121-68ada37d1f21"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "ivPwIf28PgVGX8LW",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/ivPwIf28PgVGX8LW",
+          "cachedResultName": "01 - Agente"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "contact_id": "={{ $json.body.contact_id }}",
+            "telefone": "={{ $json.body.telefone }}",
+            "mensagem_agregada": "={{ $json.body.mensagem_agregada }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "contact_id",
+              "displayName": "contact_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "telefone",
+              "displayName": "telefone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "mensagem_agregada",
+              "displayName": "mensagem_agregada",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "onError": "continueErrorOutput",
+      "position": [
+        3888,
+        1968
+      ],
+      "id": "91cd2b3e-6dc5-452d-a5ad-e0d51f0df76f",
+      "name": "Chamar Agente Nouvet"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c1a2b3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+              "name": "erro",
+              "value": "={{ JSON.stringify($json.error || $json || 'erro desconhecido ao chamar 01 - Agente') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3888,
+        2160
+      ],
+      "id": "b9bd83fb-bbd0-4849-a00f-9e3f12158864",
+      "name": "Montar Falha da Chamada de Teste",
+      "notes": "Só cobre falha ao CHAMAR 01 - Agente (ex.: workflow desativado/removido) -- 01 já trata sua própria falha interna (Postgres/LLM indisponível, Story 1.3) e devolve um `output` honesto normalmente, sem cair aqui.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { output: $json.output ?? null, erro: $json.erro ?? null } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        4112,
+        1968
+      ],
+      "id": "6bfb915a-fb7a-4019-b77d-52f42c52f180",
+      "name": "Responder com Fala da Nouvi"
+    }
+  ],
+  "connections": {
+    "Receber Chamada de Teste": {
+      "main": [
+        [
+          {
+            "node": "Chamar Agente Nouvet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chamar Agente Nouvet": {
+      "main": [
+        [
+          {
+            "node": "Responder com Fala da Nouvi",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Montar Falha da Chamada de Teste",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Montar Falha da Chamada de Teste": {
+      "main": [
+        [
+          {
+            "node": "Responder com Fala da Nouvi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "a491b2c4-7645-480d-a17f-42075e7cc9f9",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "yk9wL1ChMixQTj5b",
+  "tags": []
+}

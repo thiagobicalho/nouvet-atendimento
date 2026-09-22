@@ -39,3 +39,9 @@ _bmad-output/reference/simplesvet/
 *.bak
 *.sql.gz
 *.dump
+
+# Transcritos gerados pela bancada de teste (Story 1.4) -- saída de execução local,
+# nunca dado de cliente real (telefone/contact_id sintéticos, DDD 00), mas ainda
+# assim artefato gerado, não fonte -- nunca versionado.
+bancada-teste/transcritos/*
+!bancada-teste/transcritos/.gitkeep

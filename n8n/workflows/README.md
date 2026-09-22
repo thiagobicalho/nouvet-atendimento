@@ -27,6 +27,16 @@ o padrão já validado em `_bmad-output/reference/modelo-n8n/secretariav3-comple
   durante o processamento sem um próximo ciclo agendado. Diferente dos demais
   sub-workflows numerados: `07` **chama** `01`, não é chamado por ele — não é uma
   ferramenta do agente, é quem o aciona.
+- `08 - Entrada de Teste.json` — segunda porta, só para teste (Story 1.4, `AD-20`):
+  `Webhook` síncrono (`responseMode: responseNode`, path `atendimento-nouvet-teste`)
+  que recebe `contact_id`/`telefone`/`mensagem_agregada` no corpo da requisição, chama
+  `01 - Agente.json` pelo mesmo contrato e workflowId que `07` usa (`ivPwIf28PgVGX8LW`)
+  e devolve a fala da Nouvi (`output`) no próprio corpo da resposta HTTP via
+  `Respond to Webhook`. Não enfileira, não trava conversa, não agrega mensagens picadas
+  e **nunca** chama RD Conversas/Tallos/Meta — cada chamada é um turno único e síncrono;
+  quem orquestra multi-turno é `bancada-teste/rodar.py` (ver `bancada-teste/README.md`),
+  chamando esta entrada turno a turno com telefone/`contact_id` sintéticos isolados.
+  Igual a `07`: **chama** `01`, nunca é chamado por ele, e nunca modifica `01` nem `07`.
 - `02`–`06` — sub-workflows de ferramenta e integração chamados pelo `01` (escalar
   humano, buscar info de setor, registrar atendimento no CRM, etc.), um arquivo por
   ação

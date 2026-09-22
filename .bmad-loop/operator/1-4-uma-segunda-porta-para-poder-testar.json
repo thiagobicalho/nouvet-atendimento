@@ -1,0 +1,12 @@
+{
+  "actions": [
+    "Importar n8n/workflows/08 - Entrada de Teste.json na inst\u00e2ncia n8n real (via UI ou `n8n import:workflow --input=\"n8n/workflows/08 - Entrada de Teste.json\"`) e ativ\u00e1-lo (active: true) -- o webhook s\u00f3 responde em /webhook/atendimento-nouvet-teste quando ativo; hoje o workflow existe s\u00f3 no reposit\u00f3rio.",
+    "Rodar `docker compose run --rm bancada-teste` de fato contra a inst\u00e2ncia real (com `08` j\u00e1 importado e ativo) e confirmar que um transcrito do caso `1-banho-conhecido` foi gravado em bancada-teste/transcritos/ -- este build s\u00f3 verificou o runner contra um servidor HTTP mock local, nunca contra o `01 - Agente` de verdade.",
+    "Rodar `docker compose config` de verdade (Docker CLI n\u00e3o estava dispon\u00edvel neste ambiente de build) para confirmar a sintaxe real do novo servi\u00e7o `bancada-teste` -- este build s\u00f3 verificou via parse YAML equivalente (PyYAML), n\u00e3o com o comando real.",
+    "Ler o transcrito gerado pelo caso `1-banho-conhecido` e confirmar humanamente que a resposta da Nouvi \u00e9 aceit\u00e1vel para o est\u00e1gio atual do produto -- o julgamento passou/n\u00e3o passou \u00e9 sempre humano, nunca calculado por este build (ver Design Notes desta story sobre por que o caso can\u00f4nico ainda n\u00e3o deve \"passar\" por completo)."
+  ],
+  "parked_at": "2026-09-22",
+  "run_id": "20260922-200127-2b6d",
+  "spec_file": "_bmad-output/implementation-artifacts/spec-1-4-uma-segunda-porta-para-poder-testar.md",
+  "story_key": "1-4-uma-segunda-porta-para-poder-testar"
+}

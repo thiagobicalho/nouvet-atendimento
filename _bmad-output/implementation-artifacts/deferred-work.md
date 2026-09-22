@@ -814,3 +814,51 @@ source_spec: `spec-1-3-a-nouvi-responde.md`
 severity: low
 reason: Os 5 pontos de falha convergem num único node `Registrar Falha`; diferenciar a origem exigiria um node de marcação por branch, não fiz por manter o grafo simples nesta story -- o texto de `erro` já carrega pista suficiente na maioria dos casos (erro de SQL vs. erro de modelo têm formatos bem diferentes).
 status: open
+
+### DW-101: Nenhuma validação server-side impede que a entrada de teste (`08`) receba um telefone real -- a convenção de DDD `00` é aplicada só do lado do cliente, em `bancada-teste/rodar.py`.
+origin: spec-deferred b178efb6787e
+location: n8n/workflows/08 - Entrada de Teste.json
+source_spec: `spec-1-4-uma-segunda-porta-para-poder-testar.md`
+severity: low
+reason: `n8n/workflows/08 - Entrada de Teste.json` repassa `contact_id`/`telefone`/ `mensagem_agregada` do corpo da requisição direto para `01 - Agente.json`, sem nenhuma validação de formato. Risco baixo: endpoint interno de teste, path distinto da entrada de produção (`07`), nunca anunciado como porta pública.
+status: open
+
+### DW-102: `01 - Agente.json` hoje não tem nenhuma ferramenta conectada (Story 1.3), então rodar a bancada não aciona nenhum efeito colateral real hoje -- mas quando ferramentas voltarem (Stories 1.8-1.10), roda
+origin: spec-deferred b6536ee753f6
+location: n8n/workflows/01 - Agente.json
+source_spec: `spec-1-4-uma-segunda-porta-para-poder-testar.md`
+severity: low
+reason: `n8n/workflows/README.md` confirma que `Agente Nouvet` está sem `ai_tool` conectado desde a Story 1.3. Nada em `08 - Entrada de Teste.json` ou `bancada-teste/` impede que uma ferramenta futura escreva de verdade quando chamada pela bancada.
+status: open
+
+### DW-103: O serviço `bancada-teste` roda como root dentro do container (`python:3.12-slim`, sem `user:`), então os transcritos gravados no host via bind mount ficam com dono root.
+origin: spec-deferred ed03f345af79
+location: docker-compose.yml
+source_spec: `spec-1-4-uma-segunda-porta-para-poder-testar.md`
+severity: low
+reason: `docker-compose.yml`, serviço `bancada-teste`, sem `user:` definido -- fricção de desenvolvimento (permissão pra editar/apagar), não risco de dado (transcritos são gitignored e não carregam PII real).
+status: open
+
+### DW-104: O timeout HTTP de 120s em `chamar_entrada_de_teste` é fixo no código-fonte, sem variável de ambiente para ajuste.
+origin: spec-deferred 92f615aaeb33
+location: bancada-teste/rodar.py
+source_spec: `spec-1-4-uma-segunda-porta-para-poder-testar.md`
+severity: low
+reason: `bancada-teste/rodar.py`, `urllib.request.urlopen(requisicao, timeout=120)` -- uma cadeia de agente mais lenta no futuro exigiria editar o código, já que `BANCADA_TESTE_URL` estabeleceu a convenção de configuração via variável de ambiente, mas o timeout não a segue.
+status: open
+
+### DW-105: Se a chamada a `01 - Agente` exceder o timeout de 120s do cliente Python, o n8n pode seguir executando no servidor e gravar em `Memory` depois que o runner já registrou aquele turno como falha -- o pr
+origin: spec-deferred 62b2ddd2fb21
+location: bancada-teste/rodar.py; n8n/workflows/08 - Entrada de Teste.json
+source_spec: `spec-1-4-uma-segunda-porta-para-poder-testar.md`
+severity: low
+reason: `chamar_entrada_de_teste` cancela do lado do cliente ao estourar `timeout=120`, mas nada em `08 - Entrada de Teste.json` limita a execução do lado do servidor -- a chamada a `01` pode terminar depois, gravando em `Memory` (chave `telefone`, compartilhada entre turnos da mesma sessão).
+status: open
+
+### DW-106: Ausência de teste automatizado para o parser mínimo de `casos/*.yaml` e para `gerar_identidade_sintetica` -- hoje só verificados manualmente nesta story.
+origin: spec-deferred 4b13397ae0c9
+location: bancada-teste/rodar.py
+source_spec: `spec-1-4-uma-segunda-porta-para-poder-testar.md`
+severity: low
+reason: `bancada-teste/` não tem uma suíte de testes, diferente de `import/tests/` (Story 1.1, pytest) para uma complexidade análoga (parsing + geração determinística de identidade sintética).
+status: open

@@ -1,0 +1,20 @@
+# Caso 1 -- conversa canônica de banho, cliente conhecido (UJ-1).
+#
+# Fonte: _bmad-output/planning-artifacts/design-conversa/2026-09-18-design-de-conversa-onda1.md,
+# seção 2 ("A conversa canônica -- banho, cliente conhecido"). As 4 falas abaixo são
+# exatamente as falas do cliente nesse texto, na ordem exata em que aparecem -- cada
+# uma vira um turno síncrono contra a mesma sessão isolada (telefone sintético gerado
+# por rodar.py a partir do campo `nome` abaixo).
+#
+# Por que este caso não vai "passar" ainda: o texto canônico pressupõe reconhecimento
+# por telefone (Story 1.5) e agendamento real com preço (Epic 2) -- nenhum dos dois
+# existe nesta story; ver "Design Notes" no spec desta story. O transcrito gerado aqui
+# diverge do texto, e isso é esperado -- o julgamento passou/não passou é sempre
+# humano, nunca calculado por este arquivo nem por rodar.py.
+nome: 1-banho-conhecido
+descricao: "Conversa canônica de banho, cliente conhecido (design de conversa Onda 1, seção 2) -- 6 turnos, 4 falas do cliente, mesma sessão isolada."
+turnos:
+  - "oi, queria marcar um banho pro Bidu"
+  - "terça de manhã"
+  - "10h"
+  - "isso"
