@@ -2,7 +2,7 @@
 title: 'Story 1.1 — A base de quem já é cliente'
 type: 'feature'
 created: '2026-09-21'
-status: 'awaiting-operator'
+status: done
 baseline_revision: 'e2353ff45326d1cb434a420e7f19ae01524dd234'
 review_loop_iteration: 0
 followup_review_recommended: true
@@ -207,3 +207,16 @@ _Nenhuma entrada — sem loopback `bad_spec` nesta execução._
 - O mecanismo real de idempotência/ambiguidade (`ON CONFLICT`, `UNIQUE (tutor_id, telefone)`, `telefone_normalizar()`) está coberto por raciocínio de design + revisão de SQL + testes de construção de query com cursor falso, nunca por uma execução real contra Postgres -- risco residual até o operador rodar `operator_actions`.
 - `identidade_cliente_pet` segue viva e potencialmente em uso pelos workflows do Piloto ainda `active: true` -- decisão de descomissionamento explicitamente fora do escopo desta story (ver `Never`).
 - 3 itens de baixa severidade ficaram registrados como `deferred` (lock concorrente, rastro de auditoria persistido, CI ausente) -- nenhum bloqueia esta story, mas valem atenção futura.
+
+## Operator Confirmation
+
+Confirmed 2026-09-22: the external actions this story owed were carried out.
+
+- Aplicar a migration n8n/migrations/0014_identidade_tutor_pet.sql no Postgres real via `docker compose exec -T postgres psql -v ON_ERROR_STOP=1 --username "$POSTGRES_SUPERUSER" --dbname "$POSTGRES_APP_DB" < n8n/migrations/0014_identidade_tutor_pet.sql` (comando documentado em import/README.md) — docker-entrypoint-initdb.d só roda na primeira inicialização do volume, então o arquivo presente sozinho não basta.
+- Definir SIMPLESVET_EXPORT_HOST_DIR no .env do host com o caminho (fora do repositório) para um diretório contendo o export real do SimplesVet (glo_pessoa.csv, glo_contato.csv, vet_animal.csv).
+- Rodar `docker compose run --rm importer` contra o export real e conferir o relatório de cobertura impresso ao final (contagem absoluta + fração por tutor/pet/telefone/registros descartados).
+- Rodar `docker compose run --rm importer` uma segunda vez sobre o mesmo export (ou um export mais novo) e confirmar em identidade_tutor/identidade_pet/identidade_telefone que nenhum registro duplicou e nenhum campo foi sobrescrito indevidamente — valida a AC de re-execução idempotente que este ambiente de build não tem como testar sem Postgres real.
+- Depois do import rodar contra dado real, consultar identidade_telefone em busca de algum telefone com mais de um tutor_id distinto e confirmar que ambos os vínculos foram gravados, nenhum resolvido a um tutor arbitrário — valida a AC de telefone ambíguo, que depende de dado real para ocorrer.
+- Decidir com o Thiago quando identidade_cliente_pet (tabela antiga do Piloto, ainda referenciada pelos workflows n8n `01 - Agente`/`04 - Registrar Atendimento CRM` marcados active:true em 21/09/2026) pode ser descomissionada — esta story deliberadamente não alterou nem removeu essa tabela.
+
+_Appended by the bmad-loop orchestrator (`bmad-loop confirm`, #335): a human confirmed these external actions out of band, and the story was advanced from `awaiting-operator` to `done`._
