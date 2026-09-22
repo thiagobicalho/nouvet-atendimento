@@ -97,31 +97,31 @@
             {
               "id": "61e1f0e1-0b22-4f86-96c9-779adcf7e8c5",
               "name": "contact_id",
-              "value": "={{ $json.body.contact?.id || $json.body.contact_id || $json.body.id }}",
+              "value": "={{ $('Mensagem recebida').item.json.body.contact?.id || $('Mensagem recebida').item.json.body.contact_id || $('Mensagem recebida').item.json.body.id }}",
               "type": "string"
             },
             {
               "id": "58711e8a-1c3f-4126-ba96-fbf0c4876dc3",
               "name": "telefone",
-              "value": "={{ $json.body.contact?.cel_phone || $json.body.contact?.phone || $json.body.phone || $json.body.from }}",
+              "value": "={{ $('Mensagem recebida').item.json.body.contact?.cel_phone || $('Mensagem recebida').item.json.body.contact?.phone || $('Mensagem recebida').item.json.body.phone || $('Mensagem recebida').item.json.body.from }}",
               "type": "string"
             },
             {
               "id": "84b7fa31-bc86-4a75-9b6d-0c652595000c",
               "name": "mensagem",
-              "value": "={{ (() => { const b = $json.body; const msg = b.message || b.content || b.text || '<mensagem sem texto reconhecido>'; const tipo = (b.attachment?.type || b.document?.type || b.type || '').toLowerCase(); const url = b.attachment?.url || b.attach || b.file_url || b.document?.url; const ehDocumento = url && (tipo === 'document' || tipo === 'file' || tipo === 'pdf'); return ehDocumento ? msg + ' [Anexo recebido: ' + url + ']' : msg; })() }}",
+              "value": "={{ (() => { const b = $('Mensagem recebida').item.json.body; const msg = b.content?.message || b.message || b.content?.text || b.text || '<mensagem sem texto reconhecido>'; const tipo = (b.attachment?.type || b.document?.type || b.content?.type || b.type || '').toLowerCase(); const url = b.attachment?.url || b.attach || b.file_url || b.document?.url; const ehDocumento = url && (tipo === 'document' || tipo === 'file' || tipo === 'pdf'); return ehDocumento ? msg + ' [Anexo recebido: ' + url + ']' : msg; })() }}",
               "type": "string"
             },
             {
               "id": "45a14cd3-645e-4d9c-ae72-8efca097e311",
               "name": "id_mensagem",
-              "value": "={{ $json.body.message_id || $json.body.id || $json.body.uuid }}",
+              "value": "={{ $('Mensagem recebida').item.json.body.content.id }}",
               "type": "string"
             },
             {
               "id": "bab1fa7d-2593-4a53-aa6b-5ff674487ae2",
               "name": "timestamp",
-              "value": "={{ $json.body.timestamp ? new Date($json.body.timestamp).toISOString() : $now.toISO() }}",
+              "value": "={{ $('Mensagem recebida').item.json.body.timestamp ? new Date($('Mensagem recebida').item.json.body.timestamp).toISOString() : $now.toISO() }}",
               "type": "string"
             }
           ]
