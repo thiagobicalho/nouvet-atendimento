@@ -2,7 +2,7 @@
 title: 'Story 1.4 — Uma segunda porta, para poder testar'
 type: 'feature'
 created: '2026-09-21'
-status: 'awaiting-operator'
+status: done
 baseline_revision: 'a13a9f9531ffbed0b6766980d1b3b1d7edbcdcf5'
 review_loop_iteration: 0
 followup_review_recommended: true
@@ -239,3 +239,14 @@ _Nenhuma entrada — sem loopback `bad_spec` nesta execução._
 - Ver os 6 itens em `deferred` no frontmatter — nenhum bloqueia esta story: validação server-side ausente do DDD sintético em `08`, ausência de isolamento de efeito colateral quando ferramentas voltarem a `01` (Stories 1.8-1.10), container `bancada-teste` rodando como root, timeout de 120s fixo sem variável de ambiente, corrida entre timeout do cliente e execução do servidor podendo vazar estado entre turnos, e ausência de suíte de testes automatizada para o parser/gerador de identidade.
 - Nenhum comportamento desta story (chamada real à entrada de teste, transcrito gravado, isolamento de sessão contra um agente de verdade) foi comprovado por execução real — só por inspeção estrutural e mock local, mesma limitação de ambiente das Stories 1.1-1.3. Itens de `operator_actions`.
 - `docker compose config` real não pôde ser executado (Docker CLI indisponível neste ambiente de build) — só verificado via parse YAML equivalente.
+
+## Operator Confirmation
+
+Confirmed 2026-09-22: the external actions this story owed were carried out.
+
+- Importar n8n/workflows/08 - Entrada de Teste.json na instância n8n real (via UI ou `n8n import:workflow --input="n8n/workflows/08 - Entrada de Teste.json"`) e ativá-lo (active: true) -- o webhook só responde em /webhook/atendimento-nouvet-teste quando ativo; hoje o workflow existe só no repositório.
+- Rodar `docker compose run --rm bancada-teste` de fato contra a instância real (com `08` já importado e ativo) e confirmar que um transcrito do caso `1-banho-conhecido` foi gravado em bancada-teste/transcritos/ -- este build só verificou o runner contra um servidor HTTP mock local, nunca contra o `01 - Agente` de verdade.
+- Rodar `docker compose config` de verdade (Docker CLI não estava disponível neste ambiente de build) para confirmar a sintaxe real do novo serviço `bancada-teste` -- este build só verificou via parse YAML equivalente (PyYAML), não com o comando real.
+- Ler o transcrito gerado pelo caso `1-banho-conhecido` e confirmar humanamente que a resposta da Nouvi é aceitável para o estágio atual do produto -- o julgamento passou/não passou é sempre humano, nunca calculado por este build (ver Design Notes desta story sobre por que o caso canônico ainda não deve "passar" por completo).
+
+_Appended by the bmad-loop orchestrator (`bmad-loop confirm`, #335): a human confirmed these external actions out of band, and the story was advanced from `awaiting-operator` to `done`._
