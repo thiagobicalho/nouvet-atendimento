@@ -37,7 +37,7 @@ story_location: _bmad-output/implementation-artifacts
 development_status:
   epic-1: backlog
   1-1-a-base-de-quem-já-é-cliente: done
-  1-2-a-mensagem-chega-e-não-se-perde: awaiting-operator
+  1-2-a-mensagem-chega-e-não-se-perde: done
   1-3-a-nouvi-responde: awaiting-operator
   1-4-uma-segunda-porta-para-poder-testar: backlog
   1-5-a-nouvi-sabe-quem-está-falando: backlog

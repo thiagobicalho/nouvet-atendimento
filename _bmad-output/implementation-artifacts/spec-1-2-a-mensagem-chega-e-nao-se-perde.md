@@ -2,7 +2,7 @@
 title: 'Story 1.2 — A mensagem chega e não se perde'
 type: 'feature'
 created: '2026-09-21'
-status: 'awaiting-operator'
+status: done
 baseline_revision: 'af8f3915815a84ec65e0e8b9884c5bb7a6d22cff'
 review_loop_iteration: 0
 followup_review_recommended: false
@@ -240,3 +240,15 @@ _Nenhuma entrada — sem loopback `bad_spec` nesta execução._
 **Riscos residuais:**
 - Ver os 7 itens em `deferred` no frontmatter — nenhum bloqueia esta story, mas o teto de iterações do loop de reconferência (novo, não pré-existente) merece decisão de produto antes de tráfego real de alto volume, e a ausência de onError em `Chamar Agente Nouvet`/`Enviar resposta RD Conversas` (pré-existente) deixa o lock preso até o TTL expirar em caso de falha.
 - Nenhum dos três comportamentos corrigidos/adicionados nesta story foi comprovado por execução real — só por inspeção estrutural, mesma limitação de ambiente da Story 1.1.
+
+## Operator Confirmation
+
+Confirmed 2026-09-22: the external actions this story owed were carried out.
+
+- Reimportar n8n/workflows/01 - Agente.json na instância real por cima do workflow "01 - Agente" (id ivPwIf28PgVGX8LW, hoje active=true com o conteúdo antigo/webhook) — a instância ainda serve tráfego real com a versão pré-story.
+- Importar/ativar n8n/workflows/07 - Ingresso e Fila.json na instância real (já criado inativo via MCP como id DGXyvswqTtv6JAV8) e só então ativar os dois workflows.
+- Reconfigurar o webhook no painel Tallos (Integrações > Webhooks, app.tallos.com.br) para apontar para 07 - Ingresso e Fila.json em vez do endpoint antigo de 01, e confirmar que o fluxo legado do Tallos (menu fixo/opt-in) não compete pelo mesmo número.
+- Rodar um teste real com telefone de teste — mandar 3 mensagens picadas em sequência e confirmar que chega exatamente 1 resposta; mandar uma mensagem com vírgula e confirmar que ela é gravada e respondida normalmente (valida a correção do bug de "Enfileirar mensagem"); mandar uma mensagem nova enquanto a anterior ainda está sendo processada e confirmar que ela entra em um novo ciclo antes do lock liberar (valida o fechamento da janela de corrida).
+- Decidir o teto de iterações do loop de reconferência de pendências em 07 ("Há mensagens pendentes?" -> "Esperar") e o que fazer ao atingi-lo, antes de expor o fluxo a tráfego real de alto volume (registrado como deferred, mas é decisão de produto, não um patch).
+
+_Appended by the bmad-loop orchestrator (`bmad-loop confirm`, #335): a human confirmed these external actions out of band, and the story was advanced from `awaiting-operator` to `done`._
