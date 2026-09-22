@@ -2,7 +2,7 @@
 title: 'Story 1.3 — A Nouvi responde'
 type: 'feature'
 created: '2026-09-21'
-status: 'awaiting-operator'
+status: done
 baseline_revision: '5c7bbaa7814bc6e2239c62f55e05bfd452492ec3'
 review_loop_iteration: 0
 followup_review_recommended: false
@@ -203,3 +203,15 @@ _Nenhuma entrada — sem loopback `bad_spec` nesta execução._
 **Riscos residuais:**
 - Ver os 4 itens em `deferred` no frontmatter — nenhum bloqueia esta story: truncamento de `Memory` além de 50 mensagens (pode repetir apresentação em conversa muito longa), divergência de "duas situações" do emoji entre dois documentos de planejamento (o prompt segue a fonte canônica UX-DR14), falha composta sem rastro se a própria gravação de log falhar, e ausência de coluna de origem em `atendimento_falha_registro`.
 - Nenhum dos comportamentos desta story (apresentação única, uso de histórico, fallback de falha) foi comprovado por execução real — só por inspeção estrutural, mesma limitação de ambiente das Stories 1.1/1.2. Itens de `operator_actions`.
+
+## Operator Confirmation
+
+Confirmed 2026-09-22: the external actions this story owed were carried out.
+
+- Reimportar n8n/workflows/01 - Agente.json na instância real por cima do workflow "01 - Agente" (id ivPwIf28PgVGX8LW, hoje active=true servindo tráfego real com o conteúdo antigo do Piloto) — a instância real ainda não reflete esta story.
+- Aplicar a migration n8n/migrations/0015_atendimento_falha_registro.sql no banco da aplicação (roda automaticamente em docker-entrypoint-initdb.d em um ambiente novo; em um ambiente já provisionado, aplicar manualmente em ordem, como as demais migrations).
+- Reaplicar n8n/seed/0001_atendimento_config.sql — como o INSERT usa ON CONFLICT (id) DO NOTHING, um ambiente que já tem a linha singleton (id=1) gravada com o nome antigo "Assistente Nouvet" não é atualizado por este seed; fazer UPDATE manual de nome_secretaria e tom_voz direto no banco (mesma convenção de edição em produção já registrada na spine).
+- Rodar um teste real contra a instância: derrubar/negar acesso ao Postgres ou ao OpenRouter de propósito e confirmar que (a) o cliente recebe a mensagem de fallback honesta e (b) uma linha aparece em atendimento_falha_registro — valida o caminho de falha que este build só verificou estruturalmente (sem n8n/Postgres/OpenRouter real alcançável neste ambiente).
+- Confirmar por teste real que a apresentação única (Nouvi se apresenta uma vez e não repete em turnos seguintes, mesmo dias depois) se comporta como esperado — depende só de instrução ao modelo (sem estado/contador no código), então só uma conversa real com o LLM configurado confirma o comportamento.
+
+_Appended by the bmad-loop orchestrator (`bmad-loop confirm`, #335): a human confirmed these external actions out of band, and the story was advanced from `awaiting-operator` to `done`._
