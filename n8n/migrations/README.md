@@ -144,3 +144,22 @@ credencial "Nouvet"/`app_role` -- nunca teve `GRANT EXECUTE` para `app_role` (s�
 real; o `onError: continueErrorOutput` da `0015` escondeu a falha ao cair no caminho de
 falha honesta em vez de travar. Esta migration substitui a função chamada pelo node --
 não conserta a antiga, que fica órfã por coexistência com o Piloto.
+
+A `0017` entrega a preferência estável do pet (Story 1.6, `FR-5a`/`FR-40a`/`UX-DR4`):
+coluna `preferencia JSONB` (nullable, sem enum fechado -- a lista do PRD é exemplo, não
+schema fixo) em `identidade_pet`. `identidade_tutor_buscar_por_telefone` (`0016`) é
+reestendida via `CREATE OR REPLACE FUNCTION` para incluir `preferencia` em cada pet do
+array -- nenhum node de `01 - Agente.json` muda, só o formato do dado que já atravessa
+`Buscar Identidade`/`Info`. Nova função `identidade_pet_atualizar_preferencia(p_telefone,
+p_pet_nome, p_preferencia)` -- segunda `SECURITY DEFINER` do diretório, mesma regra de
+autorização de `0016` (só grava com exatamente um tutor resolvido), pet resolvido por
+nome case-insensitive dentro desse tutor, e `preferencia` sempre um PATCH (`COALESCE(...,
+'{}'::jsonb) || p_preferencia`), nunca um replace -- preserva chaves não mencionadas na
+chamada atual. `identidade_pet_atualizar_preferencia` é a primeira porta única de
+ESCRITA chamada pelo próprio `Agente Nouvet` como ferramenta (node `Postgres Tool`,
+`01 - Agente.json`) -- não por um sub-workflow separado, dado que é uma única query,
+mesmo espírito dos nodes Postgres inline já existentes (`Buscar Identidade`/`Buscar
+Config`). O importador do SimplesVet (`import/importador/db.py:upsert_pet`, Story 1.1)
+já nunca inclui `preferencia` no `SET` do seu `UPSERT` -- achado desta story: a
+salvaguarda já existia, escrita de propósito para colunas de domínio próprio futuras,
+sem precisar de nenhuma mudança agora (`FR-40a` já estava satisfeito).

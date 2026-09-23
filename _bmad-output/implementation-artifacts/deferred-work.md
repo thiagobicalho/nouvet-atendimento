@@ -916,3 +916,35 @@ location: n8n/workflows/06 - Lembretes e Escalonamento SLA.json (nó "Buscar Ide
 severity: medium
 reason: confirmado sem impacto ativo hoje -- o workflow está active:true e dispara a cada minuto (execuções 522914-522926 conferidas em 23/09), mas o nó com o bug recebe zero itens de entrada em todas as execuções recentes, porque ainda não existe nenhum lembrete/escalonamento real no sistema (isso é do Épico 3, FR-21+, não construído). Violação de AD-3 mais direta que a da DW-112 -- é SELECT direto na tabela de PII, nunca uma chamada de função. O conserto certo não é só GRANT: é reescrever para chamar identidade_cliente_pet_buscar (ou, a essa altura, identidade_tutor_buscar_por_telefone) em vez de SELECT cru -- trabalho da story de lembretes do Épico 3, não patch isolado.
 status: open
+
+### DW-114: Nomes de pet colidindo por case-insensitive dentro do mesmo tutor fariam `identidade_pet_atualizar_preferencia` casar mais de uma linha e o Postgres lançar "query returned more than one row" em vez do
+origin: spec-deferred 80e8cc72dd83
+location: n8n/migrations/0017_identidade_pet_preferencia.sql (identidade_pet_atualizar_preferencia)
+source_spec: `spec-1-6-preferencias-que-nao-se-perguntam-duas-vezes.md`
+severity: medium
+reason: `pet_alvo` filtra só por `lower(btrim(p.nome)) = lower(btrim(p_pet_nome))` dentro do tutor único, sem unicidade garantida no schema (`identidade_pet`, migration 0014, não tem `UNIQUE (tutor_id, lower(btrim(nome)))`). Mesma condição de dados pré-existente já identificada e deliberadamente deferida pela Story 1.5 ("Dois pets do mesmo tutor com nomes idênticos... edge case real porém raro, sem AC que exija, fora do escopo desta story") -- esta story herda a mesma decisão. `onError: continueRegularOutput` do node já garante que, se acontecer, cai no caminho genérico de falha honesta já coberto pela linha "Falha da ferramenta" da matriz desta story.
+status: open
+
+### DW-115: Não existe caminho para o cliente retirar uma chave de preferência já gravada (só merge via `||`, nunca operador de remoção `-`/`#-`).
+origin: spec-deferred c71be15482e1
+location: n8n/migrations/0017_identidade_pet_preferencia.sql (identidade_pet_atualizar_preferencia)
+source_spec: `spec-1-6-preferencias-que-nao-se-perguntam-duas-vezes.md`
+severity: low
+reason: Nenhuma AC desta story pede remoção -- os exemplos dados são sempre de alterar um valor (ex. "sem perfume"), nunca de apagar uma chave inteira. Fica para uma story futura se a necessidade aparecer na prática.
+status: open
+
+### DW-116: Nada garante convenção de valor consistente entre turnos para a mesma chave de preferência (ex. `{"perfume": false}` numa conversa vs `{"perfume": "não"}` noutra).
+origin: spec-deferred 5905b44426bb
+location: n8n/workflows/01 - Agente.json ("Agente Nouvet" systemMessage, seção <preferencias>)
+source_spec: `spec-1-6-preferencias-que-nao-se-perguntam-duas-vezes.md`
+severity: low
+reason: Tradeoff aceito deliberadamente pelo desenho "sem enum fechado" (Design Notes desta story) -- JSONB livre é o que permite qualquer categoria de preferência sem migration nova, mas isso também não impõe tipo consistente por chave. Vale nota para ajuste futuro de prompt/validação se fragmentação aparecer na prática.
+status: open
+
+### DW-117: Comparação de nome de pet em `identidade_pet_atualizar_preferencia` não normaliza acento (`lower(btrim(...))`, sem `unaccent`).
+origin: spec-deferred 3214fe1b05fa
+location: n8n/migrations/0017_identidade_pet_preferencia.sql (identidade_pet_atualizar_preferencia)
+source_spec: `spec-1-6-preferencias-que-nao-se-perguntam-duas-vezes.md`
+severity: low
+reason: Mesmo padrão já usado por `identidade_cliente_pet_buscar` (migration 0006) para `nome_pet` -- não é uma regressão introduzida por esta story, é o padrão de case-insensitivity já estabelecido no diretório.
+status: open
