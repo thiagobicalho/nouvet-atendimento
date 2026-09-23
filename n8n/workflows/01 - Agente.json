@@ -278,6 +278,31 @@
       ],
       "id": "c87a7dc0-73b2-4689-9b07-e8951096f382",
       "name": "Montar Mensagem de Falha"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Grava ou atualiza a preferência estável de um pet (plano, perfume, acessório, produto próprio, observação livre) depois que o cliente informou ou confirmou uma mudança -- nunca chame antes disso, nunca para um pet fora da lista já conhecida nesta conversa. Funde só as chaves enviadas com o que já existe, nunca apaga o resto.",
+        "operation": "executeQuery",
+        "query": "SELECT identidade_pet_atualizar_preferencia($1, $2, $3::jsonb) AS resultado",
+        "options": {
+          "queryReplacement": "={{ [$('Info').item.json.telefone_normalizado, $fromAI('pet', 'Nome do pet cuja preferência está sendo atualizada, exatamente como aparece nos pets já conhecidos nesta conversa', 'string'), JSON.stringify($fromAI('preferencia', 'Objeto JSON só com as chaves de preferência que o cliente informou ou mudou agora (ex.: {\"corte_unha\": true, \"perfume\": false, \"observacao\": \"unhas bem curtas\"}) -- nunca inclua chave que não mudou', 'json'))] }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgresTool",
+      "typeVersion": 2.6,
+      "position": [
+        6832,
+        2224
+      ],
+      "id": "7a735def-12ec-44ad-80e3-ad53cd5b2b78",
+      "name": "Atualizar Preferência do Pet",
+      "credentials": {
+        "postgres": {
+          "id": "imw9RKUxjTQ86ZrN",
+          "name": "Nouvet"
+        }
+      }
     }
   ],
   "connections": {
@@ -404,6 +429,17 @@
           {
             "node": "Montar Mensagem de Falha",
             "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Atualizar Preferência do Pet": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente Nouvet",
+            "type": "ai_tool",
             "index": 0
           }
         ]
