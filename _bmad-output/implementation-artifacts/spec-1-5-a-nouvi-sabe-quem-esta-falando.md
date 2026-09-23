@@ -2,7 +2,7 @@
 title: 'Story 1.5 — A Nouvi sabe quem está falando'
 type: 'feature'
 created: '2026-09-22'
-status: 'awaiting-operator'
+status: done
 baseline_revision: '7d79e8b41ec62b418b1dd5829e5ba3a8cf0870a8'
 review_loop_iteration: 0
 followup_review_recommended: true
@@ -272,3 +272,16 @@ _Nenhuma entrada — sem loopback `bad_spec` nesta execução._
 **Riscos residuais:**
 - Nenhum comportamento desta story foi confirmado por execução real (Postgres com a `0016`/fixture aplicados, n8n com o workflow atualizado, bancada rodando de ponta a ponta) — mesma limitação de ambiente das Stories 1.1–1.4. Itens em `operator_actions`.
 - Ver os 5 itens em `deferred` no frontmatter — nenhum bloqueia esta story: mesmo bug de `GRANT` em `identidade_cliente_pet_resolver` (usado por `04 - Registrar Atendimento CRM.json`), violação de `AD-3` mais direta em `06 - Lembretes e Escalonamento SLA.json`, pets com nomes idênticos no mesmo tutor, `identidade_status` mudando em tese no meio de uma conversa, e reaproveitamento de `origem = 'cadastro_direto'` no fixture.
+
+## Operator Confirmation
+
+Confirmed 2026-09-23: the external actions this story owed were carried out.
+
+- Aplicar a migration n8n/migrations/0016_identidade_tutor_buscar_por_telefone.sql no Postgres real via `docker compose exec -T postgres psql -v ON_ERROR_STOP=1 --username "$POSTGRES_SUPERUSER" --dbname "$POSTGRES_APP_DB" < n8n/migrations/0016_identidade_tutor_buscar_por_telefone.sql` -- docker-entrypoint-initdb.d só roda na primeira inicialização do volume, então o arquivo presente sozinho não basta (mesmo padrão da 0014, Story 1.1).
+- Aplicar o fixture bancada-teste/fixtures/identidade_bancada.sql no mesmo Postgres (`psql -h <host> -U <superusuário ou app_role> -d "${POSTGRES_APP_DB:-nouvet_app}" -f bancada-teste/fixtures/identidade_bancada.sql`) -- sem ele, os casos 2, 3 e 4 da bancada resolvem como cliente novo em vez de exercitar reconhecimento/ambiguidade de verdade.
+- Importar a versão atualizada de "n8n/workflows/01 - Agente.json" na instância n8n real (via UI ou `n8n import:workflow --input="n8n/workflows/01 - Agente.json"`) e confirmar que ela substitui a versão anterior (mesmo workflowId, `ivPwIf28PgVGX8LW`).
+- Rodar `docker compose run --rm bancada-teste` contra a instância real (com a 0016 e o fixture já aplicados, e o workflow `08 - Entrada de Teste.json` importado e ativo) e ler os 5 transcritos novos (casos 2 a 6) em bancada-teste/transcritos/ -- este build só verificou a lógica por inspeção estrutural, nunca contra um agente/Postgres reais.
+- Confirmar humanamente, lendo os transcritos, que a Nouvi reconhece pelo nome/pet nos casos 2 e 3, trata o caso 4 (telefone ambíguo, inclusive a insistência citando nome) como não autorizado sem vazar nenhum dado, e recusa/encaminha à Recepção nos casos 5 e 6 mesmo com insistência -- o julgamento passou/não passou é sempre humano, nunca calculado por este build (mesmo padrão da Story 1.4).
+- Decidir com o Thiago se/quando registrar como deferred formal (deferred-work.md) os dois achados incidentais desta story fora do seu escopo: identidade_cliente_pet_resolver (migration 0006) tem o mesmo bug de GRANT ausente para app_role usado por "04 - Registrar Atendimento CRM.json", e "06 - Lembretes e Escalonamento SLA.json" faz SELECT cru em identidade_cliente_pet sem passar por porta única nenhuma (violação de AD-3 mais direta que a corrigida aqui).
+
+_Appended by the bmad-loop orchestrator (`bmad-loop confirm`, #335): a human confirmed these external actions out of band, and the story was advanced from `awaiting-operator` to `done`._
