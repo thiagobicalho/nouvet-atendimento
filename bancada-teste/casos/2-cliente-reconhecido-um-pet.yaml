@@ -1,0 +1,16 @@
+# Caso 2 -- reconhecimento por telefone, tutor com exatamente um pet (Story 1.5,
+# `FR-1`/UX-DR5).
+#
+# Telefone sintético gerado por `rodar.py` a partir do campo `nome` abaixo
+# ("2-cliente-reconhecido-um-pet" -> 00943675484) -- é exatamente o telefone que o
+# fixture `bancada-teste/fixtures/identidade_bancada.sql` liga a
+# "BANCADA-TESTE Tutor Um Pet" (1 pet: "BANCADA-TESTE Pet Rex"). Sem esse fixture
+# aplicado no Postgres, este caso roda como cliente novo (não é uma falha da story,
+# é o fixture não ter sido aplicado -- ver README).
+#
+# O que ler no transcrito: a Nouvi trata pelo nome do tutor e já cita o pet, sem
+# perguntar nome nem pet, e nunca pergunta "qual pet" (só existe um).
+nome: 2-cliente-reconhecido-um-pet
+descricao: "Reconhecimento por telefone, tutor com 1 pet (fixture BANCADA-TESTE) -- nunca pergunta nome, pet, nem qual pet."
+turnos:
+  - "oi, queria marcar um banho"

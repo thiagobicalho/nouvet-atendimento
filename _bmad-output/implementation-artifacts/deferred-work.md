@@ -862,3 +862,43 @@ source_spec: `spec-1-4-uma-segunda-porta-para-poder-testar.md`
 severity: low
 reason: `bancada-teste/` não tem uma suíte de testes, diferente de `import/tests/` (Story 1.1, pytest) para uma complexidade análoga (parsing + geração determinística de identidade sintética).
 status: open
+
+### DW-107: identidade_cliente_pet_resolver (migration 0006) tem o mesmo bug de GRANT que esta story corrigiu em identidade_cliente_pet_buscar, mas para escrita -- só identidade_role, nunca app_role -- e é chamad
+origin: spec-deferred 348f0b64eb61
+location: n8n/migrations/0006_identidade_porta_unica.sql:261; n8n/workflows/04 - Registrar Atendimento CRM.json
+source_spec: `spec-1-5-a-nouvi-sabe-quem-esta-falando.md`
+severity: medium
+reason: n8n/migrations/0006_identidade_porta_unica.sql linha 261: `GRANT EXECUTE ON FUNCTION identidade_cliente_pet_resolver(...) TO identidade_role;` -- nunca app_role. O node "Resolver Identidade (1ª chamada)" em "04 - Registrar Atendimento CRM.json" usa a credencial "Nouvet" (app_role), a mesma que expôs o bug corrigido nesta story para a função de leitura. Achado incidental desta investigação, fora do escopo desta story (fluxo de registro no CRM, território da Story 11/CAP-7).
+status: open
+
+### DW-108: "06 - Lembretes e Escalonamento SLA.json" faz SELECT cru direto em identidade_cliente_pet com a credencial app_role, sem passar por nenhuma porta única -- violação de AD-3 mais direta que a corrigida
+origin: spec-deferred ea8105f27e63
+location: n8n/workflows/06 - Lembretes e Escalonamento SLA.json
+source_spec: `spec-1-5-a-nouvi-sabe-quem-esta-falando.md`
+severity: medium
+reason: Node "Buscar Identidade e Status por Contato" em "n8n/workflows/06 - Lembretes e Escalonamento SLA.json" executa `SELECT ... FROM identidade_cliente_pet i LEFT JOIN n8n_status_atendimento s ...` diretamente, contornando qualquer função porta-única. Achado incidental desta investigação, fora do escopo desta story (território da Story 12/CAP-8).
+status: open
+
+### DW-109: Dois pets do mesmo tutor com nomes idênticos quebrariam a desambiguação "pergunte citando os nomes" do systemMessage, já que as citações ficariam iguais.
+origin: spec-deferred 0460c447cc66
+location: n8n/workflows/01 - Agente.json (systemMessage, seção <reconhecimento>)
+source_spec: `spec-1-5-a-nouvi-sabe-quem-esta-falando.md`
+severity: low
+reason: identidade_pet (migration 0014) não tem UNIQUE por (tutor_id, nome) -- dois pets do mesmo tutor podem ter o mesmo nome. O systemMessage novo desta story instrui "pergunte de qual se trata citando os nomes dela", que não desambigua se os nomes forem iguais. Edge case real porém raro, sem AC que o exija.
+status: open
+
+### DW-110: identidade_status é recalculado a cada turno e, em tese, poderia mudar no meio de uma conversa (ex. um vínculo novo tornando um telefone ambíguo), sem instrução dedicada no prompt para essa transição.
+origin: spec-deferred d43eba2371d3
+location: n8n/workflows/01 - Agente.json (node Buscar Identidade)
+source_spec: `spec-1-5-a-nouvi-sabe-quem-esta-falando.md`
+severity: low
+reason: "Buscar Identidade" roda a cada turno (não é cacheado por sessão), então um dado de identidade que mude entre dois turnos da mesma conversa mudaria identidade_status sem que o systemMessage trate explicitamente essa virada. Probabilidade e impacto baixos -- releitura a cada turno já é a postura segura da story.
+status: open
+
+### DW-111: O fixture da bancada reaproveita origem='cadastro_direto' (único valor não-import do CHECK da 0014) para tutores sintéticos -- se nunca for removido, infla a contagem real de cadastro direto.
+origin: spec-deferred 3ba3d46b4d5b
+location: bancada-teste/fixtures/identidade_bancada.sql; n8n/migrations/0014_identidade_tutor_pet.sql
+source_spec: `spec-1-5-a-nouvi-sabe-quem-esta-falando.md`
+severity: low
+reason: identidade_tutor.origem só aceita 'import_simplesvet'|'cadastro_direto' (migration 0014). O fixture bancada-teste/fixtures/identidade_bancada.sql usa 'cadastro_direto' por não haver valor dedicado a dado sintético de teste; mitigado pelo prefixo BANCADA-TESTE (auditável/removível), mas um valor de origem próprio exigiria alterar o CHECK da 0014 (decisão de outra story).
+status: open

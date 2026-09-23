@@ -40,7 +40,7 @@ development_status:
   1-2-a-mensagem-chega-e-não-se-perde: done
   1-3-a-nouvi-responde: done
   1-4-uma-segunda-porta-para-poder-testar: done
-  1-5-a-nouvi-sabe-quem-está-falando: backlog
+  1-5-a-nouvi-sabe-quem-está-falando: awaiting-operator
   1-6-preferências-que-não-se-perguntam-duas-vezes: backlog
   1-7-a-nouvi-cadastra-quem-ainda-não-é-cliente: backlog
   1-8-a-nouvi-entende-o-que-o-cliente-quer: backlog

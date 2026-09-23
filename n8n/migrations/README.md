@@ -124,3 +124,23 @@ Mensagem de Falha` (leaf que devolve `output` com mensagem honesta, mesmo contra
 `$json.output` que `07 - Ingresso e Fila.json` já consome no caminho de sucesso).
 `GRANT` só a `app_role` (papel da credencial "Nouvet" usada por `01 - Agente.json`) --
 nunca `identidade_role`.
+
+A `0016` entrega a porta única de leitura de identidade por telefone (Story 1.5,
+`AD-32`/`AD-3`/`AD-8`): `identidade_tutor_buscar_por_telefone(p_telefone)`, sobre
+`identidade_tutor`/`identidade_telefone`/`identidade_pet` (`0014`) -- nunca sobre
+`identidade_cliente_pet` (tabela do Piloto, fora de escopo). Devolve `{"status":
+"novo"|"reconhecido"|"nao_autorizado", "tutor": {...}|null, "pets": [...]|null}`,
+contando `tutor_id` distintos ligados ao telefone normalizado: 0 tutores é `"novo"`, 1 é
+`"reconhecido"` (com nome do tutor e pets dele), mais de 1 é `"nao_autorizado"` (`tutor`/
+`pets` sempre `null` fora de `"reconhecido"` -- nenhum dado de nenhum dos tutores
+ambíguos é exposto). Primeira `SECURITY DEFINER` do diretório -- dona `identidade_role`
+(`ALTER FUNCTION ... OWNER TO`), `SET search_path` fixo (`public, pg_catalog`, hardening
+contra sequestro de função/tipo via schema malicioso), `REVOKE ... FROM PUBLIC` e
+`GRANT EXECUTE` só a `app_role` (nunca `GRANT` direto de `app_role` nas tabelas
+`identidade_*`, `AD-3`). Achado registrado por esta migration: `identidade_cliente_pet_buscar`
+(`0006`) -- que `n8n/workflows/01 - Agente.json` (`Buscar Identidade`) já chamava com a
+credencial "Nouvet"/`app_role` -- nunca teve `GRANT EXECUTE` para `app_role` (só para
+`identidade_role`), então esse `SELECT` sempre falhou por permissão contra um Postgres
+real; o `onError: continueErrorOutput` da `0015` escondeu a falha ao cair no caminho de
+falha honesta em vez de travar. Esta migration substitui a função chamada pelo node --
+não conserta a antiga, que fica órfã por coexistência com o Piloto.

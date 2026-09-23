@@ -7,10 +7,16 @@
 # por rodar.py a partir do campo `nome` abaixo).
 #
 # Por que este caso não vai "passar" ainda: o texto canônico pressupõe reconhecimento
-# por telefone (Story 1.5) e agendamento real com preço (Epic 2) -- nenhum dos dois
-# existe nesta story; ver "Design Notes" no spec desta story. O transcrito gerado aqui
-# diverge do texto, e isso é esperado -- o julgamento passou/não passou é sempre
-# humano, nunca calculado por este arquivo nem por rodar.py.
+# por telefone (entregue pela Story 1.5) e agendamento real com preço (Epic 2, ainda
+# não entregue). O reconhecimento em si já existe -- mas o telefone sintético deste
+# caso (gerado por rodar.py a partir do `nome:` abaixo) não tem entrada no fixture
+# `bancada-teste/fixtures/identidade_bancada.sql`, então ele resolve para
+# `identidade_status=novo` (cliente novo), não para "reconhecido" -- é a mesma
+# consequência esperada de "telefone fora da base", documentada no systemMessage do
+# agente, não uma lacuna da story. O transcrito gerado aqui diverge do texto canônico
+# por esse motivo (mais o agendamento real, que segue de fora do escopo), e isso é
+# esperado -- o julgamento passou/não passou é sempre humano, nunca calculado por este
+# arquivo nem por rodar.py.
 nome: 1-banho-conhecido
 descricao: "Conversa canônica de banho, cliente conhecido (design de conversa Onda 1, seção 2) -- 6 turnos, 4 falas do cliente, mesma sessão isolada."
 turnos:

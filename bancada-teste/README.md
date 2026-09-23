@@ -5,6 +5,51 @@ turno a turno contra a segunda porta do agente (`n8n/workflows/08 - Entrada de
 Teste.json`) e grava um transcrito por caso, para leitura humana -- sem gastar
 mensagem real nem tocar cliente real (`NFR-10`).
 
+## Fixture de identidade (`fixtures/identidade_bancada.sql`)
+
+Alguns casos (reconhecimento por telefone, telefone ambíguo -- Story 1.5, `AD-32`)
+precisam de tutores/pets reais na base para exercitar `identidade_tutor_buscar_por_telefone`
+(`n8n/migrations/0016`). Sem um ambiente de teste isolado ainda (`AD-30` é do Épico 4),
+`fixtures/identidade_bancada.sql` insere 3 tutores sintéticos direto nas mesmas tabelas
+de produção (`identidade_tutor`/`identidade_telefone`/`identidade_pet`, Story 1.1) --
+nunca um cliente real: nome sempre prefixado `BANCADA-TESTE` (auditável e removível a
+qualquer momento por esse prefixo) e telefone sempre DDD `00` (mesma convenção
+sintética de `rodar.py` abaixo).
+
+Aplicação manual via `psql`, nunca automática (mesmo padrão de `n8n/seed`):
+
+```bash
+psql -h <host> -U <superusuário ou app_role> -d "${POSTGRES_APP_DB:-nouvet_app}" \
+  -f bancada-teste/fixtures/identidade_bancada.sql
+```
+
+Idempotente (`WHERE NOT EXISTS`, nunca `ON CONFLICT` cru) -- reaplicar não duplica
+nada. Os telefones usados no fixture são exatamente os que `rodar.py`
+(`gerar_identidade_sintetica`) calcula a partir do `nome:` dos casos
+`2-cliente-reconhecido-um-pet.yaml`, `3-cliente-reconhecido-varios-pets.yaml` e
+`4-numero-ambiguo.yaml` -- ver comentário no próprio `.sql` para o detalhe de qual
+telefone vai para qual tutor. Os casos `5-pedido-terceiro-e-insistencia.yaml` e
+`6-pedido-vinculo-telefone-e-insistencia.yaml` usam telefone sintético não cadastrado
+(sem depender deste fixture).
+
+Essa correspondência (telefone hardcoded no `.sql` == telefone calculado por
+`gerar_identidade_sintetica` para o `nome:` do caso) não é garantida automaticamente
+por nada além de leitura humana -- rode `fixtures/verificar_correspondencia.py`
+sempre que editar o fixture, o `rodar.py` ou o `nome:` de qualquer um dos 3 casos
+acima, para confirmar que a correspondência não quebrou silenciosamente (uma
+divergência faria os casos 2-4 caírem de volta em `identidade_status=novo`, sem
+nenhum aviso):
+
+```bash
+python3 bancada-teste/fixtures/verificar_correspondencia.py
+```
+
+Para remover o fixture depois de usado, basta apagar (via `psql`) as linhas cujo nome
+começa com `BANCADA-TESTE` em `identidade_tutor`/`identidade_pet` (as linhas de
+`identidade_telefone` seguem a exclusão pela FK `tutor_id`, sem `ON DELETE CASCADE` --
+apague explicitamente antes do tutor, na ordem: `identidade_telefone`, depois
+`identidade_pet`, depois `identidade_tutor`).
+
 Programa executável fora do n8n, sob demanda -- nunca uma rotina periódica/agendada,
 mesmo padrão do `import/` (Story 1.1). `rodar.py` é stdlib puro (sem framework, sem
 dependência externa): lê `casos/*.yaml`, dispara cada turno via HTTP contra a entrada
