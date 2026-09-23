@@ -902,3 +902,17 @@ source_spec: `spec-1-5-a-nouvi-sabe-quem-esta-falando.md`
 severity: low
 reason: identidade_tutor.origem só aceita 'import_simplesvet'|'cadastro_direto' (migration 0014). O fixture bancada-teste/fixtures/identidade_bancada.sql usa 'cadastro_direto' por não haver valor dedicado a dado sintético de teste; mitigado pelo prefixo BANCADA-TESTE (auditável/removível), mas um valor de origem próprio exigiria alterar o CHECK da 0014 (decisão de outra story).
 status: open
+
+### DW-112: identidade_cliente_pet_resolver (migration 0006) não tem GRANT EXECUTE para app_role, mesmo bug de privilégio que esta story corrigiu em identidade_tutor_buscar_por_telefone (migration 0016).
+origin: achado incidental da story 1-5-a-nouvi-sabe-quem-esta-falando, ao corrigir o mesmo tipo de bug em outra função, 2026-09-23
+location: n8n/migrations/0006_identidade_porta_unica.sql (GRANT da função); n8n/workflows/04 - Registrar Atendimento CRM.json (nós "Resolver Identidade (1ª chamada)" e "Persistir rd_crm_contact_id")
+severity: medium
+reason: confirmado sem risco ativo hoje -- nenhum workflow do pipeline novo (01/07/08) chama "04 - Registrar Atendimento CRM.json"; a chamada só voltaria a existir quando o Épico 2 reconstruir o registro no CRM (FR-14). Corrigir agora seria tocar código fora do escopo de qualquer story corrente. Resolver junto da story de registro no CRM do Épico 2: aplicar GRANT EXECUTE ON FUNCTION identidade_cliente_pet_resolver(...) TO app_role (mesmo padrão da 0016), ou decidir ali mesmo se identidade_cliente_pet ainda existirá nessa altura (ver descomissionamento em aberto desde a Story 1.1).
+status: open
+
+### DW-113: "06 - Lembretes e Escalonamento SLA.json" faz SELECT cru em identidade_cliente_pet (sem passar por nenhuma porta única) usando a credencial app_role, que não tem grant nenhum nessa tabela -- falharia com "permission denied" se algum dia recebesse um item para processar.
+origin: achado incidental da story 1-5-a-nouvi-sabe-quem-esta-falando, ao corrigir o mesmo tipo de bug em outra função, 2026-09-23
+location: n8n/workflows/06 - Lembretes e Escalonamento SLA.json (nó "Buscar Identidade e Status por Contato")
+severity: medium
+reason: confirmado sem impacto ativo hoje -- o workflow está active:true e dispara a cada minuto (execuções 522914-522926 conferidas em 23/09), mas o nó com o bug recebe zero itens de entrada em todas as execuções recentes, porque ainda não existe nenhum lembrete/escalonamento real no sistema (isso é do Épico 3, FR-21+, não construído). Violação de AD-3 mais direta que a da DW-112 -- é SELECT direto na tabela de PII, nunca uma chamada de função. O conserto certo não é só GRANT: é reescrever para chamar identidade_cliente_pet_buscar (ou, a essa altura, identidade_tutor_buscar_por_telefone) em vez de SELECT cru -- trabalho da story de lembretes do Épico 3, não patch isolado.
+status: open
